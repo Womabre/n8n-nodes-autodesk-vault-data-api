@@ -114,7 +114,7 @@ export class AutodeskVaultDataOAuth2Api implements ICredentialType {
 		accessTokenUrl: 'https://developer.api.autodesk.com/authentication/v2/token',
 		authType: 'BODY',
 		tokenType: 'Bearer',
-		grantType: '={{$credentials.authType}}',
+		grantType: 'authorizationCode',
 	};
 
 	test: ICredentialTestRequest = {
