@@ -1,6 +1,7 @@
 {
 	"name": "n8n-nodes-autodesk-vault-data-api",
 	"version": "1.0.0",
+	"publisher": "Womabre",
 	"description": "n8n community node for interacting with the Autodesk Vault Data API",
 	"keywords": [
 		"n8n-community-node-package",

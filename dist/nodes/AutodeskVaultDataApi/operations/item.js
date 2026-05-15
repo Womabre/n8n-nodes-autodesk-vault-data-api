@@ -168,7 +168,7 @@ exports.operations = [
                             'option[propDefIds]': '={{$parameter["propDefIds"]}}',
                             'option[releasedItemsOnly]': '={{$parameter["releasedItemsOnly"]}}',
                             'option[latestOnly]': '={{$parameter["latestOnly"]}}',
-                            sort: '={{$parameter["sort"] || "ItemNumber"}}',
+                            sort: '={{$parameter["sort"] || undefined}}',
                             limit: '={{$parameter["limit"] || undefined}}',
                             cursorState: '={{$parameter["cursorState"] || undefined}}',
                         },

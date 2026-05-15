@@ -115,7 +115,7 @@ class AutodeskVaultDataOAuth2Api {
             accessTokenUrl: 'https://developer.api.autodesk.com/authentication/v2/token',
             authType: 'BODY',
             tokenType: 'Bearer',
-            grantType: '={{$credentials.authType}}',
+            grantType: 'authorizationCode',
         };
         this.test = {
             request: {

@@ -105,7 +105,6 @@ exports.operations = [
                     output: {
                         postReceive: [
                             async function retryUntilReady(items, response) {
-                                var _a;
                                 const maxRetries = 10;
                                 const baseDelayMs = 2000;
                                 let attempt = 0;
@@ -118,7 +117,10 @@ exports.operations = [
                                     const creds = await this.getCredentials('autodeskVaultDataOAuth2Api');
                                     vaultServerUrl = creds.vaultServerUrl;
                                     const tokenData = creds.oauthTokenData;
-                                    accessToken = (_a = tokenData === null || tokenData === void 0 ? void 0 : tokenData.access_token) !== null && _a !== void 0 ? _a : '';
+                                    if (!(tokenData === null || tokenData === void 0 ? void 0 : tokenData.access_token)) {
+                                        throw new Error('OAuth2 access token is missing or expired. Please re-authenticate.');
+                                    }
+                                    accessToken = tokenData.access_token;
                                 }
                                 else {
                                     const creds = await this.getCredentials('autodeskVaultAccountApi');
@@ -135,7 +137,7 @@ exports.operations = [
                                     qs.wmSrcItemVerId = String(wmSrcItemVerId);
                                 if (wmSrcFileVerId)
                                     qs.wmSrcFileVerId = String(wmSrcFileVerId);
-                                while (attempt <= maxRetries) {
+                                while (attempt < maxRetries) {
                                     if (attempt > 0) {
                                         const delayMs = Math.min(baseDelayMs * Math.pow(2, attempt - 1), 30000);
                                         await new Promise((resolve) => setTimeout(resolve, delayMs));
