@@ -127,7 +127,10 @@ export const operations: INodeProperties[] = [
 									const creds = await this.getCredentials('autodeskVaultDataOAuth2Api');
 									vaultServerUrl = creds.vaultServerUrl as string;
 									const tokenData = creds.oauthTokenData as { access_token?: string } | undefined;
-									accessToken = tokenData?.access_token ?? '';
+									if (!tokenData?.access_token) {
+										throw new Error('OAuth2 access token is missing or expired. Please re-authenticate.');
+									}
+									accessToken = tokenData.access_token;
 								} else {
 									const creds = await this.getCredentials('autodeskVaultAccountApi');
 									vaultServerUrl = creds.vaultServerUrl as string;
@@ -144,7 +147,7 @@ export const operations: INodeProperties[] = [
 								if (wmSrcItemVerId) qs.wmSrcItemVerId = String(wmSrcItemVerId);
 								if (wmSrcFileVerId) qs.wmSrcFileVerId = String(wmSrcFileVerId);
 
-								while (attempt <= maxRetries) {
+								while (attempt < maxRetries) {
 									if (attempt > 0) {
 										// Exponential backoff: 2s, 4s, 8s, 16s, capped at 30s
 										const delayMs = Math.min(baseDelayMs * Math.pow(2, attempt - 1), 30000);
