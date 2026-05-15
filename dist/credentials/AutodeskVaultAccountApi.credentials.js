@@ -87,7 +87,7 @@ class AutodeskVaultAccountApi {
             json: true,
         });
         if (!loginResponse.accessToken) {
-            throw new Error('Login failed: no accessToken returned.');
+            throw new Error(`Login failed: no accessToken returned. Response: ${JSON.stringify(loginResponse)}`);
         }
         return {
             accessToken: loginResponse.accessToken,

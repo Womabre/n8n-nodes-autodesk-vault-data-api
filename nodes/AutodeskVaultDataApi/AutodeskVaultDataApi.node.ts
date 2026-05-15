@@ -39,7 +39,7 @@ export class AutodeskVaultDataApi implements INodeType {
 		credentials: [
 			{
 				name: 'autodeskVaultDataOAuth2Api',
-				required: false,
+				required: true,
 				displayOptions: {
 					show: {
 						authentication: ['OAuth2'],
@@ -48,13 +48,13 @@ export class AutodeskVaultDataApi implements INodeType {
 			},
 			{
 				name: 'autodeskVaultAccountApi',
-				required: false,
+				required: true,
 				displayOptions: {
 					show: {
 						authentication: ['VaultLogin'],
 					},
 				},
-			}
+			},
 		],
 		requestDefaults: {
 			baseURL: '={{$credentials.vaultServerUrl}}',

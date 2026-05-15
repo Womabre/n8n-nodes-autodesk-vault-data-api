@@ -33,7 +33,7 @@ exports.operations = [
                             'option[latestOnly]': '={{$parameter["latestOnly"] || undefined}}',
                             'option[extendedModels]': '={{$parameter["extendedModels"] || undefined}}',
                             'option[propDefIds]': '={{$parameter["propDefIds"] || undefined}}',
-                            sort: '={{$parameter["sort"]}}',
+                            sort: '={{$parameter["sort"] || undefined}}',
                             limit: '={{$parameter["limit"] || undefined}}',
                             cursorState: '={{$parameter["cursorState"] || undefined}}',
                         },
@@ -50,10 +50,7 @@ exports.operations = [
                 description: 'Advanced search with filters, folder scoping and custom criteria',
                 routing: {
                     send: {
-                        preSend: [
-                            formatFolderUrls,
-                            formatPropertyDefinitionUrls
-                        ],
+                        preSend: [formatFolderUrls, formatPropertyDefinitionUrls],
                     },
                     request: {
                         method: 'POST',
@@ -90,7 +87,7 @@ async function formatFolderUrls(requestOptions) {
     const body = requestOptions.body;
     if (Array.isArray(folderIds)) {
         const basePath = `/AutodeskDM/Services/api/vault/v2/vaults/${vaultId}/folders/`;
-        body.foldersToSearch = folderIds.map(id => `${basePath}${id}`);
+        body.foldersToSearch = folderIds.map((id) => `${basePath}${id}`);
     }
     return requestOptions;
 }

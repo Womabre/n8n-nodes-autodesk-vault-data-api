@@ -149,9 +149,10 @@ exports.operations = [
                                         });
                                     }
                                     try {
-                                        json = typeof response.body === 'string'
-                                            ? JSON.parse(response.body)
-                                            : response.body;
+                                        json =
+                                            typeof response.body === 'string'
+                                                ? JSON.parse(response.body)
+                                                : response.body;
                                         if (json && containsRenderableGeometry(json)) {
                                             break;
                                         }
@@ -222,9 +223,9 @@ exports.operations = [
                             'option[extendedModels]': '={{$parameter["extendedModels"]}}',
                             'option[propDefIds]': '={{$parameter["propDefIds"]}}',
                             'option[revision]': '={{$parameter["revision"] || undefined}}',
-                            'descending': '={{$parameter["descending"]}}',
-                            'limit': '={{$parameter["limit"] || undefined}}',
-                            'cursorState': '={{$parameter["cursorState"]}}',
+                            descending: '={{$parameter["descending"]}}',
+                            limit: '={{$parameter["limit"] || undefined}}',
+                            cursorState: '={{$parameter["cursorState"] || undefined}}',
                         },
                         headers: {
                             Authorization: '=Bearer {{$credentials.accessToken}}',
@@ -359,9 +360,9 @@ exports.operations = [
                             'option[releasedFilesOnly]': '={{$parameter["releasedFilesOnly"]}}',
                             'option[extendedModels]': '={{$parameter["extendedModels"]}}',
                             'option[propDefIds]': '={{$parameter["propDefIds"] || undefined}}',
-                            'sort': '={{$parameter["sort"] || undefined}}',
-                            'limit': '={{$parameter["limit"] || undefined}}',
-                            'cursorState': '={{$parameter["cursorState"]}}',
+                            sort: '={{$parameter["sort"] || undefined}}',
+                            limit: '={{$parameter["limit"] || undefined}}',
+                            cursorState: '={{$parameter["cursorState"] || undefined}}',
                         },
                         headers: {
                             Authorization: '=Bearer {{$credentials.accessToken}}',

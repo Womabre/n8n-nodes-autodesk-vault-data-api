@@ -50,7 +50,6 @@ exports.parameters = [
                     'changeOrders',
                     'files',
                     'folders',
-                    'informational',
                     'items',
                     'jobs',
                     'links',
@@ -123,7 +122,7 @@ exports.parameters = [
         description: 'The ID of the session. Use @current for current session.',
         displayOptions: {
             show: {
-                resource: ['auth'],
+                resource: ['session'],
                 operation: ['getSessionById', 'deleteSession'],
             },
         },
@@ -173,8 +172,8 @@ exports.parameters = [
         hint: 'You can find the group ID in the response of "Get All Groups" operation',
         displayOptions: {
             show: {
-                resource: ['accounts',],
-                operation: ['getGroupById', 'getAccountByAuthType',]
+                resource: ['group'],
+                operation: ['getGroupById', 'getAccountByAuthType'],
             },
         },
         default: '',
@@ -193,7 +192,7 @@ exports.parameters = [
         description: 'The type of account to retrieve',
         displayOptions: {
             show: {
-                resource: ['accounts'],
+                resource: ['group', 'user'],
                 operation: ['getAccountByAuthType', 'getUserAccountByAuthType'],
             },
         },
@@ -211,7 +210,7 @@ exports.parameters = [
         default: 'All',
         displayOptions: {
             show: {
-                resource: ['accounts'],
+                resource: ['profile'],
                 operation: ['getProfileAttributeDefinitions'],
             },
         },
@@ -225,7 +224,7 @@ exports.parameters = [
         description: 'The unique identifier of a profile attribute definition',
         displayOptions: {
             show: {
-                resource: ['accounts'],
+                resource: ['profile'],
                 operation: ['getProfileAttributeDefinitionById'],
             },
         },
@@ -240,7 +239,7 @@ exports.parameters = [
         description: 'The unique identifier of a role',
         displayOptions: {
             show: {
-                resource: ['accounts'],
+                resource: ['role'],
                 operation: ['getRoleById'],
             },
         },
@@ -256,7 +255,7 @@ exports.parameters = [
         description: 'The unique identifier of a user',
         displayOptions: {
             show: {
-                resource: ['accounts'],
+                resource: ['user'],
                 operation: ['getUserById', 'getUserAccounts', 'getUserAccountByAuthType'],
             },
         },
@@ -342,7 +341,7 @@ exports.parameters = [
         description: 'Filter options that start with this string',
         displayOptions: {
             show: {
-                resource: ['vaultOptions'],
+                resource: ['options'],
                 operation: ['getVaultOptions'],
             },
         },
@@ -515,28 +514,13 @@ exports.parameters = [
         displayName: 'Sort Criteria',
         name: 'sort',
         type: 'string',
-        default: 'Name asc',
-        required: true,
-        description: 'Specifies sorting criteria for search results. Format: {propertyDefSysName} {sort-order} Accepted values for sort-order: asc, desc. Ex: sort = Revision desc,Name asc',
-        placeholder: 'e.g. Revision desc,Name asc',
-        displayOptions: {
-            show: {
-                resource: ['items'],
-                operation: ['getItemVersions'],
-            },
-        },
-    },
-    {
-        displayName: 'Sort Criteria',
-        name: 'sort',
-        type: 'string',
         default: '',
         description: 'Specifies sorting criteria for search results. Format: {propertyDefSysName} {sort-order} Accepted values for sort-order: asc, desc. Ex: sort = Revision desc,Name asc',
         placeholder: 'e.g. Revision desc,Name asc',
         displayOptions: {
             show: {
-                resource: ['changeOrders', 'files', 'folders', 'search'],
-                operation: ['getChangeOrders', 'getFileVersions', 'getFolderContents', 'search'],
+                resource: ['changeOrders', 'files', 'folders', 'items', 'search'],
+                operation: ['getChangeOrders', 'getFileVersions', 'getFolderContents', 'getItemVersions', 'search'],
             },
         },
     },
@@ -688,7 +672,7 @@ exports.parameters = [
                 displayName: 'Criteria',
                 values: [
                     {
-                        displayName: 'Property Definition Namer or ID',
+                        displayName: 'Property Definition Name or ID',
                         name: 'propertyDefinitionUrl',
                         type: 'options',
                         typeOptions: {
@@ -899,7 +883,7 @@ exports.parameters = [
         description: 'Search filter to include only change orders that assignees user list can perform. ex: filter[assignees]=1,2,3,4.',
         displayOptions: {
             show: {
-                resource: ['changeOrder'],
+                resource: ['changeOrders'],
                 operation: ['getChangeOrders'],
             },
         },
@@ -912,7 +896,7 @@ exports.parameters = [
         description: 'Whether to include only open change orders',
         displayOptions: {
             show: {
-                resource: ['changeOrder'],
+                resource: ['changeOrders'],
                 operation: ['getChangeOrders'],
             },
         },
@@ -926,7 +910,7 @@ exports.parameters = [
         description: 'Search filter to include only change orders that match state property. e.g. \'open\'.',
         displayOptions: {
             show: {
-                resource: ['changeOrder'],
+                resource: ['changeOrders'],
                 operation: ['getChangeOrders'],
             },
         },
@@ -968,11 +952,11 @@ exports.parameters = [
             { name: 'Revision Tip', value: 'RevisionTip' },
         ],
         default: 'All',
-        description: 'Options for viewing file history',
+        description: 'Options for viewing item history',
         displayOptions: {
             show: {
                 resource: ['items'],
-                operation: ['getItemVersionBom', 'getItemVersionWhereUsed'],
+                operation: ['getItemHistory'],
             },
         },
     },
@@ -1377,76 +1361,19 @@ exports.parameters = [
         name: 'releasedOnly',
         type: 'boolean',
         default: false,
-        description: 'Whether to include only associated files that are in a consumable (released) state',
+        description: 'Whether to include only results in a consumable (released) state',
         displayOptions: {
             show: {
-                resource: ['changeOrders'],
-                operation: ['getChangeOrderRelatedFiles'],
-            },
-        },
-    },
-    {
-        displayName: 'Released Only',
-        name: 'releasedOnly',
-        type: 'boolean',
-        default: false,
-        description: 'Whether to include only attachments that are in a consumable (released) state',
-        displayOptions: {
-            show: {
-                resource: ['changeOrders'],
-                operation: ['getChangeOrderCommentAttachments'],
-            },
-        },
-    },
-    {
-        displayName: 'Released Only',
-        name: 'releasedOnly',
-        type: 'boolean',
-        default: false,
-        description: 'Whether to include only items that are in a consumable (released) state',
-        displayOptions: {
-            show: {
-                resource: ['files'],
-                operation: ['getFileVersionAssociatedItemVersions'],
-            },
-        },
-    },
-    {
-        displayName: 'Released Only',
-        name: 'releasedOnly',
-        type: 'boolean',
-        default: false,
-        description: 'Whether to include only files that are in a consumable (released) state',
-        displayOptions: {
-            show: {
-                resource: ['files'],
-                operation: ['getFileVersionUses', 'getFileVersionWhereUsed'],
-            },
-        },
-    },
-    {
-        displayName: 'Released Only',
-        name: 'releasedOnly',
-        type: 'boolean',
-        default: false,
-        description: 'Whether to return the latest consumable (released) version',
-        displayOptions: {
-            show: {
-                resource: ['files'],
-                operation: ['getFileById'],
-            },
-        },
-    },
-    {
-        displayName: 'Released Only',
-        name: 'releasedOnly',
-        type: 'boolean',
-        default: false,
-        description: 'Whether to return the latest consumable (released) item revision',
-        displayOptions: {
-            show: {
-                resource: ['items'],
-                operation: ['getItemById'],
+                resource: ['changeOrders', 'files', 'items'],
+                operation: [
+                    'getChangeOrderRelatedFiles',
+                    'getChangeOrderCommentAttachments',
+                    'getFileVersionAssociatedItemVersions',
+                    'getFileVersionUses',
+                    'getFileVersionWhereUsed',
+                    'getFileById',
+                    'getItemById',
+                ],
             },
         },
     },
@@ -1638,11 +1565,9 @@ exports.parameters = [
         displayOptions: {
             show: {
                 resource: [
-                    'accounts',
                     'changeOrders',
                     'files',
                     'folders',
-                    'informational',
                     'items',
                     'links',
                     'options',
@@ -1666,7 +1591,6 @@ exports.parameters = [
                     'getFileVersionVisualizationAttachments',
                     'getFileVersionWhereUsed',
                     'getFolderContents',
-                    'getFolderSubFolders',
                     'getFolderSubFolders',
                     'getGroups',
                     'getItemAssociatedChangeOrders',
@@ -1695,11 +1619,9 @@ exports.parameters = [
         displayOptions: {
             show: {
                 resource: [
-                    'accounts',
                     'changeOrders',
                     'files',
                     'folders',
-                    'informational',
                     'items',
                     'links',
                     'options',
@@ -1723,7 +1645,6 @@ exports.parameters = [
                     'getFileVersionVisualizationAttachments',
                     'getFileVersionWhereUsed',
                     'getFolderContents',
-                    'getFolderSubFolders',
                     'getFolderSubFolders',
                     'getGroups',
                     'getItemAssociatedChangeOrders',

@@ -69,7 +69,7 @@ class AutodeskVaultDataApi {
             credentials: [
                 {
                     name: 'autodeskVaultDataOAuth2Api',
-                    required: false,
+                    required: true,
                     displayOptions: {
                         show: {
                             authentication: ['OAuth2'],
@@ -78,13 +78,13 @@ class AutodeskVaultDataApi {
                 },
                 {
                     name: 'autodeskVaultAccountApi',
-                    required: false,
+                    required: true,
                     displayOptions: {
                         show: {
                             authentication: ['VaultLogin'],
                         },
                     },
-                }
+                },
             ],
             requestDefaults: {
                 baseURL: '={{$credentials.vaultServerUrl}}',

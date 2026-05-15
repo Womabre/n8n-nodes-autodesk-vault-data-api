@@ -49,7 +49,6 @@ export const parameters: INodeProperties[] = [
 					'changeOrders',
 					'files',
 					'folders',
-					'informational',
 					'items',
 					'jobs',
 					'links',
@@ -122,7 +121,7 @@ export const parameters: INodeProperties[] = [
 		description: 'The ID of the session. Use @current for current session.',
 		displayOptions: {
 			show: {
-				resource: ['auth'],
+				resource: ['session'],
 				operation: ['getSessionById', 'deleteSession'],
 			},
 		},
@@ -172,8 +171,8 @@ export const parameters: INodeProperties[] = [
 		hint: 'You can find the group ID in the response of "Get All Groups" operation',
 		displayOptions: {
 			show: {
-				resource: ['accounts',],
-				operation: ['getGroupById', 'getAccountByAuthType',]
+				resource: ['group'],
+				operation: ['getGroupById', 'getAccountByAuthType'],
 			},
 		},
 		default: '',
@@ -192,7 +191,7 @@ export const parameters: INodeProperties[] = [
 		description: 'The type of account to retrieve',
 		displayOptions: {
 			show: {
-				resource: ['accounts'],
+				resource: ['group', 'user'],
 				operation: ['getAccountByAuthType', 'getUserAccountByAuthType'],
 			},
 		},
@@ -210,7 +209,7 @@ export const parameters: INodeProperties[] = [
 		default: 'All',
 		displayOptions: {
 			show: {
-				resource: ['accounts'],
+				resource: ['profile'],
 				operation: ['getProfileAttributeDefinitions'],
 			},
 		},
@@ -224,7 +223,7 @@ export const parameters: INodeProperties[] = [
 		description: 'The unique identifier of a profile attribute definition',
 		displayOptions: {
 			show: {
-				resource: ['accounts'],
+				resource: ['profile'],
 				operation: ['getProfileAttributeDefinitionById'],
 			},
 		},
@@ -239,7 +238,7 @@ export const parameters: INodeProperties[] = [
 		description: 'The unique identifier of a role',
 		displayOptions: {
 			show: {
-				resource: ['accounts'],
+				resource: ['role'],
 				operation: ['getRoleById'],
 			},
 		},
@@ -255,7 +254,7 @@ export const parameters: INodeProperties[] = [
 		description: 'The unique identifier of a user',
 		displayOptions: {
 			show: {
-				resource: ['accounts'],
+				resource: ['user'],
 				operation: ['getUserById', 'getUserAccounts', 'getUserAccountByAuthType'],
 			},
 		},
@@ -341,7 +340,7 @@ export const parameters: INodeProperties[] = [
 		description: 'Filter options that start with this string',
 		displayOptions: {
 			show: {
-				resource: ['vaultOptions'],
+				resource: ['options'],
 				operation: ['getVaultOptions'],
 			},
 		},
@@ -520,28 +519,13 @@ export const parameters: INodeProperties[] = [
 		displayName: 'Sort Criteria',
 		name: 'sort',
 		type: 'string',
-		default: 'Name asc',
-		required: true,
-		description: 'Specifies sorting criteria for search results. Format: {propertyDefSysName} {sort-order} Accepted values for sort-order: asc, desc. Ex: sort = Revision desc,Name asc',
-		placeholder: 'e.g. Revision desc,Name asc',
-		displayOptions: {
-			show: {
-				resource: ['items'],
-				operation: ['getItemVersions'],
-			},
-		},
-	},
-	{
-		displayName: 'Sort Criteria',
-		name: 'sort',
-		type: 'string',
 		default: '',
 		description: 'Specifies sorting criteria for search results. Format: {propertyDefSysName} {sort-order} Accepted values for sort-order: asc, desc. Ex: sort = Revision desc,Name asc',
 		placeholder: 'e.g. Revision desc,Name asc',
 		displayOptions: {
 			show: {
-				resource: ['changeOrders', 'files', 'folders', 'search'],
-				operation: ['getChangeOrders', 'getFileVersions', 'getFolderContents', 'search'],
+				resource: ['changeOrders', 'files', 'folders', 'items', 'search'],
+				operation: ['getChangeOrders', 'getFileVersions', 'getFolderContents', 'getItemVersions', 'search'],
 			},
 		},
 	},
@@ -693,7 +677,7 @@ export const parameters: INodeProperties[] = [
 				displayName: 'Criteria',
 				values: [
 					{
-						displayName: 'Property Definition Namer or ID',
+						displayName: 'Property Definition Name or ID',
 						name: 'propertyDefinitionUrl',
 						type: 'options',
 						typeOptions: {
@@ -904,7 +888,7 @@ export const parameters: INodeProperties[] = [
 		description: 'Search filter to include only change orders that assignees user list can perform. ex: filter[assignees]=1,2,3,4.',
 		displayOptions: {
 			show: {
-				resource: ['changeOrder'],
+				resource: ['changeOrders'],
 				operation: ['getChangeOrders'],
 			},
 		},
@@ -917,7 +901,7 @@ export const parameters: INodeProperties[] = [
 		description: 'Whether to include only open change orders',
 		displayOptions: {
 			show: {
-				resource: ['changeOrder'],
+				resource: ['changeOrders'],
 				operation: ['getChangeOrders'],
 			},
 		},
@@ -931,7 +915,7 @@ export const parameters: INodeProperties[] = [
 		description: 'Search filter to include only change orders that match state property. e.g. \'open\'.',
 		displayOptions: {
 			show: {
-				resource: ['changeOrder'],
+				resource: ['changeOrders'],
 				operation: ['getChangeOrders'],
 			},
 		},
@@ -973,11 +957,11 @@ export const parameters: INodeProperties[] = [
 			{ name: 'Revision Tip', value: 'RevisionTip' },
 		],
 		default: 'All',
-		description: 'Options for viewing file history',
+		description: 'Options for viewing item history',
 		displayOptions: {
 			show: {
 				resource: ['items'],
-				operation: ['getItemVersionBom', 'getItemVersionWhereUsed'],
+				operation: ['getItemHistory'],
 			},
 		},
 	},
@@ -1382,76 +1366,19 @@ export const parameters: INodeProperties[] = [
 		name: 'releasedOnly',
 		type: 'boolean',
 		default: false,
-		description: 'Whether to include only associated files that are in a consumable (released) state',
+		description: 'Whether to include only results in a consumable (released) state',
 		displayOptions: {
 			show: {
-				resource: ['changeOrders'],
-				operation: ['getChangeOrderRelatedFiles'],
-			},
-		},
-	},
-	{
-		displayName: 'Released Only',
-		name: 'releasedOnly',
-		type: 'boolean',
-		default: false,
-		description: 'Whether to include only attachments that are in a consumable (released) state',
-		displayOptions: {
-			show: {
-				resource: ['changeOrders'],
-				operation: ['getChangeOrderCommentAttachments'],
-			},
-		},
-	},
-	{
-		displayName: 'Released Only',
-		name: 'releasedOnly',
-		type: 'boolean',
-		default: false,
-		description: 'Whether to include only items that are in a consumable (released) state',
-		displayOptions: {
-			show: {
-				resource: ['files'],
-				operation: ['getFileVersionAssociatedItemVersions'],
-			},
-		},
-	},
-	{
-		displayName: 'Released Only',
-		name: 'releasedOnly',
-		type: 'boolean',
-		default: false,
-		description: 'Whether to include only files that are in a consumable (released) state',
-		displayOptions: {
-			show: {
-				resource: ['files'],
-				operation: ['getFileVersionUses', 'getFileVersionWhereUsed'],
-			},
-		},
-	},
-	{
-		displayName: 'Released Only',
-		name: 'releasedOnly',
-		type: 'boolean',
-		default: false,
-		description: 'Whether to return the latest consumable (released) version',
-		displayOptions: {
-			show: {
-				resource: ['files'],
-				operation: ['getFileById'],
-			},
-		},
-	},
-	{
-		displayName: 'Released Only',
-		name: 'releasedOnly',
-		type: 'boolean',
-		default: false,
-		description: 'Whether to return the latest consumable (released) item revision',
-		displayOptions: {
-			show: {
-				resource: ['items'],
-				operation: ['getItemById'],
+				resource: ['changeOrders', 'files', 'items'],
+				operation: [
+					'getChangeOrderRelatedFiles',
+					'getChangeOrderCommentAttachments',
+					'getFileVersionAssociatedItemVersions',
+					'getFileVersionUses',
+					'getFileVersionWhereUsed',
+					'getFileById',
+					'getItemById',
+				],
 			},
 		},
 	},
@@ -1643,11 +1570,9 @@ export const parameters: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: [
-					'accounts',
 					'changeOrders',
 					'files',
 					'folders',
-					'informational',
 					'items',
 					'links',
 					'options',
@@ -1671,7 +1596,6 @@ export const parameters: INodeProperties[] = [
 					'getFileVersionVisualizationAttachments',
 					'getFileVersionWhereUsed',
 					'getFolderContents',
-					'getFolderSubFolders',
 					'getFolderSubFolders',
 					'getGroups',
 					'getItemAssociatedChangeOrders',
@@ -1701,11 +1625,9 @@ export const parameters: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: [
-					'accounts',
 					'changeOrders',
 					'files',
 					'folders',
-					'informational',
 					'items',
 					'links',
 					'options',
@@ -1729,7 +1651,6 @@ export const parameters: INodeProperties[] = [
 					'getFileVersionVisualizationAttachments',
 					'getFileVersionWhereUsed',
 					'getFolderContents',
-					'getFolderSubFolders',
 					'getFolderSubFolders',
 					'getGroups',
 					'getItemAssociatedChangeOrders',

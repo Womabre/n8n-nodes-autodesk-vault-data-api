@@ -3,6 +3,7 @@
 		"strict": true,
 		"module": "commonjs",
 		"moduleResolution": "node",
+		"ignoreDeprecations": "5.0",
 		"target": "es2019",
 		"lib": ["es2019", "es2020", "es2022.error", "DOM"],
 		"removeComments": true,
@@ -26,6 +27,7 @@
 		"nodes/**/*",
 		"nodes/**/*.json",
 		"package.json",
+		"vitest.config.ts",
 	],
 	"exclude": [
 		"nodes/**/__tests__/**",
