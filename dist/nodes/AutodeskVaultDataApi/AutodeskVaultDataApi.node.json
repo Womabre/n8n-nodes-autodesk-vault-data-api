@@ -1,0 +1,18 @@
+{
+    "node": "n8n-nodes-base.VaultDataApi",
+    "nodeVersion": "1.0",
+    "codexVersion": "1.0",
+    "categories": ["Autodesk", "Data", "Cloud"],
+    "resources": {
+        "credentialDocumentation": [
+            {
+                "url": "https://aps.autodesk.com/en/docs/oauth/v2"
+            }
+        ],
+        "primaryDocumentation": [
+            {
+                "url": "https://aps.autodesk.com/en/docs/vaultdataapi/v2"
+            }
+        ]
+    }
+}

@@ -1,0 +1,224 @@
+import { INodeProperties } from 'n8n-workflow';
+import { processBinaryResponse } from '../utils/binary';
+
+export const operations: INodeProperties[] = [
+	{
+		displayName: 'Operation',
+		name: 'operation',
+		type: 'options',
+		noDataExpression: true,
+		displayOptions: {
+			show: {
+				resource: ['items'],
+			},
+		},
+		options: [
+			{
+				name: 'Get Item',
+				value: 'getItemById',
+				action: 'Get item',
+				description: 'Retrieve an item by its ID from the specified Vault',
+				routing: {
+					request: {
+						method: 'GET',
+						url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/items/{{$parameter["itemMasterId"]}}',
+						headers: {
+							Authorization: '=Bearer {{$credentials.accessToken}}',
+						},
+						qs: {
+							'option[releasedOnly]': '={{$parameter["releasedOnly"]}}',
+						},
+					},
+				},
+			},
+			{
+				name: 'Get Item Version',
+				value: 'getItemVersionById',
+				action: 'Get item version',
+				description: 'Retrieve an item version by its unique ID',
+				routing: {
+					request: {
+						method: 'GET',
+						url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/item-versions/{{$parameter["itemId"]}}',
+						headers: {
+							Authorization: '=Bearer {{$credentials.accessToken}}',
+						},
+					},
+				},
+			},
+			{
+				name: 'Get Item Version BOM',
+				value: 'getItemVersionBom',
+				action: 'Get item version BOM',
+				description: 'Retrieve the Bill of Materials (BOM) for the specified item version, effective on a given date',
+				routing: {
+					request: {
+						method: 'GET',
+						url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/item-versions/{{$parameter["itemId"]}}/bill-of-materials',
+						qs: {
+							'option[bomType]': '={{$parameter["bomType"] || undefined}}',
+							'option[date]': '={{$parameter["date"] || undefined}}',
+							'option[rolledUp]': '={{$parameter["rolledUp"]}}',
+							'option[oneLevel]': '={{$parameter["oneLevel"]}}',
+							'option[referenceDesignators]': '={{$parameter["referenceDesignators"]}}',
+							'option[occurrences]': '={{$parameter["includeOccurrences"]}}',
+							'option[excludedBOMLinks]': '={{$parameter["excludedBOMLinks"]}}',
+							'option[unassignedComponents]': '={{$parameter["unassignedComponents"]}}',
+							'option[includeBOMAssociationProperty]': '={{$parameter["includeBOMAssociationProperty"]}}',
+						},
+						headers: {
+							Authorization: '=Bearer {{$credentials.accessToken}}',
+						},
+					},
+				},
+			},
+			{
+				name: 'Get Item Version Thumbnail',
+				value: 'getItemVersionThumbnail',
+				action: 'Get item version thumbnail',
+				description: 'Retrieve the thumbnail image associated with the specified item version',
+				routing: {
+					request: {
+						method: 'GET',
+						url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/item-versions/{{$parameter["itemId"]}}/thumbnail',
+						headers: {
+							Authorization: '=Bearer {{$credentials.accessToken}}',
+						},
+						returnFullResponse: true,
+						encoding: 'arraybuffer', // ensures Buffer not string
+					},
+					output: {
+						postReceive: [processBinaryResponse],
+					},
+				},
+			},
+			{
+				name: 'Get Item Version Where Used',
+				value: 'getItemVersionWhereUsed',
+				action: 'Get item version where used',
+				description: 'Retrieve where the item version is used (its parent items)',
+				routing: {
+					request: {
+						method: 'GET',
+						url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/item-versions/{{$parameter["itemId"]}}/parents',
+						qs: {
+							'option[bomType]': '={{$parameter["bomType"] || undefined}}',
+							'option[date]': '={{$parameter["date"] || undefined}}',
+						},
+						headers: {
+							Authorization: '=Bearer {{$credentials.accessToken}}',
+						},
+					},
+				},
+			},
+			{
+				name: 'Get Item History',
+				value: 'getItemHistory',
+				action: 'Get item history',
+				description: 'Retrieve the version history of an item by its ID from the specified Vault',
+				routing: {
+					request: {
+						method: 'GET',
+						url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/items/{{$parameter["itemMasterId"]}}/versions',
+						headers: {
+							Authorization: '=Bearer {{$credentials.accessToken}}',
+						},
+						qs: {
+							'option[history]': '={{$parameter["history"]}}',
+							'option[extendedModels]': '={{$parameter["extendedModels"]}}',
+							'option[propDefIds]': '={{$parameter["propDefIds"] || undefined}}',
+							descending: '={{$parameter["descending"]}}',
+							limit: '={{$parameter["limit"] || undefined}}',
+							cursorState: '={{$parameter["cursorState"]}}',
+						},
+					},
+				},
+			},
+			{
+				name: 'Get Many Items',
+				value: 'getItems',
+				action: 'Get many items',
+				description: 'Retrieve all items in the specified Vault',
+				routing: {
+					request: {
+						method: 'GET',
+						url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/items',
+						headers: {
+							Authorization: '=Bearer {{$credentials.accessToken}}',
+						},
+						qs: {
+							limit: '={{$parameter["limit"] || undefined}}',
+							cursorState: '={{$parameter["cursorState"] || undefined}}',
+						},
+					},
+				},
+			},
+			{
+				name: 'Get Many Item Versions',
+				value: 'getItemVersions',
+				action: 'Get many item versions',
+				description: 'Retrieve item versions in the specified vault',
+				routing: {
+					request: {
+						method: 'GET',
+						url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/item-versions',
+						qs: {
+							q: '={{$parameter["q"] || undefined}}',
+							'option[propDefIds]': '={{$parameter["propDefIds"]}}',
+							'option[releasedItemsOnly]': '={{$parameter["releasedItemsOnly"]}}',
+							'option[latestOnly]': '={{$parameter["latestOnly"]}}',
+							sort: '={{$parameter["sort"] || "ItemNumber"}}',
+							limit: '={{$parameter["limit"] || undefined}}',
+							cursorState: '={{$parameter["cursorState"] || undefined}}',
+						},
+						headers: {
+							Authorization: '=Bearer {{$credentials.accessToken}}',
+						},
+					},
+				},
+			},
+			{
+				name: 'Get Many Item Version Associated Change Orders',
+				value: 'getItemAssociatedChangeOrders',
+				action: 'Get many item version associated change orders',
+				description: 'Retrieve change orders associated with a specific item in the Vault',
+				routing: {
+					request: {
+						method: 'GET',
+						url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/items/{{$parameter["itemMasterId"]}}/change-orders',
+						headers: {
+							Authorization: '=Bearer {{$credentials.accessToken}}',
+						},
+						qs: {
+							'option[includeClosedECOs]': '={{$parameter["includeClosedECOs"]}}',
+							'option[extendedModels]': '={{$parameter["extendedModels"]}}',
+							'option[propDefIds]': '={{$parameter["propDefIds"] || undefined}}',
+							limit: '={{$parameter["limit"] || undefined}}',
+							cursorState: '={{$parameter["cursorState"]}}',
+						},
+					},
+				},
+			},
+			{
+				name: 'Get Many Item Version Associated Files',
+				value: 'getItemVersionAssociatedFiles',
+				action: 'Get many item version associated files',
+				description: 'Retrieve all file associations for the specified item version ID',
+				routing: {
+					request: {
+						method: 'GET',
+						url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/item-versions/{{$parameter["itemId"]}}/associated-files',
+						qs: {
+							'option[extendedModels]': '={{$parameter["extendedModels"]}}',
+							'option[propDefIds]': '={{$parameter["propDefIds"]}}',
+						},
+						headers: {
+							Authorization: '=Bearer {{$credentials.accessToken}}',
+						},
+					},
+				},
+			},
+		],
+		default: 'getItemById',
+	},
+];

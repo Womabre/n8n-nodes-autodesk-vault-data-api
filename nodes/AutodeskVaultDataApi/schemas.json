@@ -1,0 +1,2140 @@
+{
+	"schemas": {
+		"Account": {
+			"title": "Account",
+			"type": "object",
+			"description": "Account object.",
+			"properties": {
+				"id": {
+					"type": "string"
+				},
+				"accountName": {
+					"type": "string",
+					"description": "The name of the account for signin purposes."
+				},
+				"accountEmail": {
+					"type": "string",
+					"description": "The email associated with the account."
+				},
+				"isActive": {
+					"type": "boolean",
+					"description": "Is the account active (enabled)."
+				},
+				"url": {
+					"$ref": "#/components/schemas/Url"
+				}
+			}
+		},
+		"AccountCollection": {
+			"title": "Account Collection",
+			"type": "object",
+			"description": "Account collection object.",
+			"properties": {
+				"pagination": {
+					"$ref": "#/components/schemas/CursorBasedPagination"
+				},
+				"results": {
+					"type": "array",
+					"items": {
+						"$ref": "#/components/schemas/Account"
+					}
+				}
+			}
+		},
+		"AuthTypeEnum": {
+			"title": "AuthType Enum",
+			"enum": ["ActiveDirectory", "Vault", "Autodesk"],
+			"description": "The type of account to retrieve. Allowed values are ActiveDirectory, Vault, and Autodesk."
+		},
+		"BOMComponent": {
+			"title": "BOM Component",
+			"type": "object",
+			"description": "BOM component object.",
+			"properties": {
+				"isCloaked": {
+					"type": "boolean",
+					"description": "Indicates if a BOM component is cloaked "
+				},
+				"bOMStructure": {
+					"$ref": "#/components/schemas/BOMStructureEnum"
+				},
+				"baseQty": {
+					"type": "string",
+					"description": "A numeric value quantifying a single instance of the Component. For Components with discreet quantities, \"1\" should always be used. For measured quantities, a positive decimal value can be used. For example, a rod cut to 3.5 feet would have a BaseUOM of \"foot\" and a BaseQty of \"3.5\"."
+				},
+				"baseUOM": {
+					"type": "string",
+					"description": "The Unit of Measure the Component is quantified with. For discreet quantities, \"Each\" should be used. For measured quantities, a length (inch, cm, foot, etc.) volume (ounce, ml, liter, quart, etc.) or mass (gram, pound, kg, etc.) unit of measure should be used."
+				},
+				"componentType": {
+					"$ref": "#/components/schemas/ComponentTypeEnum"
+				},
+				"name": {
+					"type": "string",
+					"description": "The name of this component."
+				},
+				"xRefType": {
+					"$ref": "#/components/schemas/XRefTypeEnum"
+				},
+				"uniqueId": {
+					"type": "string",
+					"description": "Unique data within the scope of the design file used to identify the Component. For Inventor files, the GUID used to identify the Component is used (or GUID plus VirtualComponentDefinition._PropertySetsId for Virtual components). For DWG files, the HandleID associated with the Component is used."
+				},
+				"id": {
+					"type": "string"
+				},
+				"xRefId": {
+					"type": "string",
+					"description": "For Components with a XRefType of \"external\", XRefID represents the FileID of the design file associated with that component. For \"internal\" Components, XRefID should be set to -1."
+				}
+			}
+		},
+		"BOMLinksAndRevisions": {
+			"title": "BOM Links And Revisions",
+			"type": "object",
+			"description": "BOM links and revisions object. Contains BOM related links between Items.",
+			"properties": {
+				"itemVersions": {
+					"type": "array",
+					"description": "An array of Items.",
+					"items": {
+						"$ref": "#/components/schemas/ItemVersion"
+					}
+				},
+				"itemBomLinks": {
+					"type": "array",
+					"description": "The associations between the Items.",
+					"items": {
+						"$ref": "#/components/schemas/ItemBomLink"
+					}
+				},
+				"referenceDesignatorsAvailable": {
+					"type": "boolean",
+					"description": "If true, reference designators are available."
+				},
+				"occurrences": {
+					"type": "array",
+					"description": "An array of occurrences.",
+					"items": {
+						"$ref": "#/components/schemas/ItemBomOccurrence"
+					}
+				},
+				"bOMComponents": {
+					"type": "array",
+					"description": "Array of BOM components in this BOM ",
+					"items": {
+						"$ref": "#/components/schemas/BOMComponent"
+					}
+				}
+			}
+		},
+		"BOMStructureEnum": {
+			"title": "BOM Structure Enum",
+			"type": "string",
+			"enum": ["Normal", "Purchased", "Inseperable", "Phantom", "Reference", "DynamicPhantom"],
+			"description": "An enumerated value representing the BOMStructure value of Component:\n\n- ``Normal`` - 0,\n- ``Purchased`` - 1,\n- ``Inseperable`` - 2,\n- ``Phantom`` - 3,\n- ``Reference`` - 4,\n- ``DynamicPhantom`` - 5"
+		},
+		"BOMTypeEnum": {
+			"title": "BOM Type Enum",
+			"type": "string",
+			"enum": ["Latest", "Historic"],
+			"description": "Enum of BOM Type."
+		},
+		"ChangeOrder": {
+			"title": "Change Order",
+			"type": "object",
+			"description": "change order object",
+			"properties": {
+				"id": {
+					"type": "string",
+					"description": "Master Id of this Change Order. The Master Id uniquely identifies this Change Order object "
+				},
+				"url": {
+					"$ref": "#/components/schemas/Url"
+				},
+				"name": {
+					"type": "string",
+					"description": "The descriptive name for this Change Order.The Change Order Number will be used here."
+				},
+				"createDate": {
+					"type": "string",
+					"description": "The date and time the Change Order was created"
+				},
+				"number": {
+					"type": "string",
+					"description": "The Change Order number. Numbers are generated based on the Numbering Scheme."
+				},
+				"title": {
+					"type": "string",
+					"description": "The title of the Change Order"
+				},
+				"description": {
+					"type": "string",
+					"description": "The description of the Change Order."
+				},
+				"approveDeadline": {
+					"type": "string",
+					"description": "The date and time when the Change Order needs to be approved by."
+				},
+				"lastModifiedDate": {
+					"type": "string",
+					"description": "The last time that the Change Order was modified."
+				},
+				"lastModifiedUserId": {
+					"type": "string"
+				},
+				"closeDate": {
+					"type": "string"
+				},
+				"lastTouchedDate": {
+					"type": "string",
+					"description": " the last time that the Change Order was modified."
+				},
+				"entityType": {
+					"type": "string"
+				},
+				"numberOfAttachments": {
+					"type": "number",
+					"description": "Number of File Attachments"
+				},
+				"properties": {
+					"type": "array",
+					"items": {
+						"$ref": "#/components/schemas/Property"
+					}
+				},
+				"state": {
+					"type": "string",
+					"description": "Get the name of the Change Order State."
+				},
+				"stateColor": {
+					"type": "number",
+					"description": "The color of the state."
+				},
+				"isReadOnly": {
+					"type": "boolean",
+					"description": "Get if the Change Order is currently locked."
+				}
+			}
+		},
+		"ChangeOrderExtended": {
+			"title": "Change Order Extended",
+			"type": "object",
+			"description": "change order extended object",
+			"allOf": [
+				{
+					"$ref": "#/components/schemas/ChangeOrder"
+				},
+				{
+					"type": "object",
+					"properties": {
+						"assignees": {
+							"type": "array",
+							"items": {
+								"$ref": "#/components/schemas/User"
+							}
+						}
+					}
+				}
+			]
+		},
+		"ChangeOrderCollection": {
+			"title": "Change Order Collection",
+			"type": "object",
+			"description": "Change Order collection object.",
+			"properties": {
+				"pagination": {
+					"$ref": "#/components/schemas/CursorBasedPagination"
+				},
+				"results": {
+					"type": "array",
+					"items": {
+						"oneOf": [
+							{
+								"$ref": "#/components/schemas/ChangeOrderExtended"
+							},
+							{
+								"$ref": "#/components/schemas/ChangeOrder"
+							}
+						]
+					}
+				},
+				"included": {
+					"type": "object",
+					"properties": {
+						"propertyDefinition": {
+							"type": "object",
+							"additionalProperties": {
+								"$ref": "#/components/schemas/PropertyDefinition"
+							}
+						}
+					}
+				}
+			}
+		},
+		"ComponentTypeEnum": {
+			"title": "Component Type Enum",
+			"type": "string",
+			"enum": ["Part", "Assembly", "Virtual", "Standard", "Purchased", "Document"],
+			"description": "An enumerated value specifying the type of component.  Enum of Component Type:\n\n- ``Part`` - 0\n- ``Assembly`` - 1\n- ``Virtual`` - 2\n- ``Standard`` - 3\n- ``Purchased`` - 4\n- ``Document`` - 5"
+		},
+		"CursorBasedPagination": {
+			"title": "Cursor-based pagination",
+			"type": "object",
+			"description": "Cursor-based pagination object.",
+			"properties": {
+				"limit": {
+					"type": "integer",
+					"description": "Limit requested for the current search"
+				},
+				"totalResults": {
+					"type": "integer",
+					"description": "Number of total hits. If this value is larger than the objects returned, then multiple searches will have to be performed to get the complete result set."
+				},
+				"indexingStatus": {
+					"$ref": "#/components/schemas/IndexingStatus"
+				},
+				"nextUrl": {
+					"type": "string",
+					"description": "Used to continue a search if the results are too large for a single call. Url has bookmark string embedded for subsequent calls on that search"
+				}
+			}
+		},
+		"ECOComment": {
+			"title": "ECO Comment",
+			"type": "object",
+			"description": "Change Order Comment object.",
+			"properties": {
+				"id": {
+					"type": "string"
+				},
+				"url": {
+					"$ref": "#/components/schemas/Url"
+				},
+				"subject": {
+					"type": "string"
+				},
+				"message": {
+					"type": "string"
+				},
+				"createDate": {
+					"type": "string"
+				},
+				"createUserName": {
+					"type": "string"
+				},
+				"state": {
+					"type": "string"
+				},
+				"numberOfAttachments": {
+					"type": "number"
+				},
+				"replies": {
+					"type": "array",
+					"items": {
+						"$ref": "#/components/schemas/ECOComment2"
+					}
+				},
+				"parent": {
+					"$ref": "#/components/schemas/ECOComment2"
+				}
+			}
+		},
+		"ECOComment2": {
+			"title": "ECO Comment2",
+			"type": "object",
+			"properties": {
+				"id": {
+					"type": "string"
+				},
+				"url": {
+					"$ref": "#/components/schemas/Url"
+				},
+				"subject": {
+					"type": "string"
+				},
+				"message": {
+					"type": "string"
+				},
+				"createDate": {
+					"type": "string"
+				},
+				"createUserName": {
+					"type": "string"
+				},
+				"state": {
+					"type": "string"
+				},
+				"numberOfAttachments": {
+					"type": "number"
+				},
+				"replies": {
+					"type": "array",
+					"items": {
+						"$ref": "#/components/schemas/ECOComment"
+					}
+				},
+				"parent": {
+					"$ref": "#/components/schemas/ECOComment"
+				}
+			},
+			"description": "Change Order Comment object duplicate(ECOComment) to allow them to reference to each other"
+		},
+		"ECOCommentCollection": {
+			"title": "ECO Comment Collection",
+			"type": "object",
+			"description": "Change Order Comment collection object.",
+			"properties": {
+				"pagination": {
+					"$ref": "#/components/schemas/CursorBasedPagination"
+				},
+				"results": {
+					"type": "array",
+					"items": {
+						"$ref": "#/components/schemas/ECOComment"
+					}
+				}
+			}
+		},
+		"Entity": {
+			"title": "Entity",
+			"type": "object",
+			"description": "A generic entity object with all supported fields.",
+			"properties": {
+				"id": {
+					"type": "string",
+					"description": "A unique identifier for the object"
+				},
+				"name": {
+					"type": "string",
+					"description": "Name of the entity"
+				},
+				"fullName": {
+					"type": "string",
+					"description": "The full vault path if Entity is a folder"
+				},
+				"number": {
+					"type": "string"
+				},
+				"category": {
+					"type": "string",
+					"description": "Category information  about this entity"
+				},
+				"categoryColor": {
+					"type": "number",
+					"description": "Category color"
+				},
+				"entityType": {
+					"type": "string"
+				},
+				"version": {
+					"type": "number",
+					"description": "Version number if entity is an Iteration object"
+				},
+				"createDate": {
+					"type": "string",
+					"description": "Tells the date and time that this version of the entity was created in the Vault."
+				},
+				"lastModifiedDate": {
+					"type": "string"
+				},
+				"revision": {
+					"type": "string",
+					"description": "Revision information about this entity."
+				},
+				"state": {
+					"type": "string",
+					"description": "The name of the life cycle state for the entity"
+				},
+				"stateColor": {
+					"type": "number",
+					"description": "The color of the state."
+				},
+				"parentFolderId": {
+					"type": "string"
+				},
+				"parent": {
+					"$ref": "#/components/schemas/Folder"
+				},
+				"isCheckedOut": {
+					"type": "boolean"
+				},
+				"createUserName": {
+					"type": "string"
+				},
+				"checkinDate": {
+					"type": "string"
+				},
+				"checkoutDate": {
+					"type": "string"
+				},
+				"size": {
+					"type": "number"
+				},
+				"url": {
+					"$ref": "#/components/schemas/Url"
+				},
+				"hasVisualizationAttachment": {
+					"type": "boolean"
+				},
+				"checkoutUserName": {
+					"type": "string"
+				},
+				"isLibrary": {
+					"type": "boolean"
+				},
+				"isReadOnly": {
+					"type": "boolean"
+				},
+				"isCloaked": {
+					"type": "boolean"
+				},
+				"file": {
+					"$ref": "#/components/schemas/FileObject"
+				},
+				"item": {
+					"$ref": "#/components/schemas/Item"
+				},
+				"subfolderCount": {
+					"type": "number"
+				},
+				"children": {
+					"type": "string"
+				},
+				"properties": {
+					"type": "array",
+					"items": {
+						"$ref": "#/components/schemas/Property"
+					}
+				}
+			},
+			"required": ["id", "name"]
+		},
+		"EntityCollection": {
+			"title": "Entity Collection",
+			"type": "object",
+			"description": "Entity collection object.",
+			"properties": {
+				"pagination": {
+					"$ref": "#/components/schemas/CursorBasedPagination"
+				},
+				"results": {
+					"type": "array",
+					"items": {
+						"anyOf": [
+							{
+								"$ref": "#/components/schemas/FileVersion"
+							},
+							{
+								"$ref": "#/components/schemas/FileVersionExtended"
+							},
+							{
+								"$ref": "#/components/schemas/Folder"
+							},
+							{
+								"$ref": "#/components/schemas/FolderExtended"
+							},
+							{
+								"$ref": "#/components/schemas/ChangeOrder"
+							},
+							{
+								"$ref": "#/components/schemas/ChangeOrderExtended"
+							},
+							{
+								"$ref": "#/components/schemas/LinkEntity"
+							},
+							{
+								"$ref": "#/components/schemas/ItemVersion"
+							}
+						]
+					}
+				},
+				"included": {
+					"type": "object",
+					"properties": {
+						"folder": {
+							"type": "object",
+							"additionalProperties": {
+								"$ref": "#/components/schemas/Folder"
+							}
+						},
+						"propertyDefinition": {
+							"type": "object",
+							"additionalProperties": {
+								"$ref": "#/components/schemas/PropertyDefinition"
+							}
+						}
+					}
+				}
+			}
+		},
+		"ErrorResponse": {
+			"title": "Error Response",
+			"required": ["title", "detail", "errorCode", "statusCode"],
+			"type": "object",
+			"properties": {
+				"title": {
+					"type": "string"
+				},
+				"detail": {
+					"type": "string"
+				},
+				"statusCode": {
+					"type": "integer"
+				},
+				"errorCode": {
+					"type": "string",
+					"description": "The vault error code. Client can use it to look up the localized error message"
+				},
+				"params": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				}
+			},
+			"description": "The format for an error response"
+		},
+		"FileAssocCollection": {
+			"title": "File Association Collection",
+			"type": "object",
+			"description": "File Association collection object.",
+			"properties": {
+				"pagination": {
+					"$ref": "#/components/schemas/CursorBasedPagination"
+				},
+				"results": {
+					"type": "array",
+					"items": {
+						"$ref": "#/components/schemas/FileAssociation"
+					}
+				},
+				"included": {
+					"type": "object",
+					"properties": {
+						"folder": {
+							"type": "object",
+							"additionalProperties": {
+								"$ref": "#/components/schemas/Folder"
+							}
+						},
+						"propertyDefinition": {
+							"type": "object",
+							"additionalProperties": {
+								"$ref": "#/components/schemas/PropertyDefinition"
+							}
+						}
+					}
+				}
+			}
+		},
+		"FileAssociation": {
+			"title": "File Association",
+			"type": "object",
+			"description": "File association object.",
+			"properties": {
+				"parentFile": {
+					"$ref": "#/components/schemas/FileVersionExtended"
+				},
+				"childFile": {
+					"$ref": "#/components/schemas/FileVersionExtended"
+				},
+				"fileAssocType": {
+					"$ref": "#/components/schemas/FileAssociationTypeEnum"
+				}
+			}
+		},
+		"FileAssociationTypeEnum": {
+			"title": "File Association Type Enum",
+			"type": "string",
+			"enum": ["Dependency", "Attachment"],
+			"description": "File association options."
+		},
+		"FileVersionCollection": {
+			"title": "File Version Collection",
+			"type": "object",
+			"description": "File version collection object.",
+			"properties": {
+				"pagination": {
+					"$ref": "#/components/schemas/CursorBasedPagination"
+				},
+				"results": {
+					"type": "array",
+					"items": {
+						"oneOf": [
+							{
+								"$ref": "#/components/schemas/FileVersionExtended"
+							},
+							{
+								"$ref": "#/components/schemas/FileVersion"
+							}
+						]
+					}
+				},
+				"included": {
+					"type": "object",
+					"properties": {
+						"folder": {
+							"type": "object",
+							"additionalProperties": {
+								"$ref": "#/components/schemas/Folder"
+							}
+						},
+						"propertyDefinition": {
+							"type": "object",
+							"additionalProperties": {
+								"$ref": "#/components/schemas/PropertyDefinition"
+							}
+						}
+					}
+				}
+			}
+		},
+		"FileObject": {
+			"title": "File - we cannot directly use File as class name, as it's occupied.",
+			"type": "object",
+			"properties": {
+				"id": {
+					"type": "string",
+					"description": "File MasterId"
+				},
+				"url": {
+					"$ref": "#/components/schemas/Url"
+				},
+				"versionType": {
+					"$ref": "#/components/schemas/VersionTypeEnum"
+				},
+				"fileVersion": {
+					"$ref": "#/components/schemas/FileVersionExtended"
+				}
+			},
+			"required": ["id", "url"]
+		},
+		"FileClassificationEnum": {
+			"title": "File Classification Enum",
+			"type": "string",
+			"enum": [
+				"None",
+				"DesignVisualization",
+				"DesignDocument",
+				"ConfigurationMember",
+				"ConfigurationFactory",
+				"ElectricalProject",
+				"DesignSubstitute",
+				"DesignRepresentation",
+				"DesignPresentation"
+			],
+			"description": "The classification of the file."
+		},
+		"FileVisualizationAttachmentStatusEnum": {
+			"title": "File Visualization Attachment Status Enum",
+			"type": "string",
+			"enum": ["None", "Syncronized", "NotSyncronized", "UserVerified", "Legacy"],
+			"description": "The design visualization attachment status of the file."
+		},
+		"FileVersion": {
+			"title": "File Version",
+			"type": "object",
+			"description": "file version basic object.",
+			"properties": {
+				"id": {
+					"type": "string",
+					"description": "File IterationId"
+				},
+				"name": {
+					"type": "string",
+					"description": "The name of the file. This value applies to all versions of the file"
+				},
+				"category": {
+					"type": "string",
+					"description": "Category information about this file"
+				},
+				"categoryColor": {
+					"type": "number",
+					"description": "Category color"
+				},
+				"classification": {
+					"$ref": "#/components/schemas/FileClassificationEnum"
+				},
+				"entityType": {
+					"type": "string"
+				},
+				"version": {
+					"type": "number",
+					"description": "The version of the file. A file that has just been added to the Vault, will have 1 as its VerNum"
+				},
+				"createDate": {
+					"type": "string",
+					"description": "Tells the date and time that this version of the file was created in the Vault. For the first version of a file, this date will match CkInDate. For later versions, this value will have the time when the previous version was checked out."
+				},
+				"lastModifiedDate": {
+					"type": "string",
+					"description": "The last modified date of the file. This value is set by the client that uploaded the file."
+				},
+				"revision": {
+					"type": "string",
+					"description": "Revision information about this file."
+				},
+				"state": {
+					"type": "string",
+					"description": "The name of the life cycle state for the current file"
+				},
+				"stateColor": {
+					"type": "number",
+					"description": "The color of the state."
+				},
+				"parentFolderId": {
+					"type": "string",
+					"description": "FolderId of the parent the current file  resides in"
+				},
+				"file": {
+					"$ref": "#/components/schemas/FileObject"
+				},
+				"parent": {
+					"$ref": "#/components/schemas/Folder"
+				},
+				"isCheckedOut": {
+					"type": "boolean",
+					"description": "If true, then the latest version of this file is in the checked-out state"
+				},
+				"createUserName": {
+					"type": "string",
+					"description": "The Name of the user who checked-in or uploaded this file."
+				},
+				"checkinDate": {
+					"type": "string",
+					"description": "The date and time that the file was checked in. This property is only valid if isCheckedOut is false."
+				},
+				"checkoutDate": {
+					"type": "string",
+					"description": "The date and time that the file was last checked out"
+				},
+				"checkoutUserName": {
+					"type": "string",
+					"description": "User that has the file checked out"
+				},
+				"size": {
+					"type": "number",
+					"description": "The size, in bytes, of the file. This property is only valid if CheckedOut is false."
+				},
+				"url": {
+					"$ref": "#/components/schemas/Url"
+				},
+				"hasVisualizationAttachment": {
+					"type": "boolean",
+					"description": "Flag to determine if valid VizAttachmentStatus (Not None)"
+				},
+				"visualizationAttachmentStatus": {
+					"$ref": "#/components/schemas/FileVisualizationAttachmentStatusEnum"
+				},
+				"isReadOnly": {
+					"type": "boolean"
+				},
+				"isCloaked": {
+					"type": "boolean",
+					"description": "Get if this file is cloaked. A cloaked object is one that the caller does not have permissions to view"
+				},
+				"isOnSite": {
+					"type": "boolean",
+					"description": "Gets whether or not the file is on the local site (in a multi-site environment). This value will always be true on a single-site environment."
+				},
+				"properties": {
+					"type": "array",
+					"items": {
+						"$ref": "#/components/schemas/Property"
+					}
+				}
+			},
+			"required": ["id", "name"]
+		},
+		"FileVersionExtended": {
+			"title": "File Version Extended",
+			"type": "object",
+			"description": "file version extended object",
+			"allOf": [
+				{
+					"$ref": "#/components/schemas/FileVersion"
+				},
+				{
+					"type": "object",
+					"properties": {
+						"checkoutUser": {
+							"$ref": "#/components/schemas/User"
+						}
+					}
+				}
+			]
+		},
+		"FolderCollection": {
+			"title": "Folder Collection",
+			"type": "object",
+			"description": "Folder collection object.",
+			"properties": {
+				"pagination": {
+					"$ref": "#/components/schemas/CursorBasedPagination"
+				},
+				"results": {
+					"type": "array",
+					"items": {
+						"oneOf": [
+							{
+								"$ref": "#/components/schemas/Folder"
+							},
+							{
+								"$ref": "#/components/schemas/FolderExtended"
+							}
+						]
+					}
+				},
+				"included": {
+					"type": "object",
+					"properties": {
+						"folder": {
+							"type": "object",
+							"additionalProperties": {
+								"$ref": "#/components/schemas/Folder"
+							}
+						},
+						"propertyDefinition": {
+							"type": "object",
+							"additionalProperties": {
+								"$ref": "#/components/schemas/PropertyDefinition"
+							}
+						}
+					}
+				}
+			}
+		},
+		"Folder": {
+			"title": "Folder",
+			"type": "object",
+			"description": "folder object",
+			"properties": {
+				"id": {
+					"type": "string",
+					"description": "Get the unique identifier for this folder"
+				},
+				"url": {
+					"$ref": "#/components/schemas/Url"
+				},
+				"name": {
+					"type": "string",
+					"description": "Get the descriptive name for this Folder. This is always the Folder Name without the full path."
+				},
+				"fullName": {
+					"type": "string",
+					"description": "Get the full vault path for this folder (ie. $/Folder1)"
+				},
+				"createDate": {
+					"type": "string",
+					"description": "Get the date and time that the folder was created."
+				},
+				"createUserName": {
+					"type": "string",
+					"description": "Get the name of the user who created this folder."
+				},
+				"category": {
+					"type": "string",
+					"description": "Get the category that is assigned to this folder"
+				},
+				"categoryColor": {
+					"type": "number",
+					"description": "Category color"
+				},
+				"state": {
+					"type": "string",
+					"description": "The name of the life cycle state for the current folder"
+				},
+				"stateColor": {
+					"type": "number",
+					"description": "The color of the state."
+				},
+				"subfolderCount": {
+					"type": "number",
+					"description": "Get the number of immediate child folders."
+				},
+				"children": {
+					"type": "string"
+				},
+				"isLibrary": {
+					"type": "boolean",
+					"description": "Get whether or not this folder is a library folder "
+				},
+				"isReadOnly": {
+					"type": "boolean",
+					"description": "Get whether this folder can be modified by the logged in user."
+				},
+				"isCloaked": {
+					"type": "boolean",
+					"description": "Get if this folder is cloaked. A cloaked object is one that the caller does not have permissions to view."
+				},
+				"properties": {
+					"type": "array",
+					"items": {
+						"$ref": "#/components/schemas/Property"
+					}
+				}
+			}
+		},
+		"FolderExtended": {
+			"title": "Folder Extended",
+			"type": "object",
+			"description": "folder extended object",
+			"allOf": [
+				{
+					"$ref": "#/components/schemas/Folder"
+				},
+				{
+					"type": "object",
+					"properties": {
+						"parentFolderId": {
+							"type": "string"
+						},
+						"parent": {
+							"$ref": "#/components/schemas/Folder"
+						}
+					}
+				}
+			]
+		},
+		"Group": {
+			"title": "Group",
+			"type": "object",
+			"description": "Group object. A group is a collection of users and other groups.",
+			"properties": {
+				"id": {
+					"type": "string",
+					"description": "The identifier for the object."
+				},
+				"name": {
+					"type": "string",
+					"description": "The unique name of the Group."
+				},
+				"systemName": {
+					"type": "string"
+				},
+				"authTypes": {
+					"$ref": "#/components/schemas/AuthTypeEnum"
+				},
+				"createDate": {
+					"type": "string",
+					"description": "The date the Group was created."
+				},
+				"emailDL": {
+					"type": "string",
+					"description": "The email address (distribution list) for the Group."
+				},
+				"isActive": {
+					"type": "boolean",
+					"description": "Is the group active"
+				},
+				"url": {
+					"$ref": "#/components/schemas/Url"
+				}
+			}
+		},
+		"GroupExtended": {
+			"title": "Group Extended",
+			"type": "object",
+			"description": "Group extended object.",
+			"allOf": [
+				{
+					"$ref": "#/components/schemas/Group"
+				},
+				{
+					"type": "object",
+					"properties": {
+						"createUser": {
+							"$ref": "#/components/schemas/User"
+						},
+						"roles": {
+							"type": "array",
+							"items": {
+								"$ref": "#/components/schemas/Role"
+							}
+						},
+						"accounts": {
+							"type": "array",
+							"items": {
+								"$ref": "#/components/schemas/Account"
+							}
+						},
+						"users": {
+							"type": "array",
+							"items": {
+								"$ref": "#/components/schemas/User"
+							}
+						},
+						"attributes": {
+							"type": "array",
+							"items": {
+								"$ref": "#/components/schemas/ProfileAttribute"
+							}
+						},
+						"groupManagers": {
+							"type": "array",
+							"items": {
+								"$ref": "#/components/schemas/User"
+							}
+						},
+						"groups": {
+							"type": "array",
+							"items": {
+								"$ref": "#/components/schemas/Group"
+							}
+						}
+					}
+				}
+			]
+		},
+		"GroupCollection": {
+			"title": "Group Collection",
+			"type": "object",
+			"description": "Group collection object.",
+			"properties": {
+				"pagination": {
+					"$ref": "#/components/schemas/CursorBasedPagination"
+				},
+				"results": {
+					"type": "array",
+					"items": {
+						"$ref": "#/components/schemas/Group"
+					}
+				}
+			}
+		},
+		"HistoryOptionsEnum": {
+			"title": "History Options Enum",
+			"type": "string",
+			"enum": ["All", "ReleasedOnly", "ReleasedAndRevisionTip", "RevisionTip"],
+			"description": "options for viewing file history."
+		},
+		"IndexingStatus": {
+			"title": "Indexing Status",
+			"type": "string",
+			"enum": ["IndexingComplete", "IndexingProperties", "IndexingContent", "NA"],
+			"description": "Indicates the current status of the indexing engine. This status helps users understand whether the indexing operation is complete or still in progress. This is particularly important for customers with large datasets, as indexing can take a considerable amount of time to complete.\nThe statuses include:\n\n- ``IndexingComplete`` - All properties and content have been indexed.\n- ``IndexingProperties`` - File properties are currently being indexed.\n- ``IndexingContent`` - File content is currently being indexed.\n- ``NA`` - Not applicable as data not retrieved from index.\n\nNote: When the status is either 'IndexingProperties' or 'IndexingContent', the search results are incomplete because the indexes are still being created. Complete search results will be available once fully indexed."
+		},
+		"Item": {
+			"title": "Item",
+			"type": "object",
+			"description": "Item object.",
+			"properties": {
+				"id": {
+					"type": "string",
+					"description": "MasterId of the item"
+				},
+				"url": {
+					"$ref": "#/components/schemas/Url"
+				},
+				"versionType": {
+					"$ref": "#/components/schemas/VersionTypeEnum"
+				},
+				"itemVersion": {
+					"$ref": "#/components/schemas/ItemVersion"
+				}
+			},
+			"required": ["id", "url"]
+		},
+		"ItemAssociatedFileVersion": {
+			"title": "Item Associated File Version",
+			"type": "object",
+			"description": "Item associated file version object, contains the file version and the association type.",
+			"properties": {
+				"itemAssociationType": {
+					"$ref": "#/components/schemas/ItemAssociationTypeEnum"
+				},
+				"file": {
+					"$ref": "#/components/schemas/FileVersionExtended"
+				}
+			}
+		},
+		"ItemAssociatedFileVersionCollection": {
+			"title": "Item Associated File Version Collection",
+			"type": "object",
+			"description": "Item associated file version collection object, collection of item related files and attachments.",
+			"properties": {
+				"pagination": {
+					"$ref": "#/components/schemas/CursorBasedPagination"
+				},
+				"results": {
+					"type": "array",
+					"items": {
+						"$ref": "#/components/schemas/ItemAssociatedFileVersion"
+					}
+				},
+				"included": {
+					"type": "object",
+					"properties": {
+						"folder": {
+							"type": "object",
+							"additionalProperties": {
+								"$ref": "#/components/schemas/Folder"
+							}
+						},
+						"propertyDefinition": {
+							"type": "object",
+							"additionalProperties": {
+								"$ref": "#/components/schemas/PropertyDefinition"
+							}
+						}
+					}
+				}
+			}
+		},
+		"ItemAssociationTypeEnum": {
+			"title": "Item Association Type Enum",
+			"type": "string",
+			"enum": [
+				"Primary",
+				"Secondary",
+				"Tertiary",
+				"StandardComponent",
+				"PrimarySub",
+				"SecondarySub",
+				"PinnedAttachment",
+				"NotPinnedAttachment"
+			],
+			"description": "Item File Link Types."
+		},
+		"ItemBomLink": {
+			"title": "Item Bom Link",
+			"type": "object",
+			"properties": {
+				"bomComponentId": {
+					"type": "string",
+					"description": "Id of the BOM Component (only valid when BOM row is a component - not assigned an item) "
+				},
+				"groupedRow": {
+					"type": "boolean",
+					"description": "Indicates if this BOM association is a grouped row of multiple BOM rows "
+				},
+				"groupId": {
+					"type": "string",
+					"description": "Id of the Multiple Row grouping "
+				},
+				"unitSize": {
+					"type": "string",
+					"description": "The unit size for this BOM row "
+				},
+				"instCount": {
+					"type": "string",
+					"description": "Instance Count of this BOM association"
+				},
+				"cad": {
+					"type": "boolean",
+					"description": "Indicates if this BOM row is created and maintained by CAD data or is a manual BOM row "
+				},
+				"included": {
+					"type": "boolean",
+					"description": "Indicates if this BOM row is included or excluded from the BOM "
+				},
+				"refDesId": {
+					"type": "string",
+					"description": "The reference designator ID. This value will be 0 if reference designators are not available."
+				},
+				"childHasChildren": {
+					"type": "boolean",
+					"description": "If true, the child Item has children of its own. If false, the child is a leaf."
+				},
+				"bomLinkMasterId": {
+					"type": "string",
+					"description": "Item association's master Id (does not change between iterations) "
+				},
+				"bomOrder": {
+					"type": "string",
+					"description": "The order that the child entry shows up in the BOM."
+				},
+				"units": {
+					"type": "string",
+					"description": "The display name for the Unit of Measure on CldItemUsage."
+				},
+				"quantity": {
+					"type": "string",
+					"description": "BOM row quantity "
+				},
+				"childItemId": {
+					"type": "string",
+					"description": "The ID of the child Item."
+				},
+				"parentItemId": {
+					"type": "string",
+					"description": "The ID of the parent Item."
+				},
+				"id": {
+					"type": "string",
+					"description": "The ID for the object."
+				},
+				"parentMasterChildMasterAndRefDesMaster": {
+					"type": "string"
+				},
+				"childMasterAndRefDesMaster": {
+					"type": "string"
+				},
+				"isStatic": {
+					"type": "boolean",
+					"description": "If true, the dependency is static. If false, the dependency is computed."
+				},
+				"positionNumber": {
+					"type": "string",
+					"description": "Assigned BOM row position number "
+				},
+				"properties": {
+					"type": "array",
+					"items": {
+						"$ref": "#/components/schemas/Property"
+					}
+				}
+			},
+			"description": "A dependency between two Items "
+		},
+		"ItemBomOccurrence": {
+			"title": "Item Bom Occurrence",
+			"type": "object",
+			"description": "BOM link master ID with which this occurrence is associated.",
+			"properties": {
+				"rootItemId": {
+					"type": "string",
+					"description": "The top most Item of the BOM."
+				},
+				"id": {
+					"type": "string",
+					"description": "A unique identifier for this occurrence within the Item BOM."
+				},
+				"parentOccurrenceId": {
+					"type": "string",
+					"description": "The immediate parent. -1 means no parent occurrence."
+				},
+				"bomLinkMasterId": {
+					"type": "string"
+				},
+				"position": {
+					"type": "string",
+					"description": "The position on the BOM."
+				},
+				"detailId": {
+					"type": "string",
+					"description": "The value of the occurrence. Also known as the 'Detail Id.'"
+				},
+				"path": {
+					"type": "string",
+					"description": "The path to the occurrence in the BOM. The format is the list of Item Master IDs separated by the '/' delimiter."
+				}
+			}
+		},
+		"ItemVersionCollection": {
+			"title": "Item Version Collection",
+			"type": "object",
+			"description": "Item version collection object.",
+			"properties": {
+				"pagination": {
+					"$ref": "#/components/schemas/CursorBasedPagination"
+				},
+				"results": {
+					"type": "array",
+					"items": {
+						"$ref": "#/components/schemas/ItemVersion"
+					}
+				},
+				"included": {
+					"type": "object",
+					"properties": {
+						"propertyDefinition": {
+							"type": "object",
+							"additionalProperties": {
+								"$ref": "#/components/schemas/PropertyDefinition"
+							}
+						}
+					}
+				}
+			}
+		},
+		"ItemCollection": {
+			"title": "Item Collection",
+			"type": "object",
+			"description": "Item collection object.",
+			"properties": {
+				"pagination": {
+					"$ref": "#/components/schemas/CursorBasedPagination"
+				},
+				"results": {
+					"$ref": "#/components/schemas/Item"
+				},
+				"included": {
+					"type": "object",
+					"properties": {
+						"propertyDefinition": {
+							"type": "object",
+							"additionalProperties": {
+								"$ref": "#/components/schemas/PropertyDefinition"
+							}
+						}
+					}
+				}
+			}
+		},
+		"ItemVersion": {
+			"title": "Item Version",
+			"type": "object",
+			"description": "The unique identifier for the object.",
+			"properties": {
+				"id": {
+					"type": "string",
+					"description": "Item Iteration Id"
+				},
+				"url": {
+					"$ref": "#/components/schemas/Url"
+				},
+				"number": {
+					"type": "string",
+					"description": "The Item number."
+				},
+				"version": {
+					"type": "number",
+					"description": "The version number, which is a sequential number given to each version. For example, if this value is 5, then the object is the 5th version."
+				},
+				"revision": {
+					"type": "string",
+					"description": "The display value for the revision."
+				},
+				"comment": {
+					"type": "string"
+				},
+				"title": {
+					"type": "string",
+					"description": "The display title."
+				},
+				"state": {
+					"type": "string",
+					"description": "Life cycle state of the item"
+				},
+				"stateColor": {
+					"type": "number"
+				},
+				"name": {
+					"type": "string"
+				},
+				"category": {
+					"type": "string",
+					"description": "Category assigned to the item "
+				},
+				"categoryColor": {
+					"type": "number"
+				},
+				"entityType": {
+					"type": "string"
+				},
+				"isReadOnly": {
+					"type": "boolean"
+				},
+				"isCloaked": {
+					"type": "boolean",
+					"description": "If true, the logged-in user is restricted from seeing this item."
+				},
+				"isLatestObsolete": {
+					"type": "boolean",
+					"description": "Flag to check if an latest Item's  version is obsolete"
+				},
+				"item": {
+					"$ref": "#/components/schemas/Item"
+				},
+				"properties": {
+					"type": "array",
+					"items": {
+						"$ref": "#/components/schemas/Property"
+					}
+				}
+			}
+		},
+		"Job": {
+			"title": "Job",
+			"type": "object",
+			"description": "Job object. A job is a task that is run by the job processor.",
+			"properties": {
+				"id": {
+					"type": "string",
+					"description": "A unique identifier for the job."
+				},
+				"jobType": {
+					"type": "string",
+					"description": "The job type."
+				},
+				"priority": {
+					"type": "number",
+					"description": "The priority of the job. A lower number means a higher priority. 1 is the lowest possible number."
+				},
+				"description": {
+					"type": "string",
+					"description": "A description of the job."
+				},
+				"url": {
+					"$ref": "#/components/schemas/Url"
+				},
+				"params": {
+					"type": "object",
+					"additionalProperties": {
+						"type": "string"
+					},
+					"description": "An array of parameters which provide metadata about the job."
+				},
+				"status": {
+					"enum": ["Ready", "Running", "Success", "Failure"],
+					"description": "The status of the job:\n\n- ``Ready`` - The job is ready to be run.\n- ``Running`` - The job is currently running.\n- ``Success`` - The job has completed successfully.\n- ``Failure`` - The job has failed."
+				},
+				"isOnSite": {
+					"type": "string",
+					"description": "In a multi-site environment, this property tells if the file is on the local site."
+				}
+			}
+		},
+		"LinkCollection": {
+			"title": "Link Collection",
+			"type": "object",
+			"description": "Link collection object.",
+			"properties": {
+				"pagination": {
+					"$ref": "#/components/schemas/CursorBasedPagination"
+				},
+				"results": {
+					"type": "array",
+					"items": {
+						"$ref": "#/components/schemas/LinkEntity"
+					}
+				},
+				"included": {
+					"type": "object",
+					"properties": {
+						"folder": {
+							"type": "object",
+							"additionalProperties": {
+								"$ref": "#/components/schemas/Folder"
+							}
+						},
+						"propertyDefinition": {
+							"type": "object",
+							"additionalProperties": {
+								"$ref": "#/components/schemas/PropertyDefinition"
+							}
+						}
+					}
+				}
+			}
+		},
+		"LinkEntity": {
+			"title": "Link",
+			"type": "object",
+			"description": "link object.",
+			"properties": {
+				"name": {
+					"type": "string"
+				},
+				"id": {
+					"type": "string",
+					"description": "Get the unique identifier for this link object "
+				},
+				"createDate": {
+					"type": "string"
+				},
+				"createUserName": {
+					"type": "string"
+				},
+				"entityType": {
+					"type": "string"
+				},
+				"url": {
+					"$ref": "#/components/schemas/Url"
+				},
+				"toEntity": {
+					"$ref": "#/components/schemas/Entity"
+				},
+				"fromEntity": {
+					"$ref": "#/components/schemas/Folder"
+				}
+			}
+		},
+		"Markup": {
+			"title": "Markup",
+			"type": "object",
+			"description": "Markup object. A markup is a visual annotation that is added to a file.",
+			"properties": {
+				"id": {
+					"type": "string"
+				},
+				"parentId": {
+					"type": "string"
+				},
+				"createdByUser": {
+					"$ref": "#/components/schemas/User"
+				},
+				"createDateTime": {
+					"type": "string"
+				},
+				"updatedByUser": {
+					"$ref": "#/components/schemas/User"
+				},
+				"updateDateTime": {
+					"type": "string"
+				},
+				"data": {
+					"type": "string"
+				},
+				"thumbnail": {
+					"type": "string"
+				},
+				"url": {
+					"$ref": "#/components/schemas/Url"
+				}
+			}
+		},
+		"MarkupCollection": {
+			"title": "Markup Collection",
+			"type": "object",
+			"description": "Markup collection object.",
+			"properties": {
+				"results": {
+					"type": "array",
+					"items": {
+						"$ref": "#/components/schemas/Markup"
+					}
+				},
+				"pagination": {
+					"$ref": "#/components/schemas/CursorBasedPagination"
+				}
+			}
+		},
+		"PasswordPolicyOptionsEnum": {
+			"title": "Password Policy Options Enum",
+			"type": "string",
+			"enum": ["Disabled", "Enabled", "Lowercase"],
+			"description": "PasswordPolicyOptions flags:\n\n- ``Disabled`` - 0\n- ``Enabled`` - 1\n- ``Lowercase`` - 2\n- ``Uppercase`` - 4\n- ``Number`` - 8\n- ``SpecialChar`` - 16"
+		},
+		"PasswordPolicySetting": {
+			"description": "Password Policy Setting",
+			"type": "object",
+			"x-examples": {
+				"Example 1": {
+					"passwordPolicyOption": 30,
+					"minPasswordLength": 8
+				}
+			},
+			"properties": {
+				"passwordPolicyOption": {
+					"$ref": "#/components/schemas/PasswordPolicyOptionsEnum"
+				},
+				"minPasswordLength": {
+					"type": "integer",
+					"description": "Minimum characters required"
+				}
+			}
+		},
+		"ProfileAttribute": {
+			"title": "Profile Attribute",
+			"type": "object",
+			"description": "Profile attribute object.",
+			"properties": {
+				"userGroupId": {
+					"type": "string",
+					"description": "User or group id that profile attribute is associated with."
+				},
+				"attributeId": {
+					"type": "string",
+					"description": "The id of the current attribute."
+				},
+				"value": {
+					"type": "string",
+					"description": "The value of the profile attribute."
+				}
+			}
+		},
+		"ProfileAttributeDefinition": {
+			"title": "Profile Attribute Definition",
+			"type": "object",
+			"description": "Profile attribute definition object.",
+			"properties": {
+				"id": {
+					"type": "string",
+					"description": "The profile attribute id."
+				},
+				"attributeName": {
+					"type": "string",
+					"description": "Name of the profile attribute (must be unique)."
+				},
+				"systemName": {
+					"type": "string"
+				},
+				"activeDirectoryMapping": {
+					"type": "string",
+					"description": "Active Directory field the attribute is mapped from (null if not mapped)."
+				},
+				"association": {
+					"enum": ["None", "User", "Group", "All"],
+					"description": "The association type."
+				},
+				"url": {
+					"$ref": "#/components/schemas/Url"
+				}
+			}
+		},
+		"ProfileAttributeDefinitionCollection": {
+			"title": "Profile Attribute Definition Collection",
+			"type": "object",
+			"description": "Profile attribute definition collection object.",
+			"properties": {
+				"pagination": {
+					"$ref": "#/components/schemas/CursorBasedPagination"
+				},
+				"results": {
+					"$ref": "#/components/schemas/ProfileAttributeDefinition"
+				}
+			}
+		},
+		"Property": {
+			"title": "Property",
+			"type": "object",
+			"description": "Property object.",
+			"properties": {
+				"propertyDefinitionId": {
+					"type": "string",
+					"description": "Unique identifier for a server-based property definition"
+				},
+				"definition": {
+					"$ref": "#/components/schemas/PropertyDefinition"
+				},
+				"value": {
+					"type": "string",
+					"description": "The property value associated with the entity and PropertyDefinition"
+				}
+			}
+		},
+		"PropertyDefinition": {
+			"title": "Property Definition",
+			"type": "object",
+			"description": "Property definition object.",
+			"properties": {
+				"id": {
+					"type": "string",
+					"description": "Get the unique identifier for a server-based property definition"
+				},
+				"url": {
+					"$ref": "#/components/schemas/Url"
+				},
+				"displayName": {
+					"type": "string",
+					"description": "Get or sets the Display name for this Property Definition "
+				},
+				"systemName": {
+					"type": "string",
+					"description": "Get the System Name for this Property Definition."
+				},
+				"dataType": {
+					"type": "string",
+					"description": "The value defined in SQL database.",
+					"enum": ["String", "Numeric", "Bool", "DateTime", "Image"]
+				},
+				"active": {
+					"type": "boolean",
+					"description": "Get or sets whether this Property Definition is Active."
+				},
+				"isSystem": {
+					"type": "boolean",
+					"description": "Get whether or not this is a System Property (as opposed to an userDefined property) "
+				},
+				"initialValue": {
+					"type": "string",
+					"description": " Default Value that will be applied to entities that do not have an existing value associated with this PropertyDefinition "
+				}
+			},
+			"required": ["id", "displayName", "systemName", "dataType"]
+		},
+		"PropertyDefinitionExtended": {
+			"title": "Property Definition Extended",
+			"type": "object",
+			"description": "property definition object",
+			"allOf": [
+				{
+					"$ref": "#/components/schemas/PropertyDefinition"
+				},
+				{
+					"type": "object",
+					"properties": {
+						"listValues": {
+							"type": "array",
+							"description": "Array of possible values for properties based on this property definition",
+							"items": {
+								"type": "string"
+							}
+						}
+					}
+				}
+			]
+		},
+		"PropertyDefinitionCollection": {
+			"title": "Property Definition Collection",
+			"type": "object",
+			"description": "Property definition collection object.",
+			"properties": {
+				"pagination": {
+					"$ref": "#/components/schemas/CursorBasedPagination"
+				},
+				"results": {
+					"type": "array",
+					"items": {
+						"oneOf": [
+							{
+								"$ref": "#/components/schemas/PropertyDefinition"
+							},
+							{
+								"$ref": "#/components/schemas/PropertyDefinitionExtended"
+							}
+						]
+					}
+				}
+			}
+		},
+		"RevisionOptionsEnum": {
+			"title": "Revision Options Enum",
+			"type": "string",
+			"enum": ["AllRevision", "CurrentRevision"],
+			"description": "Revision options:\n\n- ``AllRevision`` - All Revisions\n- ``CurrentRevision`` - Current Revision"
+		},
+		"Role": {
+			"title": "Role",
+			"type": "object",
+			"description": "Role object. A role is a collection of permissions that can be assigned to users and groups.",
+			"properties": {
+				"id": {
+					"type": "string",
+					"description": "A unique identifier of the role."
+				},
+				"roleName": {
+					"type": "string",
+					"description": "The name of the role."
+				},
+				"systemName": {
+					"type": "string",
+					"description": "The system name of the Role."
+				},
+				"description": {
+					"type": "string",
+					"description": "Friendly description of the role's purpose "
+				},
+				"url": {
+					"$ref": "#/components/schemas/Url"
+				}
+			}
+		},
+		"RoleCollection": {
+			"title": "Role Collection",
+			"type": "object",
+			"description": "Role collection object.",
+			"properties": {
+				"pagination": {
+					"$ref": "#/components/schemas/CursorBasedPagination"
+				},
+				"results": {
+					"type": "array",
+					"items": {
+						"$ref": "#/components/schemas/Role"
+					}
+				}
+			}
+		},
+		"SearchCriteria": {
+			"title": "Search Criteria",
+			"type": "object",
+			"description": "Search criteria object.",
+			"properties": {
+				"propertyDefinitionUrl": {
+					"type": "string",
+					"description": "URL string to the property definition"
+				},
+				"operator": {
+					"type": "string",
+					"enum": [
+						"Unknown",
+						"Contains",
+						"DoesNotContain",
+						"IsExactly",
+						"IsEmpty",
+						"IsNotEmpty",
+						"GreaterThan",
+						"GreaterThanOrEqualTo",
+						"LessThan",
+						"LessThanOrEqualTo",
+						"NotEqualTo"
+					],
+					"description": "Represents the operator used for the search."
+				},
+				"searchString": {
+					"type": "string",
+					"description": "The value to use for the search"
+				}
+			},
+			"required": ["operator"],
+			"x-examples": {
+				"Example 1": {
+					"propertyDefinitionUrl": "/AutodeskDM/Services/api/vault/v2/vaults/106/property-definitions/9",
+					"operator": "Contains",
+					"searchString": "SM-TEST-01"
+				}
+			}
+		},
+		"SortCriteria": {
+			"title": "Sort Criteria",
+			"type": "object",
+			"description": "Sort criteria object.",
+			"properties": {
+				"propertyDefinitionUrl": {
+					"type": "string",
+					"description": "URL string to the property definition\n"
+				},
+				"ascending": {
+					"type": "boolean",
+					"description": "If true, the sort is ascending. If false, the sort is descending."
+				}
+			},
+			"x-examples": {
+				"Example 1": {
+					"propertyDefinitionUrl": "/AutodeskDM/Services/api/vault/v2/vaults/106/property-definitions/30",
+					"ascending": true
+				}
+			}
+		},
+		"User": {
+			"title": "User",
+			"type": "object",
+			"description": "User object.",
+			"properties": {
+				"id": {
+					"type": "string",
+					"description": "A unique number that the Vault uses to reference the user."
+				},
+				"name": {
+					"type": "string",
+					"description": "The login name of the user."
+				},
+				"email": {
+					"type": "string",
+					"description": "The email address of the user."
+				},
+				"authTypes": {
+					"$ref": "#/components/schemas/AuthTypeEnum"
+				},
+				"systemName": {
+					"type": "string"
+				},
+				"createDate": {
+					"type": "string",
+					"format": "date-time",
+					"description": "The date that the user was created."
+				},
+				"isActive": {
+					"type": "string",
+					"description": "Is the user active "
+				},
+				"url": {
+					"$ref": "#/components/schemas/Url"
+				}
+			}
+		},
+		"UserExtended": {
+			"title": "User Extended",
+			"type": "object",
+			"description": "User extended object.",
+			"allOf": [
+				{
+					"$ref": "#/components/schemas/User"
+				},
+				{
+					"type": "object",
+					"properties": {
+						"firstName": {
+							"type": "string",
+							"description": "First name of the user"
+						},
+						"lastName": {
+							"type": "string",
+							"description": "Last name of the user"
+						},
+						"analyticsId": {
+							"type": "string"
+						},
+						"roles": {
+							"type": "array",
+							"description": "An array of Role objects associated with this user. ",
+							"items": {
+								"$ref": "#/components/schemas/Role"
+							}
+						},
+						"vaults": {
+							"type": "array",
+							"description": "An array of KnowledgeVault objects associated with this user. ",
+							"items": {
+								"$ref": "#/components/schemas/Vault"
+							}
+						},
+						"groups": {
+							"type": "array",
+							"description": "An array of Group objects the user is a direct member of ",
+							"items": {
+								"$ref": "#/components/schemas/Group"
+							}
+						},
+						"accounts": {
+							"type": "array",
+							"description": "Accounts associated with this user. ",
+							"items": {
+								"$ref": "#/components/schemas/Account"
+							}
+						},
+						"attributes": {
+							"type": "array",
+							"description": "Profile attributes of this user. ",
+							"items": {
+								"type": "object",
+								"properties": {
+									"definition": {
+										"$ref": "#/components/schemas/ProfileAttributeDefinition"
+									},
+									"value": {
+										"type": "string"
+									}
+								}
+							}
+						},
+						"isAdministrator": {
+							"type": "boolean"
+						},
+						"createUser": {
+							"$ref": "#/components/schemas/User"
+						}
+					}
+				}
+			]
+		},
+		"UserCollection": {
+			"title": "User Collection",
+			"type": "object",
+			"description": "User collection object.",
+			"properties": {
+				"pagination": {
+					"$ref": "#/components/schemas/CursorBasedPagination"
+				},
+				"results": {
+					"type": "array",
+					"items": {
+						"$ref": "#/components/schemas/User"
+					}
+				}
+			}
+		},
+		"Vault": {
+			"title": "Vault",
+			"type": "object",
+			"description": "Vault object.Contains information about the Knowledge Vault.",
+			"properties": {
+				"name": {
+					"type": "string",
+					"description": "The name of the Knowledge Vault. This is also the name of the database."
+				},
+				"id": {
+					"type": "string",
+					"description": "A unique identifier for the Knowledge Vault."
+				},
+				"url": {
+					"$ref": "#/components/schemas/Url"
+				}
+			}
+		},
+		"VaultCollection": {
+			"title": "Vault Collection",
+			"type": "object",
+			"description": "Vault collection object.",
+			"properties": {
+				"pagination": {
+					"$ref": "#/components/schemas/CursorBasedPagination"
+				},
+				"results": {
+					"type": "array",
+					"items": {
+						"$ref": "#/components/schemas/Vault"
+					}
+				}
+			}
+		},
+		"VaultOption": {
+			"title": "Vault Option",
+			"type": "object",
+			"description": "Vault option object.",
+			"properties": {
+				"id": {
+					"type": "string"
+				},
+				"name": {
+					"type": "string",
+					"description": "The name of the option"
+				},
+				"value": {
+					"type": "string",
+					"description": "The value of the option"
+				},
+				"url": {
+					"$ref": "#/components/schemas/Url"
+				}
+			}
+		},
+		"VaultOptionCollection": {
+			"title": "Vault Option Collection",
+			"type": "object",
+			"description": "Vault option collection object.",
+			"properties": {
+				"pagination": {
+					"$ref": "#/components/schemas/CursorBasedPagination"
+				},
+				"results": {
+					"type": "array",
+					"items": {
+						"$ref": "#/components/schemas/VaultOption"
+					}
+				}
+			}
+		},
+		"VersionTypeEnum": {
+			"title": "Version Type Enum",
+			"type": "string",
+			"enum": ["None", "Latest", "LatestReleased"],
+			"description": "An enumerated value that specifies the type of version to retrieve."
+		},
+		"XRefTypeEnum": {
+			"title": "XRef Type Enum",
+			"type": "string",
+			"enum": ["Internal", "External"],
+			"description": "An enumerated value that specifies whether the Component is internal or external in relation to the design file.\n\nEnum of XRefType\n  Internal = 0,\n  External = 1"
+		},
+		"Session": {
+			"title": "Session",
+			"type": "object",
+			"description": "Session object.",
+			"properties": {
+				"id": {
+					"type": "string"
+				},
+				"accessToken": {
+					"type": "string",
+					"description": "The access token"
+				},
+				"vaultInformation": {
+					"$ref": "#/components/schemas/Vault"
+				},
+				"userInformation": {
+					"$ref": "#/components/schemas/User"
+				}
+			},
+			"required": ["accessToken"]
+		},
+		"Url": {
+			"type": "string",
+			"description": "The relative URL to access this object."
+		}
+	}
+}

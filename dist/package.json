@@ -1,0 +1,65 @@
+{
+    "name": "n8n-nodes-autodesk-vault-data-api",
+    "version": "1.0.0",
+    "description": "n8n community node for interacting with the Autodesk Vault Data API (APS Platform).",
+    "keywords": [
+        "n8n-community-node-package",
+        "n8n",
+        "autodesk",
+        "vault",
+        "vault data api",
+        "aps",
+        "oauth2"
+    ],
+    "license": "MIT",
+    "homepage": "https://github.com/Womabre/n8n-nodes-autodesk-vault-data-api",
+    "author": {
+        "name": "Wouter Breedveld",
+        "email": "w.m.breedveld@gmail.com"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Womabre/n8n-nodes-autodesk-vault-data-api.git"
+    },
+    "engines": {
+        "node": ">=20.15"
+    },
+    "main": "index.js",
+    "scripts": {
+        "build": "npx rimraf dist && tsc && gulp build:icons",
+        "dev": "tsc --watch",
+        "format": "prettier nodes credentials --write",
+        "lint": "eslint nodes credentials package.json",
+        "lintfix": "eslint nodes credentials package.json --fix",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "prepublishOnly": "npm run build && npm run lint -c .eslintrc.prepublish.js nodes credentials package.json"
+    },
+    "files": [
+        "dist"
+    ],
+    "n8n": {
+        "n8nNodesApiVersion": 1,
+        "credentials": [
+            "dist/credentials/AutodeskVaultDataOAuth2Api.credentials.js",
+            "dist/credentials/AutodeskVaultAccountApi.credentials.js"
+        ],
+        "nodes": [
+            "dist/nodes/AutodeskVaultDataApi/AutodeskVaultDataApi.node.js"
+        ]
+    },
+    "devDependencies": {
+        "@types/node": "^24.1.0",
+        "@typescript-eslint/parser": "~8.32.0",
+        "@vitest/coverage-v8": "^4.1.2",
+        "eslint": "^8.57.0",
+        "eslint-plugin-n8n-nodes-base": "^1.16.3",
+        "gulp": "^5.0.0",
+        "prettier": "^3.5.3",
+        "typescript": "^5.8.2",
+        "vitest": "^4.1.2"
+    },
+    "peerDependencies": {
+        "n8n-workflow": "^2.0.0"
+    }
+}
