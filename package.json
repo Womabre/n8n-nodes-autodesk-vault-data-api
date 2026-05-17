@@ -55,7 +55,8 @@
 	"devDependencies": {
 		"@n8n/node-cli": "*",
 		"@types/node": "^24.1.0",
-		"@typescript-eslint/parser": "~8.32.0",
+		"@typescript-eslint/eslint-plugin": "^8.59.3",
+		"@typescript-eslint/parser": "^8.59.3",
 		"@vitest/coverage-v8": "^4.1.2",
 		"eslint": "9.32.0",
 		"eslint-plugin-n8n-nodes-base": "^1.16.3",
