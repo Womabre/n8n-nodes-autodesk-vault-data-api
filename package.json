@@ -3,6 +3,7 @@
 	"version": "1.0.3",
 	"publisher": "Womabre",
 	"description": "n8n community node for interacting with the Autodesk Vault Data API",
+	"license": "MIT",
 	"keywords": [
 		"n8n-community-node-package",
 		"n8n",
@@ -12,7 +13,6 @@
 		"aps",
 		"oauth2"
 	],
-	"license": "MIT",
 	"homepage": "https://github.com/Womabre/n8n-nodes-autodesk-vault-data-api",
 	"author": {
 		"name": "Wouter Breedveld",
@@ -43,6 +43,7 @@
 	],
 	"n8n": {
 		"n8nNodesApiVersion": 1,
+		"strict": true,
 		"credentials": [
 			"dist/credentials/AutodeskVaultDataOAuth2Api.credentials.js",
 			"dist/credentials/AutodeskVaultAccountApi.credentials.js"
@@ -52,18 +53,20 @@
 		]
 	},
 	"devDependencies": {
+		"@n8n/node-cli": "*",
 		"@types/node": "^24.1.0",
 		"@typescript-eslint/parser": "~8.32.0",
 		"@vitest/coverage-v8": "^4.1.2",
-		"eslint": "^8.57.0",
+		"eslint": "9.32.0",
 		"eslint-plugin-n8n-nodes-base": "^1.16.3",
 		"gulp": "^5.0.0",
-		"prettier": "^3.5.3",
-		"typescript": "^5.8.2",
+		"prettier": "3.6.2",
+		"release-it": "^19.0.4",
+		"typescript": "5.9.2",
 		"vitest": "^4.1.2"
 	},
 	"peerDependencies": {
-		"n8n-workflow": "^2.0.0"
+		"n8n-workflow": "*"
 	},
 	"overrides": {
 		"lodash": "^4.17.21"
