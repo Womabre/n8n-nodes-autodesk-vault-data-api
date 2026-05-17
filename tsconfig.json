@@ -22,6 +22,6 @@
 		"skipLibCheck": true,
 		"outDir": "./dist/"
 	},
-	"include": ["credentials/**/*", "nodes/**/*", "nodes/**/*.json", "package.json", "vitest.config.ts"],
+	"include": ["credentials/**/*", "nodes/**/*", "nodes/**/*.json", "package.json"],
 	"exclude": ["nodes/**/__tests__/**"]
 }
