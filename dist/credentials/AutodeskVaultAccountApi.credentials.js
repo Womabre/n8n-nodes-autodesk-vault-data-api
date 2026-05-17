@@ -49,6 +49,7 @@ class AutodeskVaultAccountApi {
                 type: 'hidden',
                 typeOptions: {
                     expirable: true,
+                    password: true,
                 },
                 default: '',
             },

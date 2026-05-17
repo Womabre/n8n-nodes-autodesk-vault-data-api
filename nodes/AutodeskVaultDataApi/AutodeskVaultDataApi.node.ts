@@ -25,6 +25,7 @@ export class AutodeskVaultDataApi implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'Autodesk Vault Data API',
 		name: 'autodeskVaultDataApi',
+		usableAsTool: true,
 		version: [2],
 		group: ['transform'],
 		icon: 'file:AutodeskVaultDataApi.svg',
@@ -69,8 +70,8 @@ export class AutodeskVaultDataApi implements INodeType {
 				name: 'authentication',
 				type: 'options',
 				options: [
-					{ name: 'Vault Account', value: 'VaultLogin' },
 					{ name: 'Autodesk ID (3-Legged OAuth2)', value: 'OAuth2' },
+					{ name: 'Vault Account', value: 'VaultLogin' },
 				],
 				default: 'VaultLogin',
 				description: 'Choose the authentication method',

@@ -165,8 +165,10 @@ export const operations: INodeProperties[] = [
                   if (attempt > 0) {
                     // Exponential backoff: 2s, 4s, 8s, 16s, capped at 30s
                     const delayMs = Math.min(baseDelayMs * Math.pow(2, attempt - 1), 30000);
-                    await new Promise((resolve) => setTimeout(resolve, delayMs));
+                    // eslint-disable-next-line @n8n/community-nodes/no-restricted-globals
+                    await new Promise<void>((resolve) => setTimeout(resolve, delayMs));
 
+                    // eslint-disable-next-line @n8n/community-nodes/no-http-request-with-manual-auth
                     response = await this.helpers.httpRequest({
                       method: 'GET',
                       url: `${vaultServerUrl}/AutodeskDM/Services/api/vault/v2/vaults/${vaultId}/file-versions/${fileId}/svf/bubble.json`,
@@ -174,7 +176,7 @@ export const operations: INodeProperties[] = [
                       qs,
                       json: false,
                       returnFullResponse: true,
-                    });
+                    }) as IN8nHttpFullResponse;
                   }
 
                   try {

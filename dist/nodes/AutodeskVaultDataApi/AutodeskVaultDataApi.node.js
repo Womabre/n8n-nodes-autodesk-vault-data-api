@@ -56,6 +56,7 @@ class AutodeskVaultDataApi {
         this.description = {
             displayName: 'Autodesk Vault Data API',
             name: 'autodeskVaultDataApi',
+            usableAsTool: true,
             version: [2],
             group: ['transform'],
             icon: 'file:AutodeskVaultDataApi.svg',
@@ -99,8 +100,8 @@ class AutodeskVaultDataApi {
                     name: 'authentication',
                     type: 'options',
                     options: [
-                        { name: 'Vault Account', value: 'VaultLogin' },
                         { name: 'Autodesk ID (3-Legged OAuth2)', value: 'OAuth2' },
+                        { name: 'Vault Account', value: 'VaultLogin' },
                     ],
                     default: 'VaultLogin',
                     description: 'Choose the authentication method',

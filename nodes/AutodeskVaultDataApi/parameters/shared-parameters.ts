@@ -1040,7 +1040,7 @@ export const parameters: INodeProperties[] = [
     type: 'string',
     required: true,
     description: 'The unique identifier of a Folder',
-    hint: '\"1\" is the root folder ID',
+    hint: '"1" is the root folder ID',
     placeholder: 'e.g. 1',
     displayOptions: {
       show: {
@@ -1567,7 +1567,7 @@ export const parameters: INodeProperties[] = [
       numberPrecision: 0,
     },
     description: 'Max number of results to return',
-    hint: 'Specifies the number of results to return per page. Maximum limit is controlled by \"Page size configuration\" on the server. The maximum is 1000',
+    hint: 'Specifies the number of results to return per page. Maximum limit is controlled by "Page size configuration" on the server. The maximum is 1000',
     displayOptions: {
       show: {
         resource: [

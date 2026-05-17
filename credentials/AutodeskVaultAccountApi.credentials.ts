@@ -55,6 +55,7 @@ export class AutodeskVaultAccountApi implements ICredentialType {
 			type: 'hidden',
 			typeOptions: {
 				expirable: true,
+				password: true,
 			},
 			default: '',
 		},

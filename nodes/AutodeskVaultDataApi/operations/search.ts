@@ -1,5 +1,14 @@
 import { IExecuteSingleFunctions, IHttpRequestOptions, INodeProperties } from 'n8n-workflow';
 
+interface SearchCriterion {
+  propertyDefinitionUrl?: string;
+  [key: string]: unknown;
+}
+
+interface CriteriaWrapper {
+  criteria?: SearchCriterion[];
+}
+
 export const operations: INodeProperties[] = [
   // Search: search, advancedSearch
   {
@@ -89,7 +98,7 @@ export async function formatFolderUrls(
   if (!requestOptions.body || typeof requestOptions.body !== 'object') {
     requestOptions.body = {};
   }
-  const body = requestOptions.body as Record<string, any>;
+  const body = requestOptions.body as Record<string, unknown>;
 
   if (Array.isArray(folderIds)) {
     const basePath = `/AutodeskDM/Services/api/vault/v2/vaults/${vaultId}/folders/`;
@@ -103,14 +112,14 @@ export async function formatPropertyDefinitionUrls(
   requestOptions: IHttpRequestOptions,
 ): Promise<IHttpRequestOptions> {
   const vaultId = this.getNodeParameter('vaultId', 0);
-  const searchWrapper = this.getNodeParameter('searchCriteria', 0) as { criteria?: any[] };
-  const sortWrapper = this.getNodeParameter('sortCriteria', 0) as { criteria?: any[] };
+  const searchWrapper = this.getNodeParameter('searchCriteria', 0) as CriteriaWrapper;
+  const sortWrapper = this.getNodeParameter('sortCriteria', 0) as CriteriaWrapper;
 
   // Ensure the body exists and is an object
   if (!requestOptions.body || typeof requestOptions.body !== 'object') {
     requestOptions.body = {};
   }
-  const body = requestOptions.body as Record<string, any>;
+  const body = requestOptions.body as Record<string, unknown>;
 
   // Format searchCriteria if criteria array exists
   if (Array.isArray(searchWrapper?.criteria)) {
