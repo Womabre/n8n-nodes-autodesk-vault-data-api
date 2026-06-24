@@ -48,9 +48,6 @@ export const operations: INodeProperties[] = [
             qs: {
               'option[releasedOnly]': '={{$parameter["releasedOnly"]}}',
             },
-            headers: {
-              Authorization: '=Bearer {{$credentials.accessToken}}',
-            },
           },
         },
       },
@@ -63,9 +60,6 @@ export const operations: INodeProperties[] = [
           request: {
             method: 'GET',
             url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}',
-            headers: {
-              Authorization: '=Bearer {{$credentials.accessToken}}',
-            },
           },
         },
       },
@@ -86,7 +80,6 @@ export const operations: INodeProperties[] = [
               contentDisposition: '={{$parameter["contentDisposition"] || undefined}}',
             },
             headers: {
-              Authorization: '=Bearer {{$credentials.accessToken}}',
               Range: '={{$parameter["range"] || undefined}}',
             },
             returnFullResponse: true,
@@ -111,9 +104,6 @@ export const operations: INodeProperties[] = [
               allowSync: '={{$parameter["allowSync"]}}',
               wmSrcItemVerId: '={{$parameter["wmSrcItemVerId"] || undefined}}',
               wmSrcFileVerId: '={{$parameter["wmSrcFileVerId"] || undefined}}',
-            },
-            headers: {
-              Authorization: '=Bearer {{$credentials.accessToken}}',
             },
             returnFullResponse: true,
           },
@@ -152,7 +142,10 @@ export const operations: INodeProperties[] = [
                 }
 
                 const vaultId = this.getNodeParameter('vaultId', 0);
-                const fileId = this.getNodeParameter('fileId', 0);
+                // fileId is a resource locator; extract its plain value
+                const fileId = this.getNodeParameter('fileId', undefined, {
+                  extractValue: true,
+                });
                 const allowSync = this.getNodeParameter('allowSync', 0);
                 const wmSrcItemVerId = this.getNodeParameter('wmSrcItemVerId', 0);
                 const wmSrcFileVerId = this.getNodeParameter('wmSrcFileVerId', 0);
@@ -226,9 +219,6 @@ export const operations: INodeProperties[] = [
               wmSrcFileVerId: '={{$parameter["wmSrcFileVerId"] || undefined}}',
               contentDisposition: '={{$parameter["contentDisposition"] || undefined}}',
             },
-            headers: {
-              Authorization: '=Bearer {{$credentials.accessToken}}',
-            },
             returnFullResponse: true,
           },
           output: {
@@ -270,9 +260,16 @@ export const operations: INodeProperties[] = [
               limit: '={{$parameter["limit"] || undefined}}',
               cursorState: '={{$parameter["cursorState"] || undefined}}',
             },
-            headers: {
-              Authorization: '=Bearer {{$credentials.accessToken}}',
-            },
+          },
+          output: {
+            postReceive: [
+              {
+                type: 'rootProperty',
+                properties: {
+                  property: 'results',
+                },
+              },
+            ],
           },
         },
       },
@@ -285,9 +282,6 @@ export const operations: INodeProperties[] = [
           request: {
             method: 'GET',
             url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/markups/{{$parameter["markupId"]}}',
-            headers: {
-              Authorization: '=Bearer {{$credentials.accessToken}}',
-            },
           },
         },
       },
@@ -300,9 +294,6 @@ export const operations: INodeProperties[] = [
           request: {
             method: 'GET',
             url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/thumbnail',
-            headers: {
-              Authorization: '=Bearer {{$credentials.accessToken}}',
-            },
             returnFullResponse: true,
             encoding: 'arraybuffer', // ensures Buffer not string
           },
@@ -327,9 +318,6 @@ export const operations: INodeProperties[] = [
               contentDisposition: '={{$parameter["contentDisposition"] || undefined}}',
               expirationTime: '={{$parameter["expirationTime"] || undefined}}',
             },
-            headers: {
-              Authorization: '=Bearer {{$credentials.accessToken}}',
-            },
           },
         },
       },
@@ -353,9 +341,16 @@ export const operations: INodeProperties[] = [
               limit: '={{$parameter["limit"] || undefined}}',
               cursorState: '={{$parameter["cursorState"] || undefined}}',
             },
-            headers: {
-              Authorization: '=Bearer {{$credentials.accessToken}}',
-            },
+          },
+          output: {
+            postReceive: [
+              {
+                type: 'rootProperty',
+                properties: {
+                  property: 'results',
+                },
+              },
+            ],
           },
         },
       },
@@ -379,9 +374,16 @@ export const operations: INodeProperties[] = [
               limit: '={{$parameter["limit"] || undefined}}',
               cursorState: '={{$parameter["cursorState"] || undefined}}',
             },
-            headers: {
-              Authorization: '=Bearer {{$credentials.accessToken}}',
-            },
+          },
+          output: {
+            postReceive: [
+              {
+                type: 'rootProperty',
+                properties: {
+                  property: 'results',
+                },
+              },
+            ],
           },
         },
       },
@@ -408,9 +410,16 @@ export const operations: INodeProperties[] = [
               limit: '={{$parameter["limit"] || undefined}}',
               cursorState: '={{$parameter["cursorState"] || undefined}}',
             },
-            headers: {
-              Authorization: '=Bearer {{$credentials.accessToken}}',
-            },
+          },
+          output: {
+            postReceive: [
+              {
+                type: 'rootProperty',
+                properties: {
+                  property: 'results',
+                },
+              },
+            ],
           },
         },
       },
@@ -430,9 +439,16 @@ export const operations: INodeProperties[] = [
               limit: '={{$parameter["limit"] || undefined}}',
               cursorState: '={{$parameter["cursorState"] || undefined}}',
             },
-            headers: {
-              Authorization: '=Bearer {{$credentials.accessToken}}',
-            },
+          },
+          output: {
+            postReceive: [
+              {
+                type: 'rootProperty',
+                properties: {
+                  property: 'results',
+                },
+              },
+            ],
           },
         },
       },
@@ -451,9 +467,16 @@ export const operations: INodeProperties[] = [
               limit: '={{$parameter["limit"] || undefined}}',
               cursorState: '={{$parameter["cursorState"] || undefined}}',
             },
-            headers: {
-              Authorization: '=Bearer {{$credentials.accessToken}}',
-            },
+          },
+          output: {
+            postReceive: [
+              {
+                type: 'rootProperty',
+                properties: {
+                  property: 'results',
+                },
+              },
+            ],
           },
         },
       },
@@ -470,9 +493,16 @@ export const operations: INodeProperties[] = [
               limit: '={{$parameter["limit"] || undefined}}',
               cursorState: '={{$parameter["cursorState"] || undefined}}',
             },
-            headers: {
-              Authorization: '=Bearer {{$credentials.accessToken}}',
-            },
+          },
+          output: {
+            postReceive: [
+              {
+                type: 'rootProperty',
+                properties: {
+                  property: 'results',
+                },
+              },
+            ],
           },
         },
       },
@@ -489,9 +519,16 @@ export const operations: INodeProperties[] = [
               limit: '={{$parameter["limit"] || undefined}}',
               cursorState: '={{$parameter["cursorState"] || undefined}}',
             },
-            headers: {
-              Authorization: '=Bearer {{$credentials.accessToken}}',
-            },
+          },
+          output: {
+            postReceive: [
+              {
+                type: 'rootProperty',
+                properties: {
+                  property: 'results',
+                },
+              },
+            ],
           },
         },
       },

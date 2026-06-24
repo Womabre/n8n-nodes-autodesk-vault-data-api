@@ -1,5 +1,5 @@
 {
-    "node": "n8n-nodes-base.VaultDataApi",
+    "node": "n8n-nodes-autodesk-vault-data-api.autodeskVaultDataApi",
     "nodeVersion": "1.0",
     "codexVersion": "1.0",
     "categories": ["Autodesk", "Data", "Cloud"],

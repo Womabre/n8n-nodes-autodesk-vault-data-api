@@ -22,9 +22,6 @@ exports.operations = [
                     request: {
                         method: 'POST',
                         url: '=/AutodeskDM/Services/api/vault/v2/system-options',
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
-                        },
                         body: {
                             name: '={{$parameter["optionName"]}}',
                             value: '={{$parameter["optionValue"]}}',
@@ -51,9 +48,6 @@ exports.operations = [
                     request: {
                         method: 'POST',
                         url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/vault-options',
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
-                        },
                         body: {
                             name: '={{$parameter["optionName"]}}',
                             value: '={{$parameter["optionValue"]}}',
@@ -80,9 +74,6 @@ exports.operations = [
                     request: {
                         method: 'DELETE',
                         url: '=/AutodeskDM/Services/api/vault/v2/system-options/{{$parameter["systemOptionId"]}}',
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
-                        },
                     },
                     output: {
                         postReceive: [
@@ -105,9 +96,6 @@ exports.operations = [
                     request: {
                         method: 'DELETE',
                         url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/vault-options/{{$parameter["vaultOptionId"]}}',
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
-                        },
                     },
                     output: {
                         postReceive: [
@@ -130,14 +118,21 @@ exports.operations = [
                     request: {
                         method: 'GET',
                         url: '=/AutodeskDM/Services/api/vault/v2/system-options',
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
-                        },
                         qs: {
-                            'filter[name]': '={{$parameter["filterName"]}}',
+                            'filter[name]': '={{$parameter["filterName"] || undefined}}',
                             limit: '={{$parameter["limit"] || undefined}}',
                             cursorState: '={{$parameter["cursorState"] || undefined}}',
                         },
+                    },
+                    output: {
+                        postReceive: [
+                            {
+                                type: 'rootProperty',
+                                properties: {
+                                    property: 'results',
+                                },
+                            },
+                        ],
                     },
                 },
             },
@@ -150,14 +145,21 @@ exports.operations = [
                     request: {
                         method: 'GET',
                         url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/vault-options',
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
-                        },
                         qs: {
-                            'filter[name]-starts': '={{$parameter["nameStartsWith"]}}',
+                            'filter[name]-starts': '={{$parameter["nameStartsWith"] || undefined}}',
                             limit: '={{$parameter["limit"] || undefined}}',
                             cursorState: '={{$parameter["cursorState"] || undefined}}',
                         },
+                    },
+                    output: {
+                        postReceive: [
+                            {
+                                type: 'rootProperty',
+                                properties: {
+                                    property: 'results',
+                                },
+                            },
+                        ],
                     },
                 },
             },
@@ -170,9 +172,6 @@ exports.operations = [
                     request: {
                         method: 'GET',
                         url: '=/AutodeskDM/Services/api/vault/v2/system-options/{{$parameter["systemOptionId"]}}',
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
-                        },
                     },
                 },
             },
@@ -185,9 +184,6 @@ exports.operations = [
                     request: {
                         method: 'GET',
                         url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/vault-options/{{$parameter["vaultOptionId"]}}',
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
-                        },
                     },
                 },
             },
@@ -200,9 +196,6 @@ exports.operations = [
                     request: {
                         method: 'PATCH',
                         url: '=/AutodeskDM/Services/api/vault/v2/system-options/{{$parameter["systemOptionId"]}}',
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
-                        },
                         body: {
                             value: '={{$parameter["optionValue"]}}',
                         },
@@ -228,9 +221,6 @@ exports.operations = [
                     request: {
                         method: 'PATCH',
                         url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/vault-options/{{$parameter["vaultOptionId"]}}',
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
-                        },
                         body: {
                             value: '={{$parameter["optionValue"]}}',
                         },

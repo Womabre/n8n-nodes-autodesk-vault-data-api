@@ -33,9 +33,6 @@ export const operations: INodeProperties[] = [
           request: {
             method: 'GET',
             url: '=/AutodeskDM/Services/api/vault/v2/groups/{{$parameter["groupId"]}}/accounts/{{$parameter["authType"]}}',
-            headers: {
-              Authorization: '=Bearer {{$credentials.accessToken}}',
-            },
           },
         },
       },
@@ -52,6 +49,16 @@ export const operations: INodeProperties[] = [
               limit: '={{$parameter["limit"] || undefined}}',
               cursorState: '={{$parameter["cursorState"] || undefined}}',
             },
+          },
+          output: {
+            postReceive: [
+              {
+                type: 'rootProperty',
+                properties: {
+                  property: 'results',
+                },
+              },
+            ],
           },
         },
       },

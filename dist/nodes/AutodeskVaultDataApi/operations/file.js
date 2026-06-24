@@ -35,9 +35,6 @@ exports.operations = [
                         qs: {
                             'option[releasedOnly]': '={{$parameter["releasedOnly"]}}',
                         },
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
-                        },
                     },
                 },
             },
@@ -50,9 +47,6 @@ exports.operations = [
                     request: {
                         method: 'GET',
                         url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}',
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
-                        },
                     },
                 },
             },
@@ -72,7 +66,6 @@ exports.operations = [
                             contentDisposition: '={{$parameter["contentDisposition"] || undefined}}',
                         },
                         headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
                             Range: '={{$parameter["range"] || undefined}}',
                         },
                         returnFullResponse: true,
@@ -96,9 +89,6 @@ exports.operations = [
                             allowSync: '={{$parameter["allowSync"]}}',
                             wmSrcItemVerId: '={{$parameter["wmSrcItemVerId"] || undefined}}',
                             wmSrcFileVerId: '={{$parameter["wmSrcFileVerId"] || undefined}}',
-                        },
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
                         },
                         returnFullResponse: true,
                     },
@@ -128,7 +118,9 @@ exports.operations = [
                                     accessToken = creds.accessToken;
                                 }
                                 const vaultId = this.getNodeParameter('vaultId', 0);
-                                const fileId = this.getNodeParameter('fileId', 0);
+                                const fileId = this.getNodeParameter('fileId', undefined, {
+                                    extractValue: true,
+                                });
                                 const allowSync = this.getNodeParameter('allowSync', 0);
                                 const wmSrcItemVerId = this.getNodeParameter('wmSrcItemVerId', 0);
                                 const wmSrcFileVerId = this.getNodeParameter('wmSrcFileVerId', 0);
@@ -191,9 +183,6 @@ exports.operations = [
                             wmSrcFileVerId: '={{$parameter["wmSrcFileVerId"] || undefined}}',
                             contentDisposition: '={{$parameter["contentDisposition"] || undefined}}',
                         },
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
-                        },
                         returnFullResponse: true,
                     },
                     output: {
@@ -229,9 +218,16 @@ exports.operations = [
                             limit: '={{$parameter["limit"] || undefined}}',
                             cursorState: '={{$parameter["cursorState"] || undefined}}',
                         },
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
-                        },
+                    },
+                    output: {
+                        postReceive: [
+                            {
+                                type: 'rootProperty',
+                                properties: {
+                                    property: 'results',
+                                },
+                            },
+                        ],
                     },
                 },
             },
@@ -244,9 +240,6 @@ exports.operations = [
                     request: {
                         method: 'GET',
                         url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/markups/{{$parameter["markupId"]}}',
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
-                        },
                     },
                 },
             },
@@ -259,9 +252,6 @@ exports.operations = [
                     request: {
                         method: 'GET',
                         url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/thumbnail',
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
-                        },
                         returnFullResponse: true,
                         encoding: 'arraybuffer',
                     },
@@ -284,9 +274,6 @@ exports.operations = [
                             wmSrcFileVerId: '={{$parameter["wmSrcFileVerId"] || undefined}}',
                             contentDisposition: '={{$parameter["contentDisposition"] || undefined}}',
                             expirationTime: '={{$parameter["expirationTime"] || undefined}}',
-                        },
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
                         },
                     },
                 },
@@ -311,9 +298,16 @@ exports.operations = [
                             limit: '={{$parameter["limit"] || undefined}}',
                             cursorState: '={{$parameter["cursorState"] || undefined}}',
                         },
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
-                        },
+                    },
+                    output: {
+                        postReceive: [
+                            {
+                                type: 'rootProperty',
+                                properties: {
+                                    property: 'results',
+                                },
+                            },
+                        ],
                     },
                 },
             },
@@ -337,9 +331,16 @@ exports.operations = [
                             limit: '={{$parameter["limit"] || undefined}}',
                             cursorState: '={{$parameter["cursorState"] || undefined}}',
                         },
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
-                        },
+                    },
+                    output: {
+                        postReceive: [
+                            {
+                                type: 'rootProperty',
+                                properties: {
+                                    property: 'results',
+                                },
+                            },
+                        ],
                     },
                 },
             },
@@ -366,9 +367,16 @@ exports.operations = [
                             limit: '={{$parameter["limit"] || undefined}}',
                             cursorState: '={{$parameter["cursorState"] || undefined}}',
                         },
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
-                        },
+                    },
+                    output: {
+                        postReceive: [
+                            {
+                                type: 'rootProperty',
+                                properties: {
+                                    property: 'results',
+                                },
+                            },
+                        ],
                     },
                 },
             },
@@ -388,9 +396,16 @@ exports.operations = [
                             limit: '={{$parameter["limit"] || undefined}}',
                             cursorState: '={{$parameter["cursorState"] || undefined}}',
                         },
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
-                        },
+                    },
+                    output: {
+                        postReceive: [
+                            {
+                                type: 'rootProperty',
+                                properties: {
+                                    property: 'results',
+                                },
+                            },
+                        ],
                     },
                 },
             },
@@ -409,9 +424,16 @@ exports.operations = [
                             limit: '={{$parameter["limit"] || undefined}}',
                             cursorState: '={{$parameter["cursorState"] || undefined}}',
                         },
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
-                        },
+                    },
+                    output: {
+                        postReceive: [
+                            {
+                                type: 'rootProperty',
+                                properties: {
+                                    property: 'results',
+                                },
+                            },
+                        ],
                     },
                 },
             },
@@ -428,9 +450,16 @@ exports.operations = [
                             limit: '={{$parameter["limit"] || undefined}}',
                             cursorState: '={{$parameter["cursorState"] || undefined}}',
                         },
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
-                        },
+                    },
+                    output: {
+                        postReceive: [
+                            {
+                                type: 'rootProperty',
+                                properties: {
+                                    property: 'results',
+                                },
+                            },
+                        ],
                     },
                 },
             },
@@ -447,9 +476,16 @@ exports.operations = [
                             limit: '={{$parameter["limit"] || undefined}}',
                             cursorState: '={{$parameter["cursorState"] || undefined}}',
                         },
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
-                        },
+                    },
+                    output: {
+                        postReceive: [
+                            {
+                                type: 'rootProperty',
+                                properties: {
+                                    property: 'results',
+                                },
+                            },
+                        ],
                     },
                 },
             },

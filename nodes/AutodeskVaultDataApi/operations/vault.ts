@@ -38,6 +38,16 @@ export const operations: INodeProperties[] = [
               cursorState: '={{$parameter["cursorState"] || undefined}}',
             },
           },
+          output: {
+            postReceive: [
+              {
+                type: 'rootProperty',
+                properties: {
+                  property: 'results',
+                },
+              },
+            ],
+          },
         },
       },
     ],

@@ -23,9 +23,6 @@ exports.operations = [
                     request: {
                         method: 'GET',
                         url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/items/{{$parameter["itemMasterId"]}}',
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
-                        },
                         qs: {
                             'option[releasedOnly]': '={{$parameter["releasedOnly"]}}',
                         },
@@ -41,9 +38,6 @@ exports.operations = [
                     request: {
                         method: 'GET',
                         url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/item-versions/{{$parameter["itemId"]}}',
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
-                        },
                     },
                 },
             },
@@ -67,9 +61,6 @@ exports.operations = [
                             'option[unassignedComponents]': '={{$parameter["unassignedComponents"]}}',
                             'option[includeBOMAssociationProperty]': '={{$parameter["includeBOMAssociationProperty"]}}',
                         },
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
-                        },
                     },
                 },
             },
@@ -82,9 +73,6 @@ exports.operations = [
                     request: {
                         method: 'GET',
                         url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/item-versions/{{$parameter["itemId"]}}/thumbnail',
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
-                        },
                         returnFullResponse: true,
                         encoding: 'arraybuffer',
                     },
@@ -106,9 +94,6 @@ exports.operations = [
                             'option[bomType]': '={{$parameter["bomType"] || undefined}}',
                             'option[date]': '={{$parameter["date"] || undefined}}',
                         },
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
-                        },
                     },
                 },
             },
@@ -121,9 +106,6 @@ exports.operations = [
                     request: {
                         method: 'GET',
                         url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/items/{{$parameter["itemMasterId"]}}/versions',
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
-                        },
                         qs: {
                             'option[history]': '={{$parameter["history"] || undefined}}',
                             'option[extendedModels]': '={{$parameter["extendedModels"]}}',
@@ -132,6 +114,16 @@ exports.operations = [
                             limit: '={{$parameter["limit"] || undefined}}',
                             cursorState: '={{$parameter["cursorState"] || undefined}}',
                         },
+                    },
+                    output: {
+                        postReceive: [
+                            {
+                                type: 'rootProperty',
+                                properties: {
+                                    property: 'results',
+                                },
+                            },
+                        ],
                     },
                 },
             },
@@ -144,13 +136,20 @@ exports.operations = [
                     request: {
                         method: 'GET',
                         url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/items',
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
-                        },
                         qs: {
                             limit: '={{$parameter["limit"] || undefined}}',
                             cursorState: '={{$parameter["cursorState"] || undefined}}',
                         },
+                    },
+                    output: {
+                        postReceive: [
+                            {
+                                type: 'rootProperty',
+                                properties: {
+                                    property: 'results',
+                                },
+                            },
+                        ],
                     },
                 },
             },
@@ -172,9 +171,16 @@ exports.operations = [
                             limit: '={{$parameter["limit"] || undefined}}',
                             cursorState: '={{$parameter["cursorState"] || undefined}}',
                         },
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
-                        },
+                    },
+                    output: {
+                        postReceive: [
+                            {
+                                type: 'rootProperty',
+                                properties: {
+                                    property: 'results',
+                                },
+                            },
+                        ],
                     },
                 },
             },
@@ -187,9 +193,6 @@ exports.operations = [
                     request: {
                         method: 'GET',
                         url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/items/{{$parameter["itemMasterId"]}}/change-orders',
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
-                        },
                         qs: {
                             'option[includeClosedECOs]': '={{$parameter["includeClosedECOs"]}}',
                             'option[extendedModels]': '={{$parameter["extendedModels"]}}',
@@ -197,6 +200,16 @@ exports.operations = [
                             limit: '={{$parameter["limit"] || undefined}}',
                             cursorState: '={{$parameter["cursorState"] || undefined}}',
                         },
+                    },
+                    output: {
+                        postReceive: [
+                            {
+                                type: 'rootProperty',
+                                properties: {
+                                    property: 'results',
+                                },
+                            },
+                        ],
                     },
                 },
             },
@@ -212,9 +225,6 @@ exports.operations = [
                         qs: {
                             'option[extendedModels]': '={{$parameter["extendedModels"]}}',
                             'option[propDefIds]': '={{$parameter["propDefIds"]}}',
-                        },
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
                         },
                     },
                 },

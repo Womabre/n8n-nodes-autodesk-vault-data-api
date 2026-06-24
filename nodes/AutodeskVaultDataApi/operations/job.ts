@@ -1,6 +1,6 @@
 import { IExecuteSingleFunctions, IHttpRequestOptions, INodeProperties } from 'n8n-workflow';
 
-async function formatJobBody(
+export async function formatJobBody(
 	this: IExecuteSingleFunctions,
 	requestOptions: IHttpRequestOptions,
 ): Promise<IHttpRequestOptions> {
@@ -45,9 +45,6 @@ export const operations: INodeProperties[] = [
 					request: {
 						method: 'POST',
 						url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/jobs',
-						headers: {
-							Authorization: '=Bearer {{$credentials.accessToken}}',
-						},
 					},
 					output: {
 						postReceive: [
@@ -70,9 +67,6 @@ export const operations: INodeProperties[] = [
 					request: {
 						method: 'GET',
 						url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/jobs/{{$parameter["jobId"]}}',
-						headers: {
-							Authorization: '=Bearer {{$credentials.accessToken}}',
-						},
 					},
 				},
 			},
@@ -86,9 +80,6 @@ export const operations: INodeProperties[] = [
 					request: {
 						method: 'GET',
 						url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/jobs/job-queue-enabled',
-						headers: {
-							Authorization: '=Bearer {{$credentials.accessToken}}',
-						},
 					},
 				},
 			},

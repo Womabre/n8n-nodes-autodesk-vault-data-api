@@ -34,6 +34,7 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AutodeskVaultDataApi = void 0;
+const listSearch_1 = require("./methods/listSearch");
 const changeOrders = __importStar(require("./operations/changeOrder"));
 const files = __importStar(require("./operations/file"));
 const folders = __importStar(require("./operations/folder"));
@@ -53,11 +54,21 @@ const vault = __importStar(require("./operations/vault"));
 const shared = __importStar(require("./parameters/shared-parameters"));
 class AutodeskVaultDataApi {
     constructor() {
+        this.methods = {
+            listSearch: {
+                searchFolders: listSearch_1.searchFolders,
+                searchFileMasters: listSearch_1.searchFileMasters,
+                searchFileVersions: listSearch_1.searchFileVersions,
+                searchItemMasters: listSearch_1.searchItemMasters,
+                searchItemVersions: listSearch_1.searchItemVersions,
+                searchMarkups: listSearch_1.searchMarkups,
+            },
+        };
         this.description = {
             displayName: 'Autodesk Vault Data API',
             name: 'autodeskVaultDataApi',
             usableAsTool: true,
-            version: [2],
+            version: 1,
             group: ['transform'],
             icon: 'file:AutodeskVaultDataApi.svg',
             subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',

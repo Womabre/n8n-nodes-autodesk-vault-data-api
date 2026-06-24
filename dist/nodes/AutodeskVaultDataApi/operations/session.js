@@ -22,9 +22,6 @@ exports.operations = [
                     request: {
                         method: 'GET',
                         url: '=/AutodeskDM/Services/api/vault/v2/sessions/{{$parameter["sessionId"]}}',
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
-                        },
                     },
                 },
             },
@@ -37,9 +34,6 @@ exports.operations = [
                     request: {
                         method: 'DELETE',
                         url: '=/AutodeskDM/Services/api/vault/v2/sessions/{{$parameter["sessionId"]}}',
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
-                        },
                     },
                     output: {
                         postReceive: [

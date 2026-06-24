@@ -21,9 +21,6 @@ export const operations: INodeProperties[] = [
           request: {
             method: 'GET',
             url: '=/AutodeskDM/Services/api/vault/v2/sessions/{{$parameter["sessionId"]}}',
-            headers: {
-              Authorization: '=Bearer {{$credentials.accessToken}}',
-            },
           },
         },
       },
@@ -36,9 +33,6 @@ export const operations: INodeProperties[] = [
           request: {
             method: 'DELETE',
             url: '=/AutodeskDM/Services/api/vault/v2/sessions/{{$parameter["sessionId"]}}',
-            headers: {
-              Authorization: '=Bearer {{$credentials.accessToken}}',
-            },
           },
           output: {
             postReceive: [

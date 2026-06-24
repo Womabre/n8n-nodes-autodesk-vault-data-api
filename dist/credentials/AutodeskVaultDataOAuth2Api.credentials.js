@@ -120,7 +120,7 @@ class AutodeskVaultDataOAuth2Api {
         this.test = {
             request: {
                 baseURL: '={{$credentials.vaultServerUrl}}',
-                url: '/AutodeskDM/Services/api/vault/v2/server',
+                url: '/AutodeskDM/Services/api/vault/v2/sessions/@current',
                 method: 'GET',
             },
         };

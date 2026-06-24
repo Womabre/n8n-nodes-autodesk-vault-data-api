@@ -1,5 +1,15 @@
 import { INodeType, INodeTypeDescription, NodeConnectionType } from 'n8n-workflow';
 
+// Import list search methods
+import {
+	searchFileMasters,
+	searchFileVersions,
+	searchFolders,
+	searchItemMasters,
+	searchItemVersions,
+	searchMarkups,
+} from './methods/listSearch';
+
 // Import operations
 import * as changeOrders from './operations/changeOrder';
 import * as files from './operations/file';
@@ -22,11 +32,22 @@ import * as vault from './operations/vault';
 import * as shared from './parameters/shared-parameters';
 
 export class AutodeskVaultDataApi implements INodeType {
+	methods = {
+		listSearch: {
+			searchFolders,
+			searchFileMasters,
+			searchFileVersions,
+			searchItemMasters,
+			searchItemVersions,
+			searchMarkups,
+		},
+	};
+
 	description: INodeTypeDescription = {
 		displayName: 'Autodesk Vault Data API',
 		name: 'autodeskVaultDataApi',
 		usableAsTool: true,
-		version: [2],
+		version: 1,
 		group: ['transform'],
 		icon: 'file:AutodeskVaultDataApi.svg',
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',

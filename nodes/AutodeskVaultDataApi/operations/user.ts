@@ -21,9 +21,6 @@ export const operations: INodeProperties[] = [
           request: {
             method: 'GET',
             url: '=/AutodeskDM/Services/api/vault/v2/users/{{$parameter["userId"]}}',
-            headers: {
-              Authorization: '=Bearer {{$credentials.accessToken}}',
-            },
           },
         },
       },
@@ -36,9 +33,6 @@ export const operations: INodeProperties[] = [
           request: {
             method: 'GET',
             url: '=/AutodeskDM/Services/api/vault/v2/users/{{$parameter["userId"]}}/accounts/{{$parameter["authType"]}}',
-            headers: {
-              Authorization: '=Bearer {{$credentials.accessToken}}',
-            },
           },
         },
       },
@@ -55,9 +49,16 @@ export const operations: INodeProperties[] = [
               limit: '={{$parameter["limit"] || undefined}}',
               cursorState: '={{$parameter["cursorState"] || undefined}}',
             },
-            headers: {
-              Authorization: '=Bearer {{$credentials.accessToken}}',
-            },
+          },
+          output: {
+            postReceive: [
+              {
+                type: 'rootProperty',
+                properties: {
+                  property: 'results',
+                },
+              },
+            ],
           },
         },
       },
@@ -70,9 +71,6 @@ export const operations: INodeProperties[] = [
           request: {
             method: 'GET',
             url: '=/AutodeskDM/Services/api/vault/v2/users/{{$parameter["userId"]}}/accounts',
-            headers: {
-              Authorization: '=Bearer {{$credentials.accessToken}}',
-            },
           },
         },
       },

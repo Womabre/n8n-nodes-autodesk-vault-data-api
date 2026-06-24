@@ -120,7 +120,7 @@ export class AutodeskVaultDataOAuth2Api implements ICredentialType {
 	test: ICredentialTestRequest = {
 		request: {
 			baseURL: '={{$credentials.vaultServerUrl}}',
-			url: '/AutodeskDM/Services/api/vault/v2/server',
+			url: '/AutodeskDM/Services/api/vault/v2/sessions/@current',
 			method: 'GET',
 		},
 	};

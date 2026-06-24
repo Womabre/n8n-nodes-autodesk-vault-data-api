@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.operations = void 0;
+exports.formatJobBody = formatJobBody;
 async function formatJobBody(requestOptions) {
     var _a;
     const jobType = this.getNodeParameter('jobType', 0);
@@ -43,9 +44,6 @@ exports.operations = [
                     request: {
                         method: 'POST',
                         url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/jobs',
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
-                        },
                     },
                     output: {
                         postReceive: [
@@ -68,9 +66,6 @@ exports.operations = [
                     request: {
                         method: 'GET',
                         url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/jobs/{{$parameter["jobId"]}}',
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
-                        },
                     },
                 },
             },
@@ -83,9 +78,6 @@ exports.operations = [
                     request: {
                         method: 'GET',
                         url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/jobs/job-queue-enabled',
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
-                        },
                     },
                 },
             },

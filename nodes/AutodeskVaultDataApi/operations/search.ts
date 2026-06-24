@@ -45,9 +45,16 @@ export const operations: INodeProperties[] = [
               limit: '={{$parameter["limit"] || undefined}}',
               cursorState: '={{$parameter["cursorState"] || undefined}}',
             },
-            headers: {
-              Authorization: '=Bearer {{$credentials.accessToken}}',
-            },
+          },
+          output: {
+            postReceive: [
+              {
+                type: 'rootProperty',
+                properties: {
+                  property: 'results',
+                },
+              },
+            ],
           },
         },
       },
@@ -63,9 +70,6 @@ export const operations: INodeProperties[] = [
           request: {
             method: 'POST',
             url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}:advanced-search',
-            headers: {
-              Authorization: '=Bearer {{$credentials.accessToken}}',
-            },
             qs: {
               'option[searchSubFolders]': '={{$parameter["searchSubFolders"] || undefined}}',
               'option[releasedFilesOnly]': '={{$parameter["releasedFilesOnly"] || undefined}}',
@@ -79,6 +83,16 @@ export const operations: INodeProperties[] = [
             body: {
               entityTypesToSearch: '={{$parameter["entityTypesToSearch"] || undefined}}',
             },
+          },
+          output: {
+            postReceive: [
+              {
+                type: 'rootProperty',
+                properties: {
+                  property: 'results',
+                },
+              },
+            ],
           },
         },
       },

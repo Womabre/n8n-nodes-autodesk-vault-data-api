@@ -39,6 +39,16 @@ exports.operations = [
                             cursorState: '={{$parameter["cursorState"] || undefined}}',
                         },
                     },
+                    output: {
+                        postReceive: [
+                            {
+                                type: 'rootProperty',
+                                properties: {
+                                    property: 'results',
+                                },
+                            },
+                        ],
+                    },
                 },
             },
         ],

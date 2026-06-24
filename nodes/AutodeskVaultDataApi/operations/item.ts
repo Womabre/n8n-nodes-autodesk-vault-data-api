@@ -22,9 +22,6 @@ export const operations: INodeProperties[] = [
           request: {
             method: 'GET',
             url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/items/{{$parameter["itemMasterId"]}}',
-            headers: {
-              Authorization: '=Bearer {{$credentials.accessToken}}',
-            },
             qs: {
               'option[releasedOnly]': '={{$parameter["releasedOnly"]}}',
             },
@@ -40,9 +37,6 @@ export const operations: INodeProperties[] = [
           request: {
             method: 'GET',
             url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/item-versions/{{$parameter["itemId"]}}',
-            headers: {
-              Authorization: '=Bearer {{$credentials.accessToken}}',
-            },
           },
         },
       },
@@ -68,9 +62,6 @@ export const operations: INodeProperties[] = [
               'option[includeBOMAssociationProperty]':
                 '={{$parameter["includeBOMAssociationProperty"]}}',
             },
-            headers: {
-              Authorization: '=Bearer {{$credentials.accessToken}}',
-            },
           },
         },
       },
@@ -83,9 +74,6 @@ export const operations: INodeProperties[] = [
           request: {
             method: 'GET',
             url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/item-versions/{{$parameter["itemId"]}}/thumbnail',
-            headers: {
-              Authorization: '=Bearer {{$credentials.accessToken}}',
-            },
             returnFullResponse: true,
             encoding: 'arraybuffer', // ensures Buffer not string
           },
@@ -107,9 +95,6 @@ export const operations: INodeProperties[] = [
               'option[bomType]': '={{$parameter["bomType"] || undefined}}',
               'option[date]': '={{$parameter["date"] || undefined}}',
             },
-            headers: {
-              Authorization: '=Bearer {{$credentials.accessToken}}',
-            },
           },
         },
       },
@@ -122,9 +107,6 @@ export const operations: INodeProperties[] = [
           request: {
             method: 'GET',
             url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/items/{{$parameter["itemMasterId"]}}/versions',
-            headers: {
-              Authorization: '=Bearer {{$credentials.accessToken}}',
-            },
             qs: {
               'option[history]': '={{$parameter["history"] || undefined}}',
               'option[extendedModels]': '={{$parameter["extendedModels"]}}',
@@ -133,6 +115,16 @@ export const operations: INodeProperties[] = [
               limit: '={{$parameter["limit"] || undefined}}',
               cursorState: '={{$parameter["cursorState"] || undefined}}',
             },
+          },
+          output: {
+            postReceive: [
+              {
+                type: 'rootProperty',
+                properties: {
+                  property: 'results',
+                },
+              },
+            ],
           },
         },
       },
@@ -145,13 +137,20 @@ export const operations: INodeProperties[] = [
           request: {
             method: 'GET',
             url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/items',
-            headers: {
-              Authorization: '=Bearer {{$credentials.accessToken}}',
-            },
             qs: {
               limit: '={{$parameter["limit"] || undefined}}',
               cursorState: '={{$parameter["cursorState"] || undefined}}',
             },
+          },
+          output: {
+            postReceive: [
+              {
+                type: 'rootProperty',
+                properties: {
+                  property: 'results',
+                },
+              },
+            ],
           },
         },
       },
@@ -173,9 +172,16 @@ export const operations: INodeProperties[] = [
               limit: '={{$parameter["limit"] || undefined}}',
               cursorState: '={{$parameter["cursorState"] || undefined}}',
             },
-            headers: {
-              Authorization: '=Bearer {{$credentials.accessToken}}',
-            },
+          },
+          output: {
+            postReceive: [
+              {
+                type: 'rootProperty',
+                properties: {
+                  property: 'results',
+                },
+              },
+            ],
           },
         },
       },
@@ -188,9 +194,6 @@ export const operations: INodeProperties[] = [
           request: {
             method: 'GET',
             url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/items/{{$parameter["itemMasterId"]}}/change-orders',
-            headers: {
-              Authorization: '=Bearer {{$credentials.accessToken}}',
-            },
             qs: {
               'option[includeClosedECOs]': '={{$parameter["includeClosedECOs"]}}',
               'option[extendedModels]': '={{$parameter["extendedModels"]}}',
@@ -198,6 +201,16 @@ export const operations: INodeProperties[] = [
               limit: '={{$parameter["limit"] || undefined}}',
               cursorState: '={{$parameter["cursorState"] || undefined}}',
             },
+          },
+          output: {
+            postReceive: [
+              {
+                type: 'rootProperty',
+                properties: {
+                  property: 'results',
+                },
+              },
+            ],
           },
         },
       },
@@ -213,9 +226,6 @@ export const operations: INodeProperties[] = [
             qs: {
               'option[extendedModels]': '={{$parameter["extendedModels"]}}',
               'option[propDefIds]': '={{$parameter["propDefIds"]}}',
-            },
-            headers: {
-              Authorization: '=Bearer {{$credentials.accessToken}}',
             },
           },
         },

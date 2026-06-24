@@ -22,9 +22,6 @@ exports.operations = [
                     request: {
                         method: 'GET',
                         url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/folders/{{$parameter["folderId"]}}',
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
-                        },
                     },
                 },
             },
@@ -52,9 +49,16 @@ exports.operations = [
                             limit: '={{$parameter["limit"] || undefined}}',
                             cursorState: '={{$parameter["cursorState"] || undefined}}',
                         },
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
-                        },
+                    },
+                    output: {
+                        postReceive: [
+                            {
+                                type: 'rootProperty',
+                                properties: {
+                                    property: 'results',
+                                },
+                            },
+                        ],
                     },
                 },
             },
@@ -73,9 +77,16 @@ exports.operations = [
                             limit: '={{$parameter["limit"] || undefined}}',
                             cursorState: '={{$parameter["cursorState"] || undefined}}',
                         },
-                        headers: {
-                            Authorization: '=Bearer {{$credentials.accessToken}}',
-                        },
+                    },
+                    output: {
+                        postReceive: [
+                            {
+                                type: 'rootProperty',
+                                properties: {
+                                    property: 'results',
+                                },
+                            },
+                        ],
                     },
                 },
             },

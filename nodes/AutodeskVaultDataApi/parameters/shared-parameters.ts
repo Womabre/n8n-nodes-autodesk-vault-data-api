@@ -1,4 +1,147 @@
-import { INodeProperties } from 'n8n-workflow';
+import { ILoadOptions, INodeProperties, INodePropertyMode } from 'n8n-workflow';
+
+/**
+ * Builds a declarative loadOptions routing block that fetches a list from the
+ * Vault API and maps each result to a sorted { name, value } option.
+ *
+ * @param url      Request URL. Use an `=` expression for vault-scoped paths,
+ *                 e.g. `=/.../vaults/{{$parameter["vaultId"]}}/links`.
+ * @param nameExpr Expression for the option label. Defaults to the result name.
+ */
+export function listLoadOptions(url: string, nameExpr = '={{$responseItem.name}}'): ILoadOptions {
+  return {
+    routing: {
+      request: {
+        method: 'GET',
+        url,
+        qs: {
+          limit: '1000',
+        },
+      },
+      output: {
+        postReceive: [
+          {
+            type: 'rootProperty',
+            properties: {
+              property: 'results',
+            },
+          },
+          {
+            type: 'setKeyValue',
+            properties: {
+              name: nameExpr,
+              value: '={{$responseItem.id}}',
+            },
+          },
+          {
+            type: 'sort',
+            properties: {
+              key: 'name',
+            },
+          },
+        ],
+      },
+    },
+  };
+}
+
+/**
+ * Builds the "From List" / "By ID" modes for a resource-locator field backed by
+ * a searchable listSearch method.
+ *
+ * @param searchListMethod Name of the registered listSearch method
+ * @param idPlaceholder    Placeholder for the manual "By ID" input
+ * @param idOptions        Optional hint and ID validation overrides
+ */
+function resourceLocatorModes(
+  searchListMethod: string,
+  idPlaceholder: string,
+  idOptions: { idHint?: string; idRegex?: string; idError?: string } = {},
+): INodePropertyMode[] {
+  const { idHint, idRegex = '^[0-9]+$', idError = 'Enter a numeric ID' } = idOptions;
+  // Resource-locator modes are not node parameters and have no `default`; the
+  // lint rule cannot tell them apart when they are built in a helper function.
+  /* eslint-disable n8n-nodes-base/node-param-default-missing */
+  return [
+    {
+      displayName: 'From List',
+      name: 'list',
+      type: 'list',
+      typeOptions: {
+        searchListMethod,
+        searchable: true,
+      },
+    },
+    {
+      displayName: 'By ID',
+      name: 'id',
+      type: 'string',
+      placeholder: idPlaceholder,
+      ...(idHint ? { hint: idHint } : {}),
+      validation: [
+        {
+          type: 'regex',
+          properties: {
+            regex: idRegex,
+            errorMessage: idError,
+          },
+        },
+      ],
+    },
+  ];
+  /* eslint-enable n8n-nodes-base/node-param-default-missing */
+}
+
+/** Resources that expose at least one paginated "Get Many" operation. */
+const PAGINATED_RESOURCES = [
+  'changeOrders',
+  'files',
+  'folders',
+  'group',
+  'items',
+  'links',
+  'options',
+  'profile',
+  'property',
+  'role',
+  'search',
+  'user',
+  'vault',
+];
+
+/** Operations that return a paginated collection (support Limit / Cursor State). */
+const PAGINATED_OPERATIONS = [
+  'advancedSearch',
+  'getAllUsers',
+  'getChangeOrderAssociatedEntities',
+  'getChangeOrderCommentAttachments',
+  'getChangeOrderComments',
+  'getChangeOrderRelatedFiles',
+  'getChangeOrders',
+  'getFileAssociatedChangeOrders',
+  'getFileHistory',
+  'getFileVersionAssociatedItemVersions',
+  'getFileVersionMarkups',
+  'getFileVersions',
+  'getFileVersionUses',
+  'getFileVersionVisualizationAttachments',
+  'getFileVersionWhereUsed',
+  'getFolderContents',
+  'getFolderSubFolders',
+  'getGroups',
+  'getItemAssociatedChangeOrders',
+  'getItemHistory',
+  'getItems',
+  'getItemVersions',
+  'getLinks',
+  'getProfileAttributeDefinitions',
+  'getPropertyDefinitions',
+  'getRoles',
+  'getSystemOptions',
+  'getVaultOptions',
+  'getVaults',
+  'search',
+];
 
 export const parameters: INodeProperties[] = [
   {
@@ -6,40 +149,7 @@ export const parameters: INodeProperties[] = [
     name: 'vaultId',
     type: 'options',
     typeOptions: {
-      loadOptions: {
-        routing: {
-          request: {
-            method: 'GET',
-            url: '/AutodeskDM/Services/api/vault/v2/vaults',
-            qs: {
-              limit: '1000',
-            },
-          },
-          output: {
-            postReceive: [
-              {
-                type: 'rootProperty',
-                properties: {
-                  property: 'results',
-                },
-              },
-              {
-                type: 'setKeyValue',
-                properties: {
-                  name: '={{$responseItem.name}}',
-                  value: '={{$responseItem.id}}',
-                },
-              },
-              {
-                type: 'sort',
-                properties: {
-                  key: 'name',
-                },
-              },
-            ],
-          },
-        },
-      }
+      loadOptions: listLoadOptions('/AutodeskDM/Services/api/vault/v2/vaults'),
     },
     required: true,
     description: 'The ID of the knowledge vault to retrieve. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
@@ -132,40 +242,7 @@ export const parameters: INodeProperties[] = [
     name: 'groupId',
     type: 'options',
     typeOptions: {
-      loadOptions: {
-        routing: {
-          request: {
-            method: 'GET',
-            url: '/AutodeskDM/Services/api/vault/v2/groups',
-            qs: {
-              limit: '1000',
-            },
-          },
-          output: {
-            postReceive: [
-              {
-                type: 'rootProperty',
-                properties: {
-                  property: 'results',
-                },
-              },
-              {
-                type: 'setKeyValue',
-                properties: {
-                  name: '={{$responseItem.name}}',
-                  value: '={{$responseItem.id}}',
-                },
-              },
-              {
-                type: 'sort',
-                properties: {
-                  key: 'name',
-                },
-              },
-            ],
-          },
-        },
-      }
+      loadOptions: listLoadOptions('/AutodeskDM/Services/api/vault/v2/groups'),
     },
     required: true,
     description: 'The ID of the group to retrieve',
@@ -216,12 +293,18 @@ export const parameters: INodeProperties[] = [
     },
   },
   {
-    displayName: 'Profile Attribute Definition ID',
+    displayName: 'Profile Attribute Definition Name or ID',
     name: 'profileAttributeDefId',
-    type: 'string',
+    type: 'options',
+    typeOptions: {
+      loadOptions: listLoadOptions(
+        '/AutodeskDM/Services/api/vault/v2/profile-attribute-definitions',
+        '={{$responseItem.attributeName}}',
+      ),
+    },
     required: true,
-    placeholder: 'e.g. 1234',
-    description: 'The unique identifier of a profile attribute definition',
+    description:
+      'The profile attribute definition to retrieve. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
     displayOptions: {
       show: {
         resource: ['profile'],
@@ -231,12 +314,18 @@ export const parameters: INodeProperties[] = [
     default: '',
   },
   {
-    displayName: 'Role ID',
+    displayName: 'Role Name or ID',
     name: 'roleId',
-    type: 'string',
+    type: 'options',
+    typeOptions: {
+      loadOptions: listLoadOptions(
+        '/AutodeskDM/Services/api/vault/v2/roles',
+        '={{$responseItem.roleName}}',
+      ),
+    },
     required: true,
-    placeholder: 'e.g. 1234',
-    description: 'The unique identifier of a role',
+    description:
+      'The role to retrieve. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
     displayOptions: {
       show: {
         resource: ['role'],
@@ -246,13 +335,17 @@ export const parameters: INodeProperties[] = [
     default: '',
   },
   {
-    displayName: 'User ID',
+    displayName: 'User Name or ID',
     name: 'userId',
-    type: 'string',
+    type: 'options',
+    typeOptions: {
+      loadOptions: listLoadOptions('/AutodeskDM/Services/api/vault/v2/users'),
+    },
     required: true,
     default: '',
-    placeholder: 'e.g. 1234',
-    description: 'The unique identifier of a user',
+    hint: 'Loading the list requires the AdminUserRead permission. If unavailable, switch to an expression to enter the ID manually.',
+    description:
+      'The user to retrieve. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
     displayOptions: {
       show: {
         resource: ['user'],
@@ -304,13 +397,16 @@ export const parameters: INodeProperties[] = [
     },
   },
   {
-    displayName: 'System Option ID',
+    displayName: 'System Option Name or ID',
     name: 'systemOptionId',
-    type: 'string',
+    type: 'options',
+    typeOptions: {
+      loadOptions: listLoadOptions('/AutodeskDM/Services/api/vault/v2/system-options'),
+    },
     required: true,
     default: '',
-    placeholder: 'e.g. 1234',
-    description: 'The unique identifier of a system option',
+    description:
+      'The system option to use. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
     displayOptions: {
       show: {
         resource: ['options'],
@@ -319,17 +415,26 @@ export const parameters: INodeProperties[] = [
     },
   },
   {
-    displayName: 'Vault Option ID',
+    displayName: 'Vault Option Name or ID',
     name: 'vaultOptionId',
-    type: 'string',
+    type: 'options',
+    typeOptions: {
+      loadOptionsDependsOn: ['vaultId'],
+      loadOptions: listLoadOptions(
+        '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/vault-options',
+      ),
+    },
     required: true,
     default: '',
-    placeholder: 'e.g. 1234',
-    description: 'The unique identifier of a vault option',
+    description:
+      'The vault option to use. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
     displayOptions: {
       show: {
         resource: ['options'],
         operation: ['getVaultOptionById', 'updateVaultOptionById', 'deleteVaultOptionById'],
+      },
+      hide: {
+        vaultId: [''],
       },
     },
   },
@@ -351,40 +456,11 @@ export const parameters: INodeProperties[] = [
     name: 'propertyDefId',
     type: 'options',
     typeOptions: {
-      loadOptions: {
-        routing: {
-          request: {
-            method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/property-definitions',
-            qs: {
-              limit: '1000',
-            },
-          },
-          output: {
-            postReceive: [
-              {
-                type: 'rootProperty',
-                properties: {
-                  property: 'results',
-                },
-              },
-              {
-                type: 'setKeyValue',
-                properties: {
-                  name: '={{$responseItem.displayName}} (Id: {{$responseItem.id}})',
-                  value: '={{$responseItem.id}}',
-                },
-              },
-              {
-                type: 'sort',
-                properties: {
-                  key: 'name',
-                },
-              },
-            ],
-          },
-        },
-      }
+      loadOptionsDependsOn: ['vaultId'],
+      loadOptions: listLoadOptions(
+        '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/property-definitions',
+        '={{$responseItem.displayName}} (Id: {{$responseItem.id}})',
+      ),
     },
     required: true,
     default: '',
@@ -585,40 +661,10 @@ export const parameters: INodeProperties[] = [
             type: 'options',
             typeOptions: {
               loadOptionsDependsOn: ['vaultId'],
-              loadOptions: {
-                routing: {
-                  request: {
-                    method: 'GET',
-                    url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/property-definitions',
-                    qs: {
-                      limit: '1000',
-                    },
-                  },
-                  output: {
-                    postReceive: [
-                      {
-                        type: 'rootProperty',
-                        properties: {
-                          property: 'results',
-                        },
-                      },
-                      {
-                        type: 'setKeyValue',
-                        properties: {
-                          name: '={{$responseItem.displayName}} (Type: {{$responseItem.dataType}})',
-                          value: '={{$responseItem.id}}',
-                        },
-                      },
-                      {
-                        type: 'sort',
-                        properties: {
-                          key: 'name',
-                        },
-                      },
-                    ],
-                  },
-                },
-              }
+              loadOptions: listLoadOptions(
+                '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/property-definitions',
+                '={{$responseItem.displayName}} (Type: {{$responseItem.dataType}})',
+              ),
             },
             default: '',
             description: 'ID of the property definition',
@@ -682,40 +728,11 @@ export const parameters: INodeProperties[] = [
             name: 'propertyDefinitionUrl',
             type: 'options',
             typeOptions: {
-              loadOptions: {
-                routing: {
-                  request: {
-                    method: 'GET',
-                    url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/property-definitions',
-                    qs: {
-                      limit: '1000',
-                    },
-                  },
-                  output: {
-                    postReceive: [
-                      {
-                        type: 'rootProperty',
-                        properties: {
-                          property: 'results',
-                        },
-                      },
-                      {
-                        type: 'setKeyValue',
-                        properties: {
-                          name: '={{$responseItem.displayName}} (Id: {{$responseItem.id}})',
-                          value: '={{$responseItem.id}}',
-                        },
-                      },
-                      {
-                        type: 'sort',
-                        properties: {
-                          key: 'name',
-                        },
-                      },
-                    ],
-                  },
-                },
-              }
+              loadOptionsDependsOn: ['vaultId'],
+              loadOptions: listLoadOptions(
+                '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/property-definitions',
+                '={{$responseItem.displayName}} (Id: {{$responseItem.id}})',
+              ),
             },
             default: '',
             description: 'ID of the property definition',
@@ -811,7 +828,7 @@ export const parameters: INodeProperties[] = [
     displayOptions: {
       show: {
         resource: ['files'],
-        operation: ['getFileVersions'],
+        operation: ['getFileVersionContent', 'getFileVersionContentHead', 'getFileVersionSignedUrl'],
       },
     },
   },
@@ -967,12 +984,19 @@ export const parameters: INodeProperties[] = [
     },
   },
   {
-    displayName: 'Change Order ID',
+    displayName: 'Change Order Name or ID',
     name: 'changeOrderId',
-    type: 'string',
+    type: 'options',
+    typeOptions: {
+      loadOptionsDependsOn: ['vaultId'],
+      loadOptions: listLoadOptions(
+        '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/change-orders',
+        '={{$responseItem.number}}{{$responseItem.title ? " - " + $responseItem.title : ""}}',
+      ),
+    },
     required: true,
-    placeholder: 'e.g. 56732',
-    description: 'The unique identifier of a Change Order',
+    description:
+      'The Change Order to use. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
     displayOptions: {
       show: {
         resource: ['changeOrders'],
@@ -984,16 +1008,21 @@ export const parameters: INodeProperties[] = [
           'getChangeOrderCommentAttachments',
         ],
       },
+      hide: {
+        vaultId: [''],
+      },
     },
     default: '',
   },
   {
-    displayName: 'File ID',
+    displayName: 'File Version',
     name: 'fileId',
-    type: 'string',
+    type: 'resourceLocator',
+    default: { mode: 'list', value: '' },
     required: true,
-    placeholder: 'e.g. 100201',
-    description: 'The unique identifier of a File',
+    description:
+      'The file version to use. Search by file name and select the version from the list, or enter a version ID directly.',
+    modes: resourceLocatorModes('searchFileVersions', 'e.g. 100201'),
     displayOptions: {
       show: {
         resource: ['files'],
@@ -1012,55 +1041,62 @@ export const parameters: INodeProperties[] = [
           'getFileVersionWhereUsed',
         ],
       },
+      hide: {
+        vaultId: [''],
+      },
     },
-    default: '',
   },
   {
-    displayName: 'File Master ID',
+    displayName: 'File',
     name: 'fileMasterId',
-    type: 'string',
+    type: 'resourceLocator',
+    default: { mode: 'list', value: '' },
     required: true,
-    placeholder: 'e.g. 100200',
-    description: 'The unique identifier of a file used to group all the versions of a File',
+    description:
+      'The file to use (groups all versions). Select one from the list, or provide the numeric file master ID directly.',
+    modes: resourceLocatorModes('searchFileMasters', 'e.g. 100200'),
     displayOptions: {
       show: {
         resource: ['files'],
-        operation: [
-          'getFileById',
-          'getFileAssociatedChangeOrders',
-          'getFileHistory',
-        ],
+        operation: ['getFileById', 'getFileAssociatedChangeOrders', 'getFileHistory'],
+      },
+      hide: {
+        vaultId: [''],
       },
     },
-    default: '',
   },
   {
-    displayName: 'Folder ID',
+    displayName: 'Folder',
     name: 'folderId',
-    type: 'string',
+    type: 'resourceLocator',
+    default: { mode: 'list', value: '' },
     required: true,
-    description: 'The unique identifier of a Folder',
-    hint: '"1" is the root folder ID',
-    placeholder: 'e.g. 1',
+    description:
+      'The folder to use. Select one from the list, or provide the numeric folder ID directly ("1" is the root folder).',
+    modes: resourceLocatorModes('searchFolders', 'e.g. 1', {
+      idHint: '"1" is the root folder ID',
+      idRegex: '^([0-9]+|root)$',
+      idError: 'Enter a numeric folder ID (e.g. 1) or "root"',
+    }),
     displayOptions: {
       show: {
         resource: ['folders'],
-        operation: [
-          'getFolderById',
-          'getFolderContents',
-          'getFolderSubFolders',
-        ],
+        operation: ['getFolderById', 'getFolderContents', 'getFolderSubFolders'],
+      },
+      hide: {
+        vaultId: [''],
       },
     },
-    default: '',
   },
   {
-    displayName: 'Item ID',
+    displayName: 'Item Version',
     name: 'itemId',
-    type: 'string',
+    type: 'resourceLocator',
+    default: { mode: 'list', value: '' },
     required: true,
-    description: 'The unique identifier of an Item',
-    placeholder: 'e.g. 56732',
+    description:
+      'The item version to use. Search by item number and select the version from the list, or enter a version ID directly.',
+    modes: resourceLocatorModes('searchItemVersions', 'e.g. 56732'),
     displayOptions: {
       show: {
         resource: ['items'],
@@ -1072,27 +1108,29 @@ export const parameters: INodeProperties[] = [
           'getItemVersionThumbnail',
         ],
       },
+      hide: {
+        vaultId: [''],
+      },
     },
-    default: '',
   },
   {
-    displayName: 'Item Master ID',
+    displayName: 'Item',
     name: 'itemMasterId',
-    type: 'string',
+    type: 'resourceLocator',
+    default: { mode: 'list', value: '' },
     required: true,
-    description: 'The unique identifier of an item used to group all the versions of an Item',
-    placeholder: 'e.g. 30678',
+    description:
+      'The item to use (groups all versions). Select one from the list, or provide the numeric item master ID directly.',
+    modes: resourceLocatorModes('searchItemMasters', 'e.g. 30678'),
     displayOptions: {
       show: {
         resource: ['items'],
-        operation: [
-          'getItemById',
-          'getItemAssociatedChangeOrders',
-          'getItemHistory',
-        ],
+        operation: ['getItemById', 'getItemAssociatedChangeOrders', 'getItemHistory'],
+      },
+      hide: {
+        vaultId: [''],
       },
     },
-    default: '',
   },
   {
     displayName: 'Job ID',
@@ -1110,34 +1148,47 @@ export const parameters: INodeProperties[] = [
     default: '',
   },
   {
-    displayName: 'Link ID',
+    displayName: 'Link Name or ID',
     name: 'linkId',
-    type: 'string',
+    type: 'options',
+    typeOptions: {
+      loadOptionsDependsOn: ['vaultId'],
+      loadOptions: listLoadOptions(
+        '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/links',
+      ),
+    },
     required: true,
-    placeholder: 'e.g. 1234',
-    description: 'The unique identifier of a link',
+    description:
+      'The link to retrieve. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
     displayOptions: {
       show: {
         resource: ['links'],
         operation: ['getLinkById'],
       },
+      hide: {
+        vaultId: [''],
+      },
     },
     default: '',
   },
   {
-    displayName: 'Markup ID',
+    displayName: 'Markup',
     name: 'markupId',
-    type: 'string',
+    type: 'resourceLocator',
+    default: { mode: 'list', value: '' },
     required: true,
-    placeholder: 'e.g. 1234',
-    description: 'The unique identifier of a markup',
+    description:
+      'The markup to use. Select one from the list (requires a File Version to be selected first), or provide the numeric markup ID directly.',
+    modes: resourceLocatorModes('searchMarkups', 'e.g. 1234'),
     displayOptions: {
       show: {
         resource: ['files'],
         operation: ['getFileVersionMarkupById'],
       },
+      hide: {
+        vaultId: [''],
+      },
     },
-    default: '',
   },
   {
     displayName: "Include Closed ECO's",
@@ -1564,63 +1615,18 @@ export const parameters: INodeProperties[] = [
     name: 'limit',
     type: 'number',
     typeOptions: {
+      minValue: 1,
       numberPrecision: 0,
     },
     description: 'Max number of results to return',
-    hint: 'Specifies the number of results to return per page. Maximum limit is controlled by "Page size configuration" on the server. The maximum is 1000',
+    hint: 'Maximum page size is controlled by "Page size configuration" on the server (up to 1000). Use Cursor State to fetch further pages.',
     displayOptions: {
       show: {
-        resource: [
-          'changeOrders',
-          'files',
-          'folders',
-          'group',
-          'items',
-          'links',
-          'options',
-          'profile',
-          'property',
-          'role',
-          'search',
-          'user',
-          'vault',
-        ],
-        operation: [
-          'advancedSearch',
-          'getAllUsers',
-          'getChangeOrderAssociatedEntities',
-          'getChangeOrderCommentAttachments',
-          'getChangeOrderComments',
-          'getChangeOrderRelatedFiles',
-          'getChangeOrders',
-          'getFileAssociatedChangeOrders',
-          'getFileHistory',
-          'getFileVersionAssociatedItemVersions',
-          'getFileVersionMarkups',
-          'getFileVersions',
-          'getFileVersionUses',
-          'getFileVersionVisualizationAttachments',
-          'getFileVersionWhereUsed',
-          'getFolderContents',
-          'getFolderSubFolders',
-          'getGroups',
-          'getItemAssociatedChangeOrders',
-          'getItemHistory',
-          'getItems',
-          'getItemVersions',
-          'getLinks',
-          'getProfileAttributeDefinitions',
-          'getPropertyDefinitions',
-          'getRoles',
-          'getSystemOptions',
-          'getVaultOptions',
-          'getVaults',
-          'search',
-        ],
+        resource: PAGINATED_RESOURCES,
+        operation: PAGINATED_OPERATIONS,
       },
     },
-    // eslint-disable-next-line n8n-nodes-base/node-param-default-wrong-for-limit
-    default: '',
+    default: 50,
   },
   {
     displayName: 'Cursor State',
@@ -1630,53 +1636,8 @@ export const parameters: INodeProperties[] = [
     hint: 'Use the cursor state from the previous response to get the next set of results',
     displayOptions: {
       show: {
-        resource: [
-          'changeOrders',
-          'files',
-          'folders',
-          'group',
-          'items',
-          'links',
-          'options',
-          'profile',
-          'property',
-          'role',
-          'search',
-          'user',
-          'vault',
-        ],
-        operation: [
-          'advancedSearch',
-          'getAllUsers',
-          'getChangeOrderAssociatedEntities',
-          'getChangeOrderCommentAttachments',
-          'getChangeOrderComments',
-          'getChangeOrderRelatedFiles',
-          'getChangeOrders',
-          'getFileAssociatedChangeOrders',
-          'getFileHistory',
-          'getFileVersionAssociatedItemVersions',
-          'getFileVersionMarkups',
-          'getFileVersions',
-          'getFileVersionUses',
-          'getFileVersionVisualizationAttachments',
-          'getFileVersionWhereUsed',
-          'getFolderContents',
-          'getFolderSubFolders',
-          'getGroups',
-          'getItemAssociatedChangeOrders',
-          'getItemHistory',
-          'getItems',
-          'getItemVersions',
-          'getLinks',
-          'getProfileAttributeDefinitions',
-          'getPropertyDefinitions',
-          'getRoles',
-          'getSystemOptions',
-          'getVaultOptions',
-          'getVaults',
-          'search',
-        ],
+        resource: PAGINATED_RESOURCES,
+        operation: PAGINATED_OPERATIONS,
       },
     },
     default: '',
