@@ -593,7 +593,7 @@ export const parameters: INodeProperties[] = [
     },
   },
   {
-    displayName: 'Sort Criteria',
+    displayName: 'Sort',
     name: 'sort',
     type: 'string',
     default: '',
@@ -1031,7 +1031,6 @@ export const parameters: INodeProperties[] = [
           'getFileVersionSignedUrl',
           'getFileVersionContent',
           'getFileVersionContentHead',
-          'getFileVersionLmvRoot',
           'getFileVersionAssociatedItemVersions',
           'getFileVersionMarkups',
           'getFileVersionMarkupById',
@@ -1043,6 +1042,22 @@ export const parameters: INodeProperties[] = [
       },
       hide: {
         vaultId: [''],
+      },
+    },
+  },
+  {
+    displayName: 'File Version ID',
+    name: 'fileId',
+    type: 'string',
+    required: true,
+    default: '',
+    placeholder: 'e.g. 100201',
+    description:
+      'The ID of the DWF/DWFx visualization file version to view. These files are usually hidden in Vault; find the ID via the Vault client or another File operation.',
+    displayOptions: {
+      show: {
+        resource: ['files'],
+        operation: ['getFileVersionLmvRoot'],
       },
     },
   },

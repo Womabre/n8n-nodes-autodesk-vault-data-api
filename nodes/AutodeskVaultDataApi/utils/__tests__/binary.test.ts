@@ -112,4 +112,24 @@ describe('processBinaryResponse', () => {
 
 		expect(prepareBinaryData).toHaveBeenCalledWith(body, 'PHOTO.JPG', 'image/jpeg');
 	});
+
+	it('decodes the RFC 5987 extended filename* form', async () => {
+		const ctx = makeContext(prepareBinaryData);
+		const body = Buffer.from('data');
+		const response = makeResponse(body, 'application/pdf', "attachment; filename*=UTF-8''my%20report.pdf");
+
+		await processBinaryResponse.call(ctx, [dummyItem], response);
+
+		expect(prepareBinaryData).toHaveBeenCalledWith(body, 'my report.pdf', 'application/pdf');
+	});
+
+	it('handles a bare (unquoted) filename without trailing parameters', async () => {
+		const ctx = makeContext(prepareBinaryData);
+		const body = Buffer.from('data');
+		const response = makeResponse(body, 'image/unknown', 'attachment; filename=icon.png; size=123');
+
+		await processBinaryResponse.call(ctx, [dummyItem], response);
+
+		expect(prepareBinaryData).toHaveBeenCalledWith(body, 'icon.png', 'image/png');
+	});
 });

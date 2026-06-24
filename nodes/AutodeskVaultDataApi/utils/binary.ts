@@ -21,8 +21,24 @@ function resolveHeader(value: unknown, fallback: string): string {
 }
 
 function extractFileName(contentDisposition: string): string {
-	const match = contentDisposition.match(/filename="?([^"]+)"?/);
-	return match?.[1] ?? 'downloaded-file';
+	// RFC 5987 extended form takes precedence, e.g. filename*=UTF-8''my%20file.pdf
+	const extended = contentDisposition.match(/filename\*=[^']*'[^']*'([^;]+)/i);
+	if (extended?.[1]) {
+		const value = extended[1].trim();
+		try {
+			return decodeURIComponent(value);
+		} catch {
+			return value;
+		}
+	}
+	// Quoted form, e.g. filename="my file.pdf"
+	const quoted = contentDisposition.match(/filename="([^"]+)"/i);
+	if (quoted?.[1]) {
+		return quoted[1];
+	}
+	// Bare form, e.g. filename=my-file.pdf
+	const bare = contentDisposition.match(/filename=([^;]+)/i);
+	return bare?.[1]?.trim() ?? 'downloaded-file';
 }
 
 export async function processBinaryResponse(

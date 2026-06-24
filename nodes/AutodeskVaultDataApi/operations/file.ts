@@ -114,7 +114,10 @@ export const operations: INodeProperties[] = [
                 items: INodeExecutionData[],
                 response: IN8nHttpFullResponse,
               ): Promise<INodeExecutionData[]> {
-                // Vault LMV processing can take up to ~30s; poll with exponential backoff capped at 30s per attempt
+                // Vault LMV (SVF) translation is asynchronous: bubble.json is served as
+                // soon as translation starts but only gains renderable geometry once it
+                // finishes. Poll with exponential backoff (2s, 4s, 8s, 16s, then 30s per
+                // attempt) — roughly 3 minutes total across all retries.
                 const maxRetries = 10;
                 const baseDelayMs = 2000;
 
@@ -122,33 +125,21 @@ export const operations: INodeProperties[] = [
                 let json: BubbleNode | undefined;
                 let lastFailureReason = 'unknown';
 
-                // Resolve the credential and access token once, based on auth method
-                const authMethod = this.getNodeParameter('authentication', 0) as string;
-                let vaultServerUrl: string;
-                let accessToken: string;
+                // Re-request through the authenticated helper so the bearer token is
+                // refreshed automatically if it expires during a long-running poll.
+                const authMethod = this.getNodeParameter('authentication') as string;
+                const credentialType =
+                  authMethod === 'OAuth2' ? 'autodeskVaultDataOAuth2Api' : 'autodeskVaultAccountApi';
+                const { vaultServerUrl } = (await this.getCredentials(credentialType)) as {
+                  vaultServerUrl: string;
+                };
+                const baseUrl = String(vaultServerUrl).replace(/\/$/, '');
 
-                if (authMethod === 'OAuth2') {
-                  const creds = await this.getCredentials('autodeskVaultDataOAuth2Api');
-                  vaultServerUrl = creds.vaultServerUrl as string;
-                  const tokenData = creds.oauthTokenData as { access_token?: string } | undefined;
-                  if (!tokenData?.access_token) {
-                    throw new Error('OAuth2 access token is missing or expired. Please re-authenticate.');
-                  }
-                  accessToken = tokenData.access_token;
-                } else {
-                  const creds = await this.getCredentials('autodeskVaultAccountApi');
-                  vaultServerUrl = creds.vaultServerUrl as string;
-                  accessToken = creds.accessToken as string;
-                }
-
-                const vaultId = this.getNodeParameter('vaultId', 0);
-                // fileId is a resource locator; extract its plain value
-                const fileId = this.getNodeParameter('fileId', undefined, {
-                  extractValue: true,
-                });
-                const allowSync = this.getNodeParameter('allowSync', 0);
-                const wmSrcItemVerId = this.getNodeParameter('wmSrcItemVerId', 0);
-                const wmSrcFileVerId = this.getNodeParameter('wmSrcFileVerId', 0);
+                const vaultId = this.getNodeParameter('vaultId');
+                const fileId = this.getNodeParameter('fileId');
+                const allowSync = this.getNodeParameter('allowSync');
+                const wmSrcItemVerId = this.getNodeParameter('wmSrcItemVerId');
+                const wmSrcFileVerId = this.getNodeParameter('wmSrcFileVerId');
 
                 const qs: Record<string, string> = { allowSync: String(allowSync) };
                 if (wmSrcItemVerId) qs.wmSrcItemVerId = String(wmSrcItemVerId);
@@ -161,15 +152,17 @@ export const operations: INodeProperties[] = [
                     // eslint-disable-next-line @n8n/community-nodes/no-restricted-globals
                     await new Promise<void>((resolve) => setTimeout(resolve, delayMs));
 
-                    // eslint-disable-next-line @n8n/community-nodes/no-http-request-with-manual-auth
-                    response = await this.helpers.httpRequest({
-                      method: 'GET',
-                      url: `${vaultServerUrl}/AutodeskDM/Services/api/vault/v2/vaults/${vaultId}/file-versions/${fileId}/svf/bubble.json`,
-                      headers: { Authorization: `Bearer ${accessToken}` },
-                      qs,
-                      json: false,
-                      returnFullResponse: true,
-                    }) as IN8nHttpFullResponse;
+                    response = (await this.helpers.httpRequestWithAuthentication.call(
+                      this,
+                      credentialType,
+                      {
+                        method: 'GET',
+                        url: `${baseUrl}/AutodeskDM/Services/api/vault/v2/vaults/${vaultId}/file-versions/${fileId}/svf/bubble.json`,
+                        qs,
+                        json: false,
+                        returnFullResponse: true,
+                      },
+                    )) as IN8nHttpFullResponse;
                   }
 
                   try {

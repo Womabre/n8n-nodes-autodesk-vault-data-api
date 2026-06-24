@@ -100,30 +100,15 @@ exports.operations = [
                                 let attempt = 0;
                                 let json;
                                 let lastFailureReason = 'unknown';
-                                const authMethod = this.getNodeParameter('authentication', 0);
-                                let vaultServerUrl;
-                                let accessToken;
-                                if (authMethod === 'OAuth2') {
-                                    const creds = await this.getCredentials('autodeskVaultDataOAuth2Api');
-                                    vaultServerUrl = creds.vaultServerUrl;
-                                    const tokenData = creds.oauthTokenData;
-                                    if (!(tokenData === null || tokenData === void 0 ? void 0 : tokenData.access_token)) {
-                                        throw new Error('OAuth2 access token is missing or expired. Please re-authenticate.');
-                                    }
-                                    accessToken = tokenData.access_token;
-                                }
-                                else {
-                                    const creds = await this.getCredentials('autodeskVaultAccountApi');
-                                    vaultServerUrl = creds.vaultServerUrl;
-                                    accessToken = creds.accessToken;
-                                }
-                                const vaultId = this.getNodeParameter('vaultId', 0);
-                                const fileId = this.getNodeParameter('fileId', undefined, {
-                                    extractValue: true,
-                                });
-                                const allowSync = this.getNodeParameter('allowSync', 0);
-                                const wmSrcItemVerId = this.getNodeParameter('wmSrcItemVerId', 0);
-                                const wmSrcFileVerId = this.getNodeParameter('wmSrcFileVerId', 0);
+                                const authMethod = this.getNodeParameter('authentication');
+                                const credentialType = authMethod === 'OAuth2' ? 'autodeskVaultDataOAuth2Api' : 'autodeskVaultAccountApi';
+                                const { vaultServerUrl } = (await this.getCredentials(credentialType));
+                                const baseUrl = String(vaultServerUrl).replace(/\/$/, '');
+                                const vaultId = this.getNodeParameter('vaultId');
+                                const fileId = this.getNodeParameter('fileId');
+                                const allowSync = this.getNodeParameter('allowSync');
+                                const wmSrcItemVerId = this.getNodeParameter('wmSrcItemVerId');
+                                const wmSrcFileVerId = this.getNodeParameter('wmSrcFileVerId');
                                 const qs = { allowSync: String(allowSync) };
                                 if (wmSrcItemVerId)
                                     qs.wmSrcItemVerId = String(wmSrcItemVerId);
@@ -133,14 +118,13 @@ exports.operations = [
                                     if (attempt > 0) {
                                         const delayMs = Math.min(baseDelayMs * Math.pow(2, attempt - 1), 30000);
                                         await new Promise((resolve) => setTimeout(resolve, delayMs));
-                                        response = await this.helpers.httpRequest({
+                                        response = (await this.helpers.httpRequestWithAuthentication.call(this, credentialType, {
                                             method: 'GET',
-                                            url: `${vaultServerUrl}/AutodeskDM/Services/api/vault/v2/vaults/${vaultId}/file-versions/${fileId}/svf/bubble.json`,
-                                            headers: { Authorization: `Bearer ${accessToken}` },
+                                            url: `${baseUrl}/AutodeskDM/Services/api/vault/v2/vaults/${vaultId}/file-versions/${fileId}/svf/bubble.json`,
                                             qs,
                                             json: false,
                                             returnFullResponse: true,
-                                        });
+                                        }));
                                     }
                                     try {
                                         json =

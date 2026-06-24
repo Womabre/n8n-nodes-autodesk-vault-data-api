@@ -543,7 +543,7 @@ exports.parameters = [
         },
     },
     {
-        displayName: 'Sort Criteria',
+        displayName: 'Sort',
         name: 'sort',
         type: 'string',
         default: '',
@@ -970,7 +970,6 @@ exports.parameters = [
                     'getFileVersionSignedUrl',
                     'getFileVersionContent',
                     'getFileVersionContentHead',
-                    'getFileVersionLmvRoot',
                     'getFileVersionAssociatedItemVersions',
                     'getFileVersionMarkups',
                     'getFileVersionMarkupById',
@@ -982,6 +981,21 @@ exports.parameters = [
             },
             hide: {
                 vaultId: [''],
+            },
+        },
+    },
+    {
+        displayName: 'File Version ID',
+        name: 'fileId',
+        type: 'string',
+        required: true,
+        default: '',
+        placeholder: 'e.g. 100201',
+        description: 'The ID of the DWF/DWFx visualization file version to view. These files are usually hidden in Vault; find the ID via the Vault client or another File operation.',
+        displayOptions: {
+            show: {
+                resource: ['files'],
+                operation: ['getFileVersionLmvRoot'],
             },
         },
     },

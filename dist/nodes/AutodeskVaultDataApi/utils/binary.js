@@ -21,9 +21,23 @@ function resolveHeader(value, fallback) {
     return fallback;
 }
 function extractFileName(contentDisposition) {
-    var _a;
-    const match = contentDisposition.match(/filename="?([^"]+)"?/);
-    return (_a = match === null || match === void 0 ? void 0 : match[1]) !== null && _a !== void 0 ? _a : 'downloaded-file';
+    var _a, _b;
+    const extended = contentDisposition.match(/filename\*=[^']*'[^']*'([^;]+)/i);
+    if (extended === null || extended === void 0 ? void 0 : extended[1]) {
+        const value = extended[1].trim();
+        try {
+            return decodeURIComponent(value);
+        }
+        catch {
+            return value;
+        }
+    }
+    const quoted = contentDisposition.match(/filename="([^"]+)"/i);
+    if (quoted === null || quoted === void 0 ? void 0 : quoted[1]) {
+        return quoted[1];
+    }
+    const bare = contentDisposition.match(/filename=([^;]+)/i);
+    return (_b = (_a = bare === null || bare === void 0 ? void 0 : bare[1]) === null || _a === void 0 ? void 0 : _a.trim()) !== null && _b !== void 0 ? _b : 'downloaded-file';
 }
 async function processBinaryResponse(items, responseData) {
     var _a, _b, _c;
