@@ -70,8 +70,5 @@
 	},
 	"peerDependencies": {
 		"n8n-workflow": "*"
-	},
-	"overrides": {
-		"lodash": "^4.17.21"
 	}
 }

@@ -4,6 +4,7 @@ import {
   IN8nHttpFullResponse,
   INodeExecutionData,
   INodeProperties,
+  sleep,
 } from 'n8n-workflow';
 import { processBinaryResponse } from '../utils/binary';
 
@@ -149,8 +150,7 @@ export const operations: INodeProperties[] = [
                   if (attempt > 0) {
                     // Exponential backoff: 2s, 4s, 8s, 16s, capped at 30s
                     const delayMs = Math.min(baseDelayMs * Math.pow(2, attempt - 1), 30000);
-                    // eslint-disable-next-line @n8n/community-nodes/no-restricted-globals
-                    await new Promise<void>((resolve) => setTimeout(resolve, delayMs));
+                    await sleep(delayMs);
 
                     response = (await this.helpers.httpRequestWithAuthentication.call(
                       this,

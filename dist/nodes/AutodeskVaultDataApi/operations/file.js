@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.operations = void 0;
+const n8n_workflow_1 = require("n8n-workflow");
 const binary_1 = require("../utils/binary");
 function containsRenderableGeometry(node) {
     if (node.type === 'geometry' && (node.role === '3d' || node.role === '2d')) {
@@ -117,7 +118,7 @@ exports.operations = [
                                 while (attempt < maxRetries) {
                                     if (attempt > 0) {
                                         const delayMs = Math.min(baseDelayMs * Math.pow(2, attempt - 1), 30000);
-                                        await new Promise((resolve) => setTimeout(resolve, delayMs));
+                                        await (0, n8n_workflow_1.sleep)(delayMs);
                                         response = (await this.helpers.httpRequestWithAuthentication.call(this, credentialType, {
                                             method: 'GET',
                                             url: `${baseUrl}/AutodeskDM/Services/api/vault/v2/vaults/${vaultId}/file-versions/${fileId}/svf/bubble.json`,

@@ -1,6 +1,6 @@
 {
     "name": "n8n-nodes-autodesk-vault-data-api",
-    "version": "1.0.9",
+    "version": "1.1.0",
     "publisher": "Womabre",
     "description": "n8n community node for interacting with the Autodesk Vault Data API",
     "license": "MIT",
@@ -70,8 +70,5 @@
     },
     "peerDependencies": {
         "n8n-workflow": "*"
-    },
-    "overrides": {
-        "lodash": "^4.17.21"
     }
 }
