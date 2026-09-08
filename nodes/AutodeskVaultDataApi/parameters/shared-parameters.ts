@@ -95,10 +95,12 @@ function resourceLocatorModes(
 /** Resources that expose at least one paginated "Get Many" operation. */
 const PAGINATED_RESOURCES = [
   'changeOrders',
+  'extSyncTasks',
   'files',
   'folders',
   'group',
   'items',
+  'lifecycle',
   'links',
   'options',
   'profile',
@@ -118,6 +120,7 @@ const PAGINATED_OPERATIONS = [
   'getChangeOrderComments',
   'getChangeOrderRelatedFiles',
   'getChangeOrders',
+  'getExtSyncTasks',
   'getFileAssociatedChangeOrders',
   'getFileHistory',
   'getFileVersionAssociatedItemVersions',
@@ -130,9 +133,13 @@ const PAGINATED_OPERATIONS = [
   'getFolderSubFolders',
   'getGroups',
   'getItemAssociatedChangeOrders',
+  'getItemExtSyncInfos',
   'getItemHistory',
   'getItems',
+  'getItemVersionExtSyncInfos',
   'getItemVersions',
+  'getLifecycleDefinitions',
+  'getLifecycleStates',
   'getLinks',
   'getProfileAttributeDefinitions',
   'getPropertyDefinitions',
@@ -157,10 +164,12 @@ export const parameters: INodeProperties[] = [
       show: {
         resource: [
           'changeOrders',
+          'extSyncTasks',
           'files',
           'folders',
           'items',
           'jobs',
+          'lifecycle',
           'links',
           'options',
           'property',
@@ -218,6 +227,28 @@ export const parameters: INodeProperties[] = [
           'getPropertyDefinitionById',
           'search',
           'advancedSearch',
+          'getExtSyncTasks',
+          'getExtSyncTaskById',
+          'addExtSyncTask',
+          'addExtSyncTasks',
+          'deleteExtSyncTaskById',
+          'resubmitExtSyncTaskById',
+          'queryExtSyncTasks',
+          'getExtSyncConfigs',
+          'getLifecycleDefinitions',
+          'getLifecycleDefinitionById',
+          'getLifecycleStates',
+          'getLifecycleStateById',
+          'getItemExtSyncInfos',
+          'getItemExtSyncInfoByName',
+          'getItemVersionExtSyncInfos',
+          'getItemVersionExtSyncInfoByName',
+          'updateItemLifecycleStates',
+          'updateItemLifecycleDefinitions',
+          'updateFileLifecycleStates',
+          'updateFileLifecycleDefinitions',
+          'updateFolderLifecycleStates',
+          'updateFolderLifecycleDefinitions',
         ],
       },
     },
@@ -1119,6 +1150,8 @@ export const parameters: INodeProperties[] = [
           'getItemVersionById',
           'getItemVersionAssociatedFiles',
           'getItemVersionBom',
+          'getItemVersionExtSyncInfoByName',
+          'getItemVersionExtSyncInfos',
           'getItemVersionWhereUsed',
           'getItemVersionThumbnail',
         ],
@@ -1140,7 +1173,13 @@ export const parameters: INodeProperties[] = [
     displayOptions: {
       show: {
         resource: ['items'],
-        operation: ['getItemById', 'getItemAssociatedChangeOrders', 'getItemHistory'],
+        operation: [
+          'getItemById',
+          'getItemAssociatedChangeOrders',
+          'getItemExtSyncInfoByName',
+          'getItemExtSyncInfos',
+          'getItemHistory',
+        ],
       },
       hide: {
         vaultId: [''],
@@ -1600,6 +1639,7 @@ export const parameters: INodeProperties[] = [
           'files',
           'folders',
           'items',
+          'lifecycle',
           'property',
           'search',
         ],
@@ -1618,10 +1658,553 @@ export const parameters: INodeProperties[] = [
           'getItemVersionAssociatedFiles',
           'getItemAssociatedChangeOrders',
           'getItemHistory',
+          'getLifecycleDefinitions',
+          'getLifecycleStates',
           'getPropertyDefinitions',
           'search',
           'advancedSearch',
         ],
+      },
+    },
+  },
+  {
+    displayName: 'Lifecycle Definition Name or ID',
+    name: 'lifecycleDefinitionId',
+    type: 'options',
+    typeOptions: {
+      loadOptionsDependsOn: ['vaultId'],
+      loadOptions: listLoadOptions(
+        '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/lifecycle-definitions',
+      ),
+    },
+    required: true,
+    default: '',
+    description:
+      'The lifecycle definition to retrieve. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+    displayOptions: {
+      show: {
+        resource: ['lifecycle'],
+        operation: ['getLifecycleDefinitionById'],
+      },
+      hide: {
+        vaultId: [''],
+      },
+    },
+  },
+  {
+    displayName: 'Lifecycle State ID',
+    name: 'lifecycleStateId',
+    type: 'string',
+    required: true,
+    default: '',
+    placeholder: 'e.g. 28',
+    description: 'The unique identifier of the lifecycle state to retrieve',
+    hint: 'State IDs appear on the lifecycleState of any file, folder or item response',
+    displayOptions: {
+      show: {
+        resource: ['lifecycle'],
+        operation: ['getLifecycleStateById'],
+      },
+    },
+  },
+  {
+    displayName: 'Filter by Definition IDs',
+    name: 'filterLifecycleDefinitionIds',
+    type: 'string',
+    default: '',
+    placeholder: 'e.g. 1,2,7',
+    description: 'Return only lifecycle definitions with these IDs, separated by commas',
+    displayOptions: {
+      show: {
+        resource: ['lifecycle'],
+        operation: ['getLifecycleDefinitions'],
+      },
+    },
+  },
+  {
+    displayName: 'Lifecycle State IDs',
+    name: 'filterLifecycleStateIds',
+    type: 'string',
+    required: true,
+    default: '',
+    placeholder: 'e.g. 1,2,3',
+    description:
+      'The lifecycle state IDs to retrieve, separated by commas. The API has no "list all states" route, so this filter is required.',
+    displayOptions: {
+      show: {
+        resource: ['lifecycle'],
+        operation: ['getLifecycleStates'],
+      },
+    },
+  },
+  {
+    displayName: 'State Updates',
+    name: 'lifecycleStateUpdates',
+    type: 'fixedCollection',
+    typeOptions: {
+      multipleValues: true,
+    },
+    default: {},
+    description: 'One entry per entity whose lifecycle state should change',
+    options: [
+      {
+        displayName: 'Update',
+        name: 'update',
+        values: [
+          {
+            displayName: 'Entity ID',
+            name: 'entityId',
+            type: 'string',
+            default: '',
+            placeholder: 'e.g. 55',
+            description:
+              'The master ID of the file or item, or the folder ID, whose state should change',
+          },
+          {
+            displayName: 'Lifecycle State ID',
+            name: 'lifecycleStateId',
+            type: 'string',
+            default: '',
+            placeholder: 'e.g. 2',
+            description: 'The ID of the target lifecycle state',
+          },
+        ],
+      },
+    ],
+    displayOptions: {
+      show: {
+        resource: ['files', 'folders', 'items'],
+        operation: [
+          'updateFileLifecycleStates',
+          'updateFolderLifecycleStates',
+          'updateItemLifecycleStates',
+        ],
+      },
+    },
+  },
+  {
+    displayName: 'Definition Updates',
+    name: 'lifecycleDefinitionUpdates',
+    type: 'fixedCollection',
+    typeOptions: {
+      multipleValues: true,
+    },
+    default: {},
+    description:
+      'One entry per entity. The lifecycle state must belong to the lifecycle definition given on the same entry.',
+    options: [
+      {
+        displayName: 'Update',
+        name: 'update',
+        values: [
+          {
+            displayName: 'Entity ID',
+            name: 'entityId',
+            type: 'string',
+            default: '',
+            placeholder: 'e.g. 55',
+            description:
+              'The master ID of the file or item, or the folder ID, whose lifecycle should change',
+          },
+          {
+            displayName: 'Lifecycle Definition ID',
+            name: 'lifecycleDefinitionId',
+            type: 'string',
+            default: '',
+            placeholder: 'e.g. 2',
+            description: 'The ID of the target lifecycle definition',
+          },
+          {
+            displayName: 'Lifecycle State ID',
+            name: 'lifecycleStateId',
+            type: 'string',
+            default: '',
+            placeholder: 'e.g. 9',
+            description: 'The ID of a state that belongs to the target lifecycle definition',
+          },
+        ],
+      },
+    ],
+    displayOptions: {
+      show: {
+        resource: ['files', 'folders', 'items'],
+        operation: [
+          'updateFileLifecycleDefinitions',
+          'updateFolderLifecycleDefinitions',
+          'updateItemLifecycleDefinitions',
+        ],
+      },
+    },
+  },
+  {
+    displayName: 'Comment',
+    name: 'lifecycleComment',
+    type: 'string',
+    default: '',
+    placeholder: 'e.g. Released after approval',
+    description: 'A comment recorded with the lifecycle change',
+    displayOptions: {
+      show: {
+        resource: ['files', 'folders', 'items'],
+        operation: [
+          'updateFileLifecycleDefinitions',
+          'updateFileLifecycleStates',
+          'updateFolderLifecycleDefinitions',
+          'updateFolderLifecycleStates',
+          'updateItemLifecycleDefinitions',
+          'updateItemLifecycleStates',
+        ],
+      },
+    },
+  },
+  {
+    displayName: 'Info Name',
+    name: 'infoName',
+    type: 'string',
+    required: true,
+    default: '',
+    placeholder: 'e.g. Adsk.FusionManage.Status',
+    description: 'The name of the external sync info entry to retrieve',
+    displayOptions: {
+      show: {
+        resource: ['items'],
+        operation: ['getItemExtSyncInfoByName', 'getItemVersionExtSyncInfoByName'],
+      },
+    },
+  },
+  {
+    displayName: 'External Sync Task ID',
+    name: 'extSyncTaskId',
+    type: 'string',
+    required: true,
+    default: '',
+    placeholder: 'e.g. 233',
+    description: 'The unique identifier of an external sync task',
+    displayOptions: {
+      show: {
+        resource: ['extSyncTasks'],
+        operation: ['deleteExtSyncTaskById', 'getExtSyncTaskById', 'resubmitExtSyncTaskById'],
+      },
+    },
+  },
+  {
+    displayName: 'Filter by Entity IDs',
+    name: 'filterEntityIds',
+    type: 'string',
+    default: '',
+    placeholder: 'e.g. 127,119',
+    description: 'Return only tasks for these entity IDs, separated by commas or newlines',
+    displayOptions: {
+      show: {
+        resource: ['extSyncTasks'],
+        operation: ['getExtSyncTasks'],
+      },
+    },
+  },
+  {
+    displayName: 'Filter by Entity ID',
+    name: 'filterEntityId',
+    type: 'string',
+    default: '',
+    placeholder: 'e.g. 127',
+    description: 'Return only tasks whose entity ID exactly matches this value',
+    displayOptions: {
+      show: {
+        resource: ['extSyncTasks'],
+        operation: ['getExtSyncTasks'],
+      },
+    },
+  },
+  {
+    displayName: 'Entity ID Starts With',
+    name: 'entityIdStartsWith',
+    type: 'string',
+    default: '',
+    placeholder: 'e.g. 12',
+    description: 'Return only tasks whose entity ID begins with this string',
+    displayOptions: {
+      show: {
+        resource: ['extSyncTasks'],
+        operation: ['getExtSyncTasks'],
+      },
+    },
+  },
+  {
+    displayName: 'Workflow Type',
+    name: 'filterWorkflowType',
+    type: 'string',
+    default: '',
+    placeholder: 'e.g. Adsk.UploadItem',
+    description: 'Return only tasks whose workflow type exactly matches this value',
+    displayOptions: {
+      show: {
+        resource: ['extSyncTasks'],
+        operation: ['getExtSyncTasks', 'queryExtSyncTasks'],
+      },
+    },
+  },
+  {
+    displayName: 'Workflow Type Starts With',
+    name: 'workflowTypeStartsWith',
+    type: 'string',
+    default: '',
+    placeholder: 'e.g. Adsk.',
+    description: 'Return only tasks whose workflow type begins with this string',
+    displayOptions: {
+      show: {
+        resource: ['extSyncTasks'],
+        operation: ['getExtSyncTasks'],
+      },
+    },
+  },
+  {
+    displayName: 'Entity IDs',
+    name: 'syncEntityIds',
+    type: 'string',
+    required: true,
+    default: '',
+    placeholder: 'e.g. 127,119',
+    description: 'The entity IDs to search for, separated by commas or newlines',
+    displayOptions: {
+      show: {
+        resource: ['extSyncTasks'],
+        operation: ['queryExtSyncTasks'],
+      },
+    },
+  },
+  {
+    displayName: 'Entity ID',
+    name: 'syncEntityId',
+    type: 'string',
+    required: true,
+    default: '',
+    placeholder: 'e.g. 127',
+    description: 'The ID of the entity being synchronized',
+    displayOptions: {
+      show: {
+        resource: ['extSyncTasks'],
+        operation: ['addExtSyncTask'],
+      },
+    },
+  },
+  {
+    displayName: 'Entity Class',
+    name: 'syncEntityClassId',
+    type: 'options',
+    required: true,
+    default: 'ITEM',
+    description: 'The class of the entity being synchronized',
+    options: [
+      { name: 'Change Order', value: 'CO' },
+      { name: 'File', value: 'FILE' },
+      { name: 'Folder', value: 'FLDR' },
+      { name: 'Item', value: 'ITEM' },
+    ],
+    displayOptions: {
+      show: {
+        resource: ['extSyncTasks'],
+        operation: ['addExtSyncTask'],
+      },
+    },
+  },
+  {
+    displayName: 'Config ID',
+    name: 'syncConfigId',
+    type: 'string',
+    required: true,
+    default: '',
+    placeholder: 'e.g. Adsk.Vault.ExternalSyncTask.FusionManage',
+    description: 'The ID of the external sync configuration to use',
+    hint: 'Use the Option resource, "Get Many External Sync Configs", to list the available config IDs',
+    displayOptions: {
+      show: {
+        resource: ['extSyncTasks'],
+        operation: ['addExtSyncTask'],
+      },
+    },
+  },
+  {
+    displayName: 'Workflow Type',
+    name: 'syncWorkflowType',
+    type: 'string',
+    required: true,
+    default: '',
+    placeholder: 'e.g. Adsk.UploadItem',
+    description: 'The workflow type for this sync task, taken from the selected configuration',
+    displayOptions: {
+      show: {
+        resource: ['extSyncTasks'],
+        operation: ['addExtSyncTask'],
+      },
+    },
+  },
+  {
+    displayName: 'Description',
+    name: 'syncDescription',
+    type: 'string',
+    required: true,
+    default: '',
+    placeholder: 'e.g. Sync to Fusion Manage (1000007)',
+    description: 'A description of the external sync task',
+    displayOptions: {
+      show: {
+        resource: ['extSyncTasks'],
+        operation: ['addExtSyncTask'],
+      },
+    },
+  },
+  {
+    displayName: 'Parameters',
+    name: 'syncParams',
+    type: 'fixedCollection',
+    typeOptions: {
+      multipleValues: true,
+    },
+    default: {},
+    description: 'Extra key-value data carried along the task execution chain',
+    options: [
+      {
+        displayName: 'Parameter',
+        name: 'parameter',
+        values: [
+          {
+            displayName: 'Key',
+            name: 'key',
+            type: 'string',
+            default: '',
+          },
+          {
+            displayName: 'Value',
+            name: 'value',
+            type: 'string',
+            default: '',
+          },
+        ],
+      },
+    ],
+    displayOptions: {
+      show: {
+        resource: ['extSyncTasks'],
+        operation: ['addExtSyncTask'],
+      },
+    },
+  },
+  {
+    displayName: 'Execute Immediately',
+    name: 'syncExecuteImmediately',
+    type: 'boolean',
+    default: false,
+    description: 'Whether to notify the sync agent as soon as the task is created',
+    displayOptions: {
+      show: {
+        resource: ['extSyncTasks'],
+        operation: ['addExtSyncTask'],
+      },
+    },
+  },
+  {
+    displayName: 'Predecessor Task ID',
+    name: 'syncPredecessorTaskId',
+    type: 'string',
+    default: '',
+    placeholder: 'e.g. 232',
+    description: 'The ID of a task that must complete before this one runs',
+    displayOptions: {
+      show: {
+        resource: ['extSyncTasks'],
+        operation: ['addExtSyncTask'],
+      },
+    },
+  },
+  {
+    displayName: 'Tasks',
+    name: 'syncTasks',
+    type: 'fixedCollection',
+    typeOptions: {
+      multipleValues: true,
+    },
+    default: {},
+    description: 'One entry per external sync task to create',
+    options: [
+      {
+        displayName: 'Task',
+        name: 'task',
+        values: [
+          {
+            displayName: 'Config ID',
+            name: 'configId',
+            type: 'string',
+            default: '',
+            placeholder: 'e.g. Adsk.Vault.ExternalSyncTask.FusionManage',
+            description: 'The ID of the external sync configuration to use',
+          },
+          {
+            displayName: 'Description',
+            name: 'description',
+            type: 'string',
+            default: '',
+            placeholder: 'e.g. Sync to Fusion Manage (1000007)',
+            description: 'A description of the external sync task',
+          },
+          {
+            displayName: 'Entity Class',
+            name: 'entityClassId',
+            type: 'options',
+            default: 'ITEM',
+            description: 'The class of the entity being synchronized',
+            options: [
+              { name: 'Change Order', value: 'CO' },
+              { name: 'File', value: 'FILE' },
+              { name: 'Folder', value: 'FLDR' },
+              { name: 'Item', value: 'ITEM' },
+            ],
+          },
+          {
+            displayName: 'Entity ID',
+            name: 'entityId',
+            type: 'string',
+            default: '',
+            placeholder: 'e.g. 127',
+            description: 'The ID of the entity being synchronized',
+          },
+          {
+            displayName: 'Execute Immediately',
+            name: 'executeImmediately',
+            type: 'boolean',
+            default: false,
+            description: 'Whether to notify the sync agent as soon as the task is created',
+          },
+          {
+            displayName: 'Parameters (JSON)',
+            name: 'paramsJson',
+            type: 'json',
+            default: '',
+            placeholder: 'e.g. {"entityClassId": "ITEM", "entityId": "127"}',
+            description: 'Extra key-value data as a JSON object',
+          },
+          {
+            displayName: 'Predecessor Task ID',
+            name: 'predecessorTaskId',
+            type: 'string',
+            default: '',
+            placeholder: 'e.g. 232',
+            description: 'The ID of a task that must complete before this one runs',
+          },
+          {
+            displayName: 'Workflow Type',
+            name: 'workflowType',
+            type: 'string',
+            default: '',
+            placeholder: 'e.g. Adsk.UploadItem',
+            description: 'The workflow type for this sync task',
+          },
+        ],
+      },
+    ],
+    displayOptions: {
+      show: {
+        resource: ['extSyncTasks'],
+        operation: ['addExtSyncTasks'],
       },
     },
   },

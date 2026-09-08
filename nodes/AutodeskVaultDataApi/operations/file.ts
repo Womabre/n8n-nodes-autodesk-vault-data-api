@@ -7,6 +7,10 @@ import {
   sleep,
 } from 'n8n-workflow';
 import { processBinaryResponse } from '../utils/binary';
+import {
+  buildUpdateLifecycleDefinitionsBody,
+  buildUpdateLifecycleStatesBody,
+} from '../utils/lifecycleBody';
 
 interface BubbleNode {
   type?: string;
@@ -512,6 +516,57 @@ export const operations: INodeProperties[] = [
               limit: '={{$parameter["limit"] || undefined}}',
               cursorState: '={{$parameter["cursorState"] || undefined}}',
             },
+          },
+          output: {
+            postReceive: [
+              {
+                type: 'rootProperty',
+                properties: {
+                  property: 'results',
+                },
+              },
+            ],
+          },
+        },
+      },
+      {
+        name: 'Update File Lifecycle Definitions',
+        value: 'updateFileLifecycleDefinitions',
+        action: 'Update file lifecycle definitions',
+        description:
+          'Move files onto a different lifecycle definition. Each entry needs a definition and a state that belongs to it.',
+        routing: {
+          send: {
+            preSend: [buildUpdateLifecycleDefinitionsBody('files')],
+          },
+          request: {
+            method: 'POST',
+            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/files:update-lifecycle-definitions',
+          },
+          output: {
+            postReceive: [
+              {
+                type: 'rootProperty',
+                properties: {
+                  property: 'results',
+                },
+              },
+            ],
+          },
+        },
+      },
+      {
+        name: 'Update File Lifecycle States',
+        value: 'updateFileLifecycleStates',
+        action: 'Update file lifecycle states',
+        description: 'Update the lifecycle state of one or more files',
+        routing: {
+          send: {
+            preSend: [buildUpdateLifecycleStatesBody('files')],
+          },
+          request: {
+            method: 'POST',
+            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/files:update-states',
           },
           output: {
             postReceive: [

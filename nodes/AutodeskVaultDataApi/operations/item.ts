@@ -1,5 +1,9 @@
 import { INodeProperties } from 'n8n-workflow';
 import { processBinaryResponse } from '../utils/binary';
+import {
+  buildUpdateLifecycleDefinitionsBody,
+  buildUpdateLifecycleStatesBody,
+} from '../utils/lifecycleBody';
 
 export const operations: INodeProperties[] = [
   {
@@ -227,6 +231,133 @@ export const operations: INodeProperties[] = [
               'option[extendedModels]': '={{$parameter["extendedModels"]}}',
               'option[propDefIds]': '={{$parameter["propDefIds"]}}',
             },
+          },
+        },
+      },
+      {
+        name: 'Get Item External Sync Info',
+        value: 'getItemExtSyncInfoByName',
+        action: 'Get item external sync info',
+        description: 'Retrieve one external sync info entry by name from an item',
+        routing: {
+          request: {
+            method: 'GET',
+            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/items/{{$parameter["itemMasterId"]}}/ext-sync-infos/{{$parameter["infoName"]}}',
+          },
+        },
+      },
+      {
+        name: 'Get Item Version External Sync Info',
+        value: 'getItemVersionExtSyncInfoByName',
+        action: 'Get item version external sync info',
+        description: 'Retrieve one external sync info entry by name from an item version',
+        routing: {
+          request: {
+            method: 'GET',
+            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/item-versions/{{$parameter["itemId"]}}/ext-sync-infos/{{$parameter["infoName"]}}',
+          },
+        },
+      },
+      {
+        name: 'Get Many Item External Sync Infos',
+        value: 'getItemExtSyncInfos',
+        action: 'Get many item external sync infos',
+        description: 'Retrieve all external sync info entries stored on an item',
+        routing: {
+          request: {
+            method: 'GET',
+            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/items/{{$parameter["itemMasterId"]}}/ext-sync-infos',
+            qs: {
+              limit: '={{$parameter["limit"] || undefined}}',
+              cursorState: '={{$parameter["cursorState"] || undefined}}',
+            },
+          },
+          output: {
+            postReceive: [
+              {
+                type: 'rootProperty',
+                properties: {
+                  property: 'results',
+                },
+              },
+            ],
+          },
+        },
+      },
+      {
+        name: 'Get Many Item Version External Sync Infos',
+        value: 'getItemVersionExtSyncInfos',
+        action: 'Get many item version external sync infos',
+        description: 'Retrieve all external sync info entries stored on an item version',
+        routing: {
+          request: {
+            method: 'GET',
+            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/item-versions/{{$parameter["itemId"]}}/ext-sync-infos',
+            qs: {
+              limit: '={{$parameter["limit"] || undefined}}',
+              cursorState: '={{$parameter["cursorState"] || undefined}}',
+            },
+          },
+          output: {
+            postReceive: [
+              {
+                type: 'rootProperty',
+                properties: {
+                  property: 'results',
+                },
+              },
+            ],
+          },
+        },
+      },
+      {
+        name: 'Update Item Lifecycle Definitions',
+        value: 'updateItemLifecycleDefinitions',
+        action: 'Update item lifecycle definitions',
+        description:
+          'Move items onto a different lifecycle definition. Each entry needs a definition and a state that belongs to it.',
+        routing: {
+          send: {
+            preSend: [buildUpdateLifecycleDefinitionsBody('items')],
+          },
+          request: {
+            method: 'POST',
+            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/items:update-lifecycle-definitions',
+          },
+          output: {
+            postReceive: [
+              {
+                type: 'rootProperty',
+                properties: {
+                  property: 'results',
+                },
+              },
+            ],
+          },
+        },
+      },
+      {
+        name: 'Update Item Lifecycle States',
+        value: 'updateItemLifecycleStates',
+        action: 'Update item lifecycle states',
+        description: 'Update the lifecycle state of one or more items',
+        routing: {
+          send: {
+            preSend: [buildUpdateLifecycleStatesBody('items')],
+          },
+          request: {
+            method: 'POST',
+            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/items:update-states',
+          },
+          output: {
+            postReceive: [
+              {
+                type: 'rootProperty',
+                properties: {
+                  property: 'results',
+                },
+              },
+            ],
           },
         },
       },

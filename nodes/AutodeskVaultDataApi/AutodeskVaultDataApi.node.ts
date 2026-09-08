@@ -12,11 +12,13 @@ import {
 
 // Import operations
 import * as changeOrders from './operations/changeOrder';
+import * as extSync from './operations/extSync';
 import * as files from './operations/file';
 import * as folders from './operations/folder';
 import * as group from './operations/group';
 import * as items from './operations/item';
 import * as jobs from './operations/job';
+import * as lifecycle from './operations/lifecycle';
 import * as links from './operations/links';
 import * as options from './operations/option';
 import * as profile from './operations/profile';
@@ -104,11 +106,13 @@ export class AutodeskVaultDataApi implements INodeType {
 				noDataExpression: true,
 				options: [
 					{ name: 'Change Order', value: 'changeOrders' },
+					{ name: 'External Sync Task', value: 'extSyncTasks' },
 					{ name: 'File', value: 'files' },
 					{ name: 'Folder', value: 'folders' },
 					{ name: 'Group', value: 'group' },
 					{ name: 'Item', value: 'items' },
 					{ name: 'Job', value: 'jobs' },
+					{ name: 'Lifecycle', value: 'lifecycle' },
 					{ name: 'Link', value: 'links' },
 					{ name: 'Option', value: 'options' },
 					{ name: 'Profile', value: 'profile' },
@@ -124,11 +128,13 @@ export class AutodeskVaultDataApi implements INodeType {
 			},
 			// Operations
 			...changeOrders.operations,
+			...extSync.operations,
 			...files.operations,
 			...folders.operations,
 			...group.operations,
 			...items.operations,
 			...jobs.operations,
+			...lifecycle.operations,
 			...links.operations,
 			...options.operations,
 			...profile.operations,

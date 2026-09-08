@@ -112,6 +112,29 @@ export const operations: INodeProperties[] = [
         },
       },
       {
+        name: 'Get Many External Sync Configs',
+        value: 'getExtSyncConfigs',
+        action: 'Get many external sync configs',
+        description:
+          'Retrieve all external sync configurations as key-value pairs, where the key is the config ID used when creating an external sync task',
+        routing: {
+          request: {
+            method: 'GET',
+            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/vault-options/ext-sync-configs',
+          },
+          output: {
+            postReceive: [
+              {
+                type: 'setKeyValue',
+                properties: {
+                  response: '={{ $response || "" }}',
+                },
+              },
+            ],
+          },
+        },
+      },
+      {
         name: 'Get Many System Options',
         value: 'getSystemOptions',
         action: 'Get many system options',

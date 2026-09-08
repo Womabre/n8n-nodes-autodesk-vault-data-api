@@ -1,4 +1,8 @@
 import { INodeProperties } from 'n8n-workflow';
+import {
+  buildUpdateLifecycleDefinitionsBody,
+  buildUpdateLifecycleStatesBody,
+} from '../utils/lifecycleBody';
 
 export const operations: INodeProperties[] = [
   {
@@ -77,6 +81,57 @@ export const operations: INodeProperties[] = [
               limit: '={{$parameter["limit"] || undefined}}',
               cursorState: '={{$parameter["cursorState"] || undefined}}',
             },
+          },
+          output: {
+            postReceive: [
+              {
+                type: 'rootProperty',
+                properties: {
+                  property: 'results',
+                },
+              },
+            ],
+          },
+        },
+      },
+      {
+        name: 'Update Folder Lifecycle Definitions',
+        value: 'updateFolderLifecycleDefinitions',
+        action: 'Update folder lifecycle definitions',
+        description:
+          'Move folders onto a different lifecycle definition. Each entry needs a definition and a state that belongs to it.',
+        routing: {
+          send: {
+            preSend: [buildUpdateLifecycleDefinitionsBody('folders')],
+          },
+          request: {
+            method: 'POST',
+            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/folders:update-lifecycle-definitions',
+          },
+          output: {
+            postReceive: [
+              {
+                type: 'rootProperty',
+                properties: {
+                  property: 'results',
+                },
+              },
+            ],
+          },
+        },
+      },
+      {
+        name: 'Update Folder Lifecycle States',
+        value: 'updateFolderLifecycleStates',
+        action: 'Update folder lifecycle states',
+        description: 'Update the lifecycle state of one or more folders by folder ID',
+        routing: {
+          send: {
+            preSend: [buildUpdateLifecycleStatesBody('folders')],
+          },
+          request: {
+            method: 'POST',
+            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/folders:update-states',
           },
           output: {
             postReceive: [

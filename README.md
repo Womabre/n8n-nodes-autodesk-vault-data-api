@@ -31,6 +31,18 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 | Get Many Comments            | List comments on a change order                     |
 | Get Many Related Files       | List files related to a change order                |
 
+### External Sync Task
+
+| Operation                           | Description                                          |
+| ----------------------------------- | ---------------------------------------------------- |
+| Create External Sync Task           | Create an external sync task and add it to the queue |
+| Create External Sync Tasks in Batch | Create several external sync tasks in one request    |
+| Delete External Sync Task           | Delete an external sync task by ID                   |
+| Find External Sync Tasks            | Find external sync tasks for one or more entity IDs  |
+| Get External Sync Task              | Retrieve an external sync task by ID                 |
+| Get Many External Sync Tasks        | List external sync tasks with optional filters       |
+| Resubmit External Sync Task         | Resubmit a failed external sync task                 |
+
 ### File
 
 | Operation                                       | Description                                                                         |
@@ -51,14 +63,18 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 | Get Many File Version Markups                   | List all markups on a file version                                                  |
 | Get Many File Version Visualization Attachments | List visualization attachments for a file version                                   |
 | Get Many File Versions                          | List file versions with optional filters                                            |
+| Update File Lifecycle Definitions               | Move files onto a different lifecycle definition                                    |
+| Update File Lifecycle States                    | Update the lifecycle state of one or more files                                     |
 
 ### Folder
 
-| Operation                | Description                        |
-| ------------------------ | ---------------------------------- |
-| Get Folder               | Retrieve a folder by ID            |
-| Get Many Folder Contents | List files and items in a folder   |
-| Get Many Subfolders      | List direct subfolders of a folder |
+| Operation                           | Description                                        |
+| ----------------------------------- | -------------------------------------------------- |
+| Get Folder                          | Retrieve a folder by ID                            |
+| Get Many Folder Contents            | List files and items in a folder                   |
+| Get Many Subfolders                 | List direct subfolders of a folder                 |
+| Update Folder Lifecycle Definitions | Move folders onto a different lifecycle definition |
+| Update Folder Lifecycle States      | Update the lifecycle state of one or more folders  |
 
 ### Group
 
@@ -70,18 +86,24 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 
 ### Item
 
-| Operation                                      | Description                                        |
-| ---------------------------------------------- | -------------------------------------------------- |
-| Get Item                                       | Retrieve an item by master ID                      |
-| Get Item History                               | Retrieve the version history of an item            |
-| Get Item Version                               | Retrieve a specific item version by ID             |
-| Get Item Version BOM                           | Retrieve the Bill of Materials for an item version |
-| Get Item Version Thumbnail                     | Retrieve the thumbnail image for an item version   |
-| Get Item Version Where Used                    | List parent items that reference an item version   |
-| Get Many Item Version Associated Change Orders | List change orders associated with an item         |
-| Get Many Item Version Associated Files         | List files assigned to an item version             |
-| Get Many Item Versions                         | List item versions with optional filters           |
-| Get Many Items                                 | List all items in a vault                          |
+| Operation                                      | Description                                              |
+| ---------------------------------------------- | -------------------------------------------------------- |
+| Get Item                                       | Retrieve an item by master ID                            |
+| Get Item External Sync Info                    | Retrieve one external sync info entry by name            |
+| Get Item History                               | Retrieve the version history of an item                  |
+| Get Item Version                               | Retrieve a specific item version by ID                   |
+| Get Item Version BOM                           | Retrieve the Bill of Materials for an item version       |
+| Get Item Version External Sync Info            | Retrieve one external sync info entry on an item version |
+| Get Item Version Thumbnail                     | Retrieve the thumbnail image for an item version         |
+| Get Item Version Where Used                    | List parent items that reference an item version         |
+| Get Many Item Version Associated Change Orders | List change orders associated with an item               |
+| Get Many Item Version Associated Files         | List files assigned to an item version                   |
+| Get Many Item External Sync Infos              | List all external sync info entries stored on an item    |
+| Get Many Item Version External Sync Infos      | List all external sync info entries on an item version   |
+| Get Many Item Versions                         | List item versions with optional filters                 |
+| Get Many Items                                 | List all items in a vault                                |
+| Update Item Lifecycle Definitions              | Move items onto a different lifecycle definition         |
+| Update Item Lifecycle States                   | Update the lifecycle state of one or more items          |
 
 ### Job
 
@@ -90,6 +112,15 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 | Create Job           | Add a new job to the job queue                     |
 | Get Job              | Retrieve a job by ID                               |
 | Get Job Queue Status | Check whether the job queue is enabled for a vault |
+
+### Lifecycle
+
+| Operation                      | Description                                                 |
+| ------------------------------ | ----------------------------------------------------------- |
+| Get Lifecycle Definition       | Retrieve a lifecycle definition by ID                       |
+| Get Lifecycle State            | Retrieve a lifecycle state by ID                            |
+| Get Many Lifecycle Definitions | List all lifecycle definitions in a vault                   |
+| Get Many Lifecycle States      | Retrieve lifecycle states by ID (the ID filter is required) |
 
 ### Link
 
@@ -100,18 +131,19 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 
 ### Option
 
-| Operation               | Description                                            |
-| ----------------------- | ------------------------------------------------------ |
-| Create System Option    | Create a new system-level option                       |
-| Create Vault Option     | Create a new vault-level option                        |
-| Delete System Option    | Delete a system option by ID                           |
-| Delete Vault Option     | Delete a vault option by ID                            |
-| Get System Option       | Retrieve a system option by ID                         |
-| Get Many System Options | List system options, optionally filtered by name       |
-| Get Vault Option        | Retrieve a vault option by ID                          |
-| Get Many Vault Options  | List vault options, optionally filtered by name prefix |
-| Update System Option    | Update the value of a system option                    |
-| Update Vault Option     | Update the value of a vault option                     |
+| Operation                      | Description                                                |
+| ------------------------------ | ---------------------------------------------------------- |
+| Create System Option           | Create a new system-level option                           |
+| Create Vault Option            | Create a new vault-level option                            |
+| Delete System Option           | Delete a system option by ID                               |
+| Delete Vault Option            | Delete a vault option by ID                                |
+| Get Many External Sync Configs | List the external sync configurations available in a vault |
+| Get System Option              | Retrieve a system option by ID                             |
+| Get Many System Options        | List system options, optionally filtered by name           |
+| Get Vault Option               | Retrieve a vault option by ID                              |
+| Get Many Vault Options         | List vault options, optionally filtered by name prefix     |
+| Update System Option           | Update the value of a system option                        |
+| Update Vault Option            | Update the value of a vault option                         |
 
 ### Profile
 
@@ -205,7 +237,10 @@ Required fields:
 
 - **Minimum n8n version:** requires `n8n-workflow ^2.0.0`
 - **Node.js:** `>=20.15`
-- Tested against Autodesk Vault Data API v2
+- Tested against Autodesk Vault Data API v2 (spec version 2.1.0)
+- The External Sync Task and Lifecycle resources, and the lifecycle update operations on File,
+  Folder and Item, use endpoints added in Vault Data API 2.1.0 and require **Vault 2027.1 or
+  later**. Every other operation works from Vault 2025.2 onward.
 
 ---
 
