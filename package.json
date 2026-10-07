@@ -23,7 +23,7 @@
 		"url": "git+https://github.com/Womabre/n8n-nodes-autodesk-vault-data-api.git"
 	},
 	"engines": {
-		"node": ">=20.15"
+		"node": ">=22"
 	},
 	"scripts": {
 		"build": "n8n-node build",

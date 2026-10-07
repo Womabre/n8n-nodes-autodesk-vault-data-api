@@ -236,7 +236,7 @@ Required fields:
 ## Compatibility
 
 - **n8n version:** built and tested against n8n 2.x (`n8n-workflow` 2.x); the peer dependency is left open (`*`) as n8n recommends for community nodes
-- **Node.js:** `>=20.15`
+- **Node.js:** `>=22`
 - Tested against Autodesk Vault Data API v2 (spec version 2.1.0)
 - The External Sync Task and Lifecycle resources, and the lifecycle update operations on File,
   Folder and Item, use endpoints added in Vault Data API 2.1.0 and require **Vault 2027.1 or
