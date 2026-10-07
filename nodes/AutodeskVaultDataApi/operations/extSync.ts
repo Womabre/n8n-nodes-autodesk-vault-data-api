@@ -286,8 +286,6 @@ export const operations: INodeProperties[] = [
 							'filter[workflowType]': '={{$parameter["filterWorkflowType"] || undefined}}',
 							'filter[workflowType]-starts':
 								'={{$parameter["workflowTypeStartsWith"] || undefined}}',
-							limit: '={{$parameter["limit"] || undefined}}',
-							cursorState: '={{$parameter["cursorState"] || undefined}}',
 						},
 					},
 					output: {

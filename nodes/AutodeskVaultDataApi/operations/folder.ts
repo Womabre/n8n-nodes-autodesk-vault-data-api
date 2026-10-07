@@ -50,8 +50,6 @@ export const operations: INodeProperties[] = [
               'option[extendedModels]': '={{$parameter["extendedModels"]}}',
               'option[propDefIds]': '={{$parameter["propDefIds"]}}',
               sort: '={{$parameter["sort"] || undefined}}',
-              limit: '={{$parameter["limit"] || undefined}}',
-              cursorState: '={{$parameter["cursorState"] || undefined}}',
             },
           },
           output: {
@@ -78,8 +76,6 @@ export const operations: INodeProperties[] = [
             qs: {
               'option[extendedModels]': '={{$parameter["extendedModels"]}}',
               'option[propDefIds]': '={{$parameter["propDefIds"]}}',
-              limit: '={{$parameter["limit"] || undefined}}',
-              cursorState: '={{$parameter["cursorState"] || undefined}}',
             },
           },
           output: {

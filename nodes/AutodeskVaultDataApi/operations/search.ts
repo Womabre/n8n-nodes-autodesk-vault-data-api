@@ -42,8 +42,6 @@ export const operations: INodeProperties[] = [
               'option[extendedModels]': '={{$parameter["extendedModels"] || undefined}}',
               'option[propDefIds]': '={{$parameter["propDefIds"] || undefined}}',
               sort: '={{$parameter["sort"] || undefined}}',
-              limit: '={{$parameter["limit"] || undefined}}',
-              cursorState: '={{$parameter["cursorState"] || undefined}}',
             },
           },
           output: {
@@ -77,8 +75,6 @@ export const operations: INodeProperties[] = [
               'option[latestOnly]': '={{$parameter["latestOnly"] || undefined}}',
               'option[extendedModels]': '={{$parameter["extendedModels"] || undefined}}',
               'option[propDefIds]': '={{$parameter["propDefIds"] || undefined}}',
-              limit: '={{$parameter["limit"] || undefined}}',
-              cursorState: '={{$parameter["cursorState"] || undefined}}',
             },
             body: {
               entityTypesToSearch: '={{$parameter["entityTypesToSearch"] || undefined}}',

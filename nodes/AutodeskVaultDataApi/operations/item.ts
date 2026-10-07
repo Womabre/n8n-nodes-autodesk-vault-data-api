@@ -116,8 +116,6 @@ export const operations: INodeProperties[] = [
               'option[extendedModels]': '={{$parameter["extendedModels"]}}',
               'option[propDefIds]': '={{$parameter["propDefIds"] || undefined}}',
               descending: '={{$parameter["descending"]}}',
-              limit: '={{$parameter["limit"] || undefined}}',
-              cursorState: '={{$parameter["cursorState"] || undefined}}',
             },
           },
           output: {
@@ -141,10 +139,6 @@ export const operations: INodeProperties[] = [
           request: {
             method: 'GET',
             url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/items',
-            qs: {
-              limit: '={{$parameter["limit"] || undefined}}',
-              cursorState: '={{$parameter["cursorState"] || undefined}}',
-            },
           },
           output: {
             postReceive: [
@@ -173,8 +167,6 @@ export const operations: INodeProperties[] = [
               'option[releasedItemsOnly]': '={{$parameter["releasedItemsOnly"]}}',
               'option[latestOnly]': '={{$parameter["latestOnly"]}}',
               sort: '={{$parameter["sort"] || undefined}}',
-              limit: '={{$parameter["limit"] || undefined}}',
-              cursorState: '={{$parameter["cursorState"] || undefined}}',
             },
           },
           output: {
@@ -202,8 +194,6 @@ export const operations: INodeProperties[] = [
               'option[includeClosedECOs]': '={{$parameter["includeClosedECOs"]}}',
               'option[extendedModels]': '={{$parameter["extendedModels"]}}',
               'option[propDefIds]': '={{$parameter["propDefIds"] || undefined}}',
-              limit: '={{$parameter["limit"] || undefined}}',
-              cursorState: '={{$parameter["cursorState"] || undefined}}',
             },
           },
           output: {
@@ -267,10 +257,6 @@ export const operations: INodeProperties[] = [
           request: {
             method: 'GET',
             url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/items/{{$parameter["itemMasterId"]}}/ext-sync-infos',
-            qs: {
-              limit: '={{$parameter["limit"] || undefined}}',
-              cursorState: '={{$parameter["cursorState"] || undefined}}',
-            },
           },
           output: {
             postReceive: [
@@ -293,10 +279,6 @@ export const operations: INodeProperties[] = [
           request: {
             method: 'GET',
             url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/item-versions/{{$parameter["itemId"]}}/ext-sync-infos',
-            qs: {
-              limit: '={{$parameter["limit"] || undefined}}',
-              cursorState: '={{$parameter["cursorState"] || undefined}}',
-            },
           },
           output: {
             postReceive: [

@@ -38,8 +38,6 @@ export const operations: INodeProperties[] = [
               'option[releasedFilesOnly]': '={{$parameter["releasedFilesOnly"]}}',
               'option[extendedModels]': '={{$parameter["extendedModels"]}}',
               'option[propDefIds]': '={{$parameter["propDefIds"]}}',
-              limit: '={{$parameter["limit"] || undefined}}',
-              cursorState: '={{$parameter["cursorState"] || undefined}}',
             },
           },
           output: {
@@ -67,8 +65,6 @@ export const operations: INodeProperties[] = [
               'option[releasedOnly]': '={{$parameter["releasedOnly"] || undefined}}',
               'option[extendedModels]': '={{$parameter["extendedModels"] || undefined}}',
               'option[propDefIds]': '={{$parameter["propDefIds"] || undefined}}',
-              limit: '={{$parameter["limit"] || undefined}}',
-              cursorState: '={{$parameter["cursorState"] || undefined}}',
             },
           },
           output: {
@@ -92,10 +88,6 @@ export const operations: INodeProperties[] = [
           request: {
             method: 'GET',
             url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/change-orders/{{$parameter["changeOrderId"]}}/comments',
-            qs: {
-              limit: '={{$parameter["limit"] || undefined}}',
-              cursorState: '={{$parameter["cursorState"] || undefined}}',
-            },
           },
           output: {
             postReceive: [
@@ -123,8 +115,6 @@ export const operations: INodeProperties[] = [
               'option[releasedOnly]': '={{$parameter["releasedOnly"] || undefined}}',
               'option[extendedModels]': '={{$parameter["extendedModels"] || undefined}}',
               'option[propDefIds]': '={{$parameter["propDefIds"] || undefined}}',
-              limit: '={{$parameter["limit"] || undefined}}',
-              cursorState: '={{$parameter["cursorState"] || undefined}}',
             },
           },
           output: {
@@ -155,8 +145,6 @@ export const operations: INodeProperties[] = [
               'option[extendedModels]': '={{$parameter["extendedModels"] || undefined}}',
               'option[propDefIds]': '={{$parameter["propDefIds"] || undefined}}',
               sort: '={{$parameter["sort"] || undefined}}',
-              limit: '={{$parameter["limit"] || undefined}}',
-              cursorState: '={{$parameter["cursorState"] || undefined}}',
             },
           },
           output: {

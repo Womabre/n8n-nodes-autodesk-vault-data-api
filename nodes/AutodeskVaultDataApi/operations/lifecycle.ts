@@ -50,8 +50,6 @@ export const operations: INodeProperties[] = [
 						qs: {
 							'filter[ids]': '={{$parameter["filterLifecycleDefinitionIds"] || undefined}}',
 							'option[extendedModels]': '={{$parameter["extendedModels"]}}',
-							limit: '={{$parameter["limit"] || undefined}}',
-							cursorState: '={{$parameter["cursorState"] || undefined}}',
 						},
 					},
 					output: {
@@ -79,8 +77,6 @@ export const operations: INodeProperties[] = [
 						qs: {
 							'filter[ids]': '={{$parameter["filterLifecycleStateIds"]}}',
 							'option[extendedModels]': '={{$parameter["extendedModels"]}}',
-							limit: '={{$parameter["limit"] || undefined}}',
-							cursorState: '={{$parameter["cursorState"] || undefined}}',
 						},
 					},
 					output: {

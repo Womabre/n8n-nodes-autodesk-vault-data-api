@@ -1,4 +1,5 @@
 import { ILoadOptions, INodeProperties, INodePropertyMode } from 'n8n-workflow';
+import { paginateByCursor } from '../utils/pagination';
 
 /**
  * Builds a declarative loadOptions routing block that fetches a list from the
@@ -2209,6 +2210,27 @@ export const parameters: INodeProperties[] = [
     },
   },
   {
+    displayName: 'Return All',
+    name: 'returnAll',
+    type: 'boolean',
+    default: false,
+    description: 'Whether to return all results or only up to a given limit',
+    displayOptions: {
+      show: {
+        resource: PAGINATED_RESOURCES,
+        operation: PAGINATED_OPERATIONS,
+      },
+    },
+    routing: {
+      send: {
+        paginate: '={{ $value }}',
+      },
+      operations: {
+        pagination: paginateByCursor,
+      },
+    },
+  },
+  {
     displayName: 'Limit',
     name: 'limit',
     type: 'number',
@@ -2217,28 +2239,21 @@ export const parameters: INodeProperties[] = [
       numberPrecision: 0,
     },
     description: 'Max number of results to return',
-    hint: 'Maximum page size is controlled by "Page size configuration" on the server (up to 1000). Use Cursor State to fetch further pages.',
+    hint: 'The server caps a single page at its "Page size configuration" (up to 1000). Enable Return All to fetch every page.',
     displayOptions: {
       show: {
         resource: PAGINATED_RESOURCES,
         operation: PAGINATED_OPERATIONS,
+        returnAll: [false],
+      },
+    },
+    routing: {
+      send: {
+        type: 'query',
+        property: 'limit',
       },
     },
     default: 50,
-  },
-  {
-    displayName: 'Cursor State',
-    name: 'cursorState',
-    type: 'string',
-    description: 'Cursor state to paginate through results',
-    hint: 'Use the cursor state from the previous response to get the next set of results',
-    displayOptions: {
-      show: {
-        resource: PAGINATED_RESOURCES,
-        operation: PAGINATED_OPERATIONS,
-      },
-    },
-    default: '',
   },
 ];
 

@@ -1,4 +1,5 @@
 import { IDataObject, ILoadOptionsFunctions, INodeListSearchResult } from 'n8n-workflow';
+import { extractCursor } from '../utils/pagination';
 
 type SearchResultItem = { name: string; value: string };
 
@@ -38,17 +39,6 @@ async function vaultGet(
     qs,
     json: true,
   })) as IDataObject;
-}
-
-/** Extracts the next-page cursor from a cursor-based pagination response. */
-function extractCursor(response: IDataObject): string | undefined {
-  const pagination = response.pagination as IDataObject | undefined;
-  const nextUrl = pagination?.nextUrl as string | undefined;
-  if (!nextUrl) {
-    return undefined;
-  }
-  const match = nextUrl.match(/[?&]cursorState=([^&]+)/);
-  return match ? decodeURIComponent(match[1]) : undefined;
 }
 
 /**

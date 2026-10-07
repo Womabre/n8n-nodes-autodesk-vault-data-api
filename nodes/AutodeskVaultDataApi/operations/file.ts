@@ -254,8 +254,6 @@ export const operations: INodeProperties[] = [
               'option[propDefIds]': '={{$parameter["propDefIds"]}}',
               'option[revision]': '={{$parameter["revision"] || undefined}}',
               descending: '={{$parameter["descending"]}}',
-              limit: '={{$parameter["limit"] || undefined}}',
-              cursorState: '={{$parameter["cursorState"] || undefined}}',
             },
           },
           output: {
@@ -335,8 +333,6 @@ export const operations: INodeProperties[] = [
               'option[propDefIds]': '={{$parameter["propDefIds"]}}',
               'option[getLatestAssociations]': '={{$parameter["getLatestAssociations"]}}',
               'option[recurse]': '={{$parameter["recurse"]}}',
-              limit: '={{$parameter["limit"] || undefined}}',
-              cursorState: '={{$parameter["cursorState"] || undefined}}',
             },
           },
           output: {
@@ -368,8 +364,6 @@ export const operations: INodeProperties[] = [
               'option[propDefIds]': '={{$parameter["propDefIds"]}}',
               'option[getLatestAssociations]': '={{$parameter["getLatestAssociations"]}}',
               'option[recurse]': '={{$parameter["recurse"]}}',
-              limit: '={{$parameter["limit"] || undefined}}',
-              cursorState: '={{$parameter["cursorState"] || undefined}}',
             },
           },
           output: {
@@ -404,8 +398,6 @@ export const operations: INodeProperties[] = [
               'option[extendedModels]': '={{$parameter["extendedModels"]}}',
               'option[propDefIds]': '={{$parameter["propDefIds"] || undefined}}',
               sort: '={{$parameter["sort"] || undefined}}',
-              limit: '={{$parameter["limit"] || undefined}}',
-              cursorState: '={{$parameter["cursorState"] || undefined}}',
             },
           },
           output: {
@@ -433,8 +425,6 @@ export const operations: INodeProperties[] = [
               'option[includeClosedECOs]': '={{$parameter["includeClosedECOs"]}}',
               'option[extendedModels]': '={{$parameter["extendedModels"]}}',
               'option[propDefIds]': '={{$parameter["propDefIds"]}}',
-              limit: '={{$parameter["limit"] || undefined}}',
-              cursorState: '={{$parameter["cursorState"] || undefined}}',
             },
           },
           output: {
@@ -461,8 +451,6 @@ export const operations: INodeProperties[] = [
             qs: {
               'option[releasedOnly]': '={{$parameter["releasedOnly"]}}',
               'option[propDefIds]': '={{$parameter["propDefIds"]}}',
-              limit: '={{$parameter["limit"] || undefined}}',
-              cursorState: '={{$parameter["cursorState"] || undefined}}',
             },
           },
           output: {
@@ -486,10 +474,6 @@ export const operations: INodeProperties[] = [
           request: {
             method: 'GET',
             url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/markups',
-            qs: {
-              limit: '={{$parameter["limit"] || undefined}}',
-              cursorState: '={{$parameter["cursorState"] || undefined}}',
-            },
           },
           output: {
             postReceive: [
@@ -512,10 +496,6 @@ export const operations: INodeProperties[] = [
           request: {
             method: 'GET',
             url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/visualization-attachments',
-            qs: {
-              limit: '={{$parameter["limit"] || undefined}}',
-              cursorState: '={{$parameter["cursorState"] || undefined}}',
-            },
           },
           output: {
             postReceive: [

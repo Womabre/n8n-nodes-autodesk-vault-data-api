@@ -36,8 +36,6 @@ export const operations: INodeProperties[] = [
             url: '/AutodeskDM/Services/api/vault/v2/profile-attribute-definitions',
             qs: {
               'filter[association]': '={{$parameter["association"]}}',
-              limit: '={{$parameter["limit"] || undefined}}',
-              cursorState: '={{$parameter["cursorState"] || undefined}}',
             },
           },
           output: {

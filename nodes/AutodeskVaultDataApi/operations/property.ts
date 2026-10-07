@@ -41,8 +41,6 @@ export const operations: INodeProperties[] = [
               'option[includeBOMAssociationProperty]':
                 '={{$parameter["includeBOMAssociationProperty"] || undefined}}',
               'option[extendedModels]': '={{$parameter["extendedModels"] || undefined}}',
-              limit: '={{$parameter["limit"] || undefined}}',
-              cursorState: '={{$parameter["cursorState"] || undefined}}',
             },
           },
           output: {

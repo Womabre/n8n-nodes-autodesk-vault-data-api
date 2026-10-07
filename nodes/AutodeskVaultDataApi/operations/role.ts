@@ -33,10 +33,6 @@ export const operations: INodeProperties[] = [
           request: {
             method: 'GET',
             url: '/AutodeskDM/Services/api/vault/v2/roles',
-            qs: {
-              limit: '={{$parameter["limit"] || undefined}}',
-              cursorState: '={{$parameter["cursorState"] || undefined}}',
-            },
           },
           output: {
             postReceive: [

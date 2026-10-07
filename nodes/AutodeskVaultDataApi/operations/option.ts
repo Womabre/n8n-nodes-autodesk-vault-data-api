@@ -145,8 +145,6 @@ export const operations: INodeProperties[] = [
             url: '=/AutodeskDM/Services/api/vault/v2/system-options',
             qs: {
               'filter[name]': '={{$parameter["filterName"] || undefined}}',
-              limit: '={{$parameter["limit"] || undefined}}',
-              cursorState: '={{$parameter["cursorState"] || undefined}}',
             },
           },
           output: {
@@ -172,8 +170,6 @@ export const operations: INodeProperties[] = [
             url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/vault-options',
             qs: {
               'filter[name]-starts': '={{$parameter["nameStartsWith"] || undefined}}',
-              limit: '={{$parameter["limit"] || undefined}}',
-              cursorState: '={{$parameter["cursorState"] || undefined}}',
             },
           },
           output: {
