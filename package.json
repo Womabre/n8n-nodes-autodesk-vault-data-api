@@ -58,7 +58,7 @@
 		"@vitest/coverage-v8": "^4.1.2",
 		"auto-changelog": "*",
 		"eslint": "9.39.4",
-		"prettier": "3.8.3",
+		"prettier": "3.9.9",
 		"release-it": "20.2.0",
 		"typescript": "5.9.3",
 		"vitest": "^4.1.2"
