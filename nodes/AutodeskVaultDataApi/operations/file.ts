@@ -4,6 +4,7 @@ import {
   IN8nHttpFullResponse,
   INodeExecutionData,
   INodeProperties,
+  NodeOperationError,
   sleep,
 } from 'n8n-workflow';
 import { processBinaryResponse } from '../utils/binary';
@@ -27,6 +28,108 @@ function containsRenderableGeometry(node: BubbleNode): boolean {
     return node.children.some(containsRenderableGeometry);
   }
   return false;
+}
+
+/**
+ * postReceive for "Get File Version LMV Bubble JSON". Polls bubble.json until
+ * it contains renderable geometry or "Max Wait Time (Seconds)" is used up.
+ */
+export async function waitForLmvBubble(
+  this: IExecuteSingleFunctions,
+  items: INodeExecutionData[],
+  response: IN8nHttpFullResponse,
+): Promise<INodeExecutionData[]> {
+  // Vault LMV (SVF) translation is asynchronous: bubble.json is served as
+  // soon as translation starts but only gains renderable geometry once it
+  // finishes. Poll with exponential backoff (2s, 4s, 8s, 16s, then 30s per
+  // attempt) until the configured maximum wait time has been used up.
+  const maxWaitMs = Math.max(0, this.getNodeParameter('lmvMaxWaitSeconds', 180) as number) * 1000;
+  const baseDelayMs = 2000;
+  let waitedMs = 0;
+
+  let attempt = 0;
+  let json: BubbleNode | undefined;
+  let lastFailureReason = 'unknown';
+
+  // Re-request through the authenticated helper so the bearer token is
+  // refreshed automatically if it expires during a long-running poll.
+  const authMethod = this.getNodeParameter('authentication') as string;
+  const credentialType =
+    authMethod === 'OAuth2' ? 'autodeskVaultDataOAuth2Api' : 'autodeskVaultAccountApi';
+  const { vaultServerUrl } = (await this.getCredentials(credentialType)) as {
+    vaultServerUrl: string;
+  };
+  const baseUrl = String(vaultServerUrl).replace(/\/$/, '');
+
+  const vaultId = this.getNodeParameter('vaultId');
+  const fileId = this.getNodeParameter('fileId');
+  const allowSync = this.getNodeParameter('allowSync');
+  const wmSrcItemVerId = this.getNodeParameter('wmSrcItemVerId');
+  const wmSrcFileVerId = this.getNodeParameter('wmSrcFileVerId');
+
+  const qs: Record<string, string> = { allowSync: String(allowSync) };
+  if (wmSrcItemVerId) qs.wmSrcItemVerId = String(wmSrcItemVerId);
+  if (wmSrcFileVerId) qs.wmSrcFileVerId = String(wmSrcFileVerId);
+
+  while (true) {
+    if (attempt > 0) {
+      // Exponential backoff: 2s, 4s, 8s, 16s, capped at 30s, and never
+      // past the maximum wait time.
+      const delayMs = Math.min(
+        baseDelayMs * Math.pow(2, attempt - 1),
+        30000,
+        maxWaitMs - waitedMs,
+      );
+      if (delayMs <= 0) {
+        break;
+      }
+      await sleep(delayMs);
+      waitedMs += delayMs;
+
+      response = (await this.helpers.httpRequestWithAuthentication.call(
+        this,
+        credentialType,
+        {
+          method: 'GET',
+          url: `${baseUrl}${API_BASE}/vaults/${vaultId}/file-versions/${fileId}/svf/bubble.json`,
+          qs,
+          json: false,
+          returnFullResponse: true,
+        },
+      )) as IN8nHttpFullResponse;
+    }
+
+    try {
+      json =
+        typeof response.body === 'string'
+          ? (JSON.parse(response.body) as BubbleNode)
+          : (response.body as BubbleNode);
+
+      if (json && containsRenderableGeometry(json)) {
+        break;
+      }
+      lastFailureReason = 'renderable geometry not yet present in bubble.json';
+      json = undefined;
+    } catch {
+      lastFailureReason = 'bubble.json could not be parsed as JSON';
+      json = undefined;
+    }
+
+    attempt++;
+  }
+
+  if (!json) {
+    throw new NodeOperationError(
+      this.getNode(),
+      `bubble.json not ready after ${attempt} attempt(s) over ${Math.round(waitedMs / 1000)} seconds. Last failure: ${lastFailureReason}`,
+      {
+        description:
+          'Vault may still be translating this file for the viewer. Increase "Max Wait Time (Seconds)" or try again later.',
+      },
+    );
+  }
+
+  return [{ json: json as unknown as IDataObject }];
 }
 
 export const operations: INodeProperties[] = [
@@ -115,88 +218,7 @@ export const operations: INodeProperties[] = [
           },
           output: {
             postReceive: [
-              async function retryUntilReady(
-                this: IExecuteSingleFunctions,
-                items: INodeExecutionData[],
-                response: IN8nHttpFullResponse,
-              ): Promise<INodeExecutionData[]> {
-                // Vault LMV (SVF) translation is asynchronous: bubble.json is served as
-                // soon as translation starts but only gains renderable geometry once it
-                // finishes. Poll with exponential backoff (2s, 4s, 8s, 16s, then 30s per
-                // attempt) — roughly 3 minutes total across all retries.
-                const maxRetries = 10;
-                const baseDelayMs = 2000;
-
-                let attempt = 0;
-                let json: BubbleNode | undefined;
-                let lastFailureReason = 'unknown';
-
-                // Re-request through the authenticated helper so the bearer token is
-                // refreshed automatically if it expires during a long-running poll.
-                const authMethod = this.getNodeParameter('authentication') as string;
-                const credentialType =
-                  authMethod === 'OAuth2' ? 'autodeskVaultDataOAuth2Api' : 'autodeskVaultAccountApi';
-                const { vaultServerUrl } = (await this.getCredentials(credentialType)) as {
-                  vaultServerUrl: string;
-                };
-                const baseUrl = String(vaultServerUrl).replace(/\/$/, '');
-
-                const vaultId = this.getNodeParameter('vaultId');
-                const fileId = this.getNodeParameter('fileId');
-                const allowSync = this.getNodeParameter('allowSync');
-                const wmSrcItemVerId = this.getNodeParameter('wmSrcItemVerId');
-                const wmSrcFileVerId = this.getNodeParameter('wmSrcFileVerId');
-
-                const qs: Record<string, string> = { allowSync: String(allowSync) };
-                if (wmSrcItemVerId) qs.wmSrcItemVerId = String(wmSrcItemVerId);
-                if (wmSrcFileVerId) qs.wmSrcFileVerId = String(wmSrcFileVerId);
-
-                while (attempt < maxRetries) {
-                  if (attempt > 0) {
-                    // Exponential backoff: 2s, 4s, 8s, 16s, capped at 30s
-                    const delayMs = Math.min(baseDelayMs * Math.pow(2, attempt - 1), 30000);
-                    await sleep(delayMs);
-
-                    response = (await this.helpers.httpRequestWithAuthentication.call(
-                      this,
-                      credentialType,
-                      {
-                        method: 'GET',
-                        url: `${baseUrl}${API_BASE}/vaults/${vaultId}/file-versions/${fileId}/svf/bubble.json`,
-                        qs,
-                        json: false,
-                        returnFullResponse: true,
-                      },
-                    )) as IN8nHttpFullResponse;
-                  }
-
-                  try {
-                    json =
-                      typeof response.body === 'string'
-                        ? (JSON.parse(response.body) as BubbleNode)
-                        : (response.body as BubbleNode);
-
-                    if (json && containsRenderableGeometry(json)) {
-                      break;
-                    }
-                    lastFailureReason = 'renderable geometry not yet present in bubble.json';
-                    json = undefined;
-                  } catch {
-                    lastFailureReason = 'bubble.json could not be parsed as JSON';
-                    json = undefined;
-                  }
-
-                  attempt++;
-                }
-
-                if (!json) {
-                  throw new Error(
-                    `bubble.json not ready after ${maxRetries} attempts. Last failure: ${lastFailureReason}`,
-                  );
-                }
-
-                return [{ json: json as unknown as IDataObject }];
-              },
+              waitForLmvBubble,
             ],
           },
         },

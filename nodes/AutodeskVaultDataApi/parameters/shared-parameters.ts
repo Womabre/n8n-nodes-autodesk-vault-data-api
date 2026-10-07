@@ -1095,6 +1095,24 @@ export const parameters: INodeProperties[] = [
     },
   },
   {
+    displayName: 'Max Wait Time (Seconds)',
+    name: 'lmvMaxWaitSeconds',
+    type: 'number',
+    typeOptions: {
+      minValue: 0,
+      numberPrecision: 0,
+    },
+    default: 180,
+    description:
+      'How long to keep polling while Vault translates the file for the viewer. Polls back off from 2 up to 30 seconds apart. Set to 0 to check once.',
+    displayOptions: {
+      show: {
+        resource: ['files'],
+        operation: ['getFileVersionLmvRoot'],
+      },
+    },
+  },
+  {
     displayName: 'File',
     name: 'fileMasterId',
     type: 'resourceLocator',
