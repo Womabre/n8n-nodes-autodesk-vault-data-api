@@ -1,4 +1,5 @@
 import { IExecuteSingleFunctions, IHttpRequestOptions, INodeProperties } from 'n8n-workflow';
+import { API_BASE } from '../utils/constants';
 
 interface SearchCriterion {
   propertyDefinitionUrl?: string;
@@ -31,7 +32,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/search-results',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/search-results`,
             qs: {
               q: '={{$parameter["q"] || undefined}}',
               'option[searchContent]': '={{$parameter["searchContent"] || undefined}}',
@@ -67,7 +68,7 @@ export const operations: INodeProperties[] = [
           },
           request: {
             method: 'POST',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}:advanced-search',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}:advanced-search`,
             qs: {
               'option[searchSubFolders]': '={{$parameter["searchSubFolders"] || undefined}}',
               'option[releasedFilesOnly]': '={{$parameter["releasedFilesOnly"] || undefined}}',
@@ -111,7 +112,7 @@ export async function formatFolderUrls(
   const body = requestOptions.body as Record<string, unknown>;
 
   if (Array.isArray(folderIds)) {
-    const basePath = `/AutodeskDM/Services/api/vault/v2/vaults/${vaultId}/folders/`;
+    const basePath = `${API_BASE}/vaults/${vaultId}/folders/`;
     body.foldersToSearch = folderIds.map((id) => `${basePath}${id}`);
   }
   return requestOptions;
@@ -139,7 +140,7 @@ export async function formatPropertyDefinitionUrls(
         typeof criteria.propertyDefinitionUrl === 'string' &&
         !criteria.propertyDefinitionUrl.startsWith('/AutodeskDM')
       ) {
-        criteria.propertyDefinitionUrl = `/AutodeskDM/Services/api/vault/v2/vaults/${vaultId}/property-definitions/${criteria.propertyDefinitionUrl}`;
+        criteria.propertyDefinitionUrl = `${API_BASE}/vaults/${vaultId}/property-definitions/${criteria.propertyDefinitionUrl}`;
       }
       return criteria;
     });
@@ -153,7 +154,7 @@ export async function formatPropertyDefinitionUrls(
         typeof criteria.propertyDefinitionUrl === 'string' &&
         !criteria.propertyDefinitionUrl.startsWith('/AutodeskDM')
       ) {
-        criteria.propertyDefinitionUrl = `/AutodeskDM/Services/api/vault/v2/vaults/${vaultId}/property-definitions/${criteria.propertyDefinitionUrl}`;
+        criteria.propertyDefinitionUrl = `${API_BASE}/vaults/${vaultId}/property-definitions/${criteria.propertyDefinitionUrl}`;
       }
       return criteria;
     });

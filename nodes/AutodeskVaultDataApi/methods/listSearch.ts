@@ -1,5 +1,6 @@
 import { IDataObject, ILoadOptionsFunctions, INodeListSearchResult } from 'n8n-workflow';
 import { extractCursor } from '../utils/pagination';
+import { API_BASE } from '../utils/constants';
 
 type SearchResultItem = { name: string; value: string };
 
@@ -35,7 +36,7 @@ async function vaultGet(
   const baseUrl = String(credentials.vaultServerUrl).replace(/\/$/, '');
   return (await ctx.helpers.httpRequestWithAuthentication.call(ctx, credentialType, {
     method: 'GET',
-    url: `${baseUrl}/AutodeskDM/Services/api/vault/v2/vaults/${vaultId}/${subPath}`,
+    url: `${baseUrl}${API_BASE}/vaults/${vaultId}/${subPath}`,
     qs,
     json: true,
   })) as IDataObject;

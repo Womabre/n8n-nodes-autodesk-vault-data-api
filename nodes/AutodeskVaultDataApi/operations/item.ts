@@ -4,6 +4,7 @@ import {
   buildUpdateLifecycleDefinitionsBody,
   buildUpdateLifecycleStatesBody,
 } from '../utils/lifecycleBody';
+import { API_BASE } from '../utils/constants';
 
 export const operations: INodeProperties[] = [
   {
@@ -25,7 +26,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/items/{{$parameter["itemMasterId"]}}',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/items/{{$parameter["itemMasterId"]}}`,
             qs: {
               'option[releasedOnly]': '={{$parameter["releasedOnly"]}}',
             },
@@ -40,7 +41,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/item-versions/{{$parameter["itemId"]}}',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/item-versions/{{$parameter["itemId"]}}`,
           },
         },
       },
@@ -53,7 +54,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/item-versions/{{$parameter["itemId"]}}/bill-of-materials',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/item-versions/{{$parameter["itemId"]}}/bill-of-materials`,
             qs: {
               'option[bomType]': '={{$parameter["bomType"] || undefined}}',
               'option[date]': '={{$parameter["date"] || undefined}}',
@@ -77,7 +78,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/item-versions/{{$parameter["itemId"]}}/thumbnail',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/item-versions/{{$parameter["itemId"]}}/thumbnail`,
             returnFullResponse: true,
             encoding: 'arraybuffer', // ensures Buffer not string
           },
@@ -94,7 +95,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/item-versions/{{$parameter["itemId"]}}/parents',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/item-versions/{{$parameter["itemId"]}}/parents`,
             qs: {
               'option[bomType]': '={{$parameter["bomType"] || undefined}}',
               'option[date]': '={{$parameter["date"] || undefined}}',
@@ -110,7 +111,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/items/{{$parameter["itemMasterId"]}}/versions',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/items/{{$parameter["itemMasterId"]}}/versions`,
             qs: {
               'option[history]': '={{$parameter["history"] || undefined}}',
               'option[extendedModels]': '={{$parameter["extendedModels"]}}',
@@ -138,7 +139,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/items',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/items`,
           },
           output: {
             postReceive: [
@@ -160,7 +161,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/item-versions',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/item-versions`,
             qs: {
               q: '={{$parameter["q"] || undefined}}',
               'option[propDefIds]': '={{$parameter["propDefIds"]}}',
@@ -189,7 +190,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/items/{{$parameter["itemMasterId"]}}/change-orders',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/items/{{$parameter["itemMasterId"]}}/change-orders`,
             qs: {
               'option[includeClosedECOs]': '={{$parameter["includeClosedECOs"]}}',
               'option[extendedModels]': '={{$parameter["extendedModels"]}}',
@@ -216,7 +217,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/item-versions/{{$parameter["itemId"]}}/associated-files',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/item-versions/{{$parameter["itemId"]}}/associated-files`,
             qs: {
               'option[extendedModels]': '={{$parameter["extendedModels"]}}',
               'option[propDefIds]': '={{$parameter["propDefIds"]}}',
@@ -232,7 +233,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/items/{{$parameter["itemMasterId"]}}/ext-sync-infos/{{$parameter["infoName"]}}',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/items/{{$parameter["itemMasterId"]}}/ext-sync-infos/{{$parameter["infoName"]}}`,
           },
         },
       },
@@ -244,7 +245,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/item-versions/{{$parameter["itemId"]}}/ext-sync-infos/{{$parameter["infoName"]}}',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/item-versions/{{$parameter["itemId"]}}/ext-sync-infos/{{$parameter["infoName"]}}`,
           },
         },
       },
@@ -256,7 +257,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/items/{{$parameter["itemMasterId"]}}/ext-sync-infos',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/items/{{$parameter["itemMasterId"]}}/ext-sync-infos`,
           },
           output: {
             postReceive: [
@@ -278,7 +279,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/item-versions/{{$parameter["itemId"]}}/ext-sync-infos',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/item-versions/{{$parameter["itemId"]}}/ext-sync-infos`,
           },
           output: {
             postReceive: [
@@ -304,7 +305,7 @@ export const operations: INodeProperties[] = [
           },
           request: {
             method: 'POST',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/items:update-lifecycle-definitions',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/items:update-lifecycle-definitions`,
           },
           output: {
             postReceive: [
@@ -329,7 +330,7 @@ export const operations: INodeProperties[] = [
           },
           request: {
             method: 'POST',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/items:update-states',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/items:update-states`,
           },
           output: {
             postReceive: [

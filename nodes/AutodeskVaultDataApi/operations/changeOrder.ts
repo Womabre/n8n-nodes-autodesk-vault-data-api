@@ -1,4 +1,5 @@
 import { INodeProperties } from 'n8n-workflow';
+import { API_BASE } from '../utils/constants';
 
 export const operations: INodeProperties[] = [
   {
@@ -20,7 +21,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/change-orders/{{$parameter["changeOrderId"]}}',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/change-orders/{{$parameter["changeOrderId"]}}`,
           },
         },
       },
@@ -32,7 +33,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/change-orders/{{$parameter["changeOrderId"]}}/associated-entities',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/change-orders/{{$parameter["changeOrderId"]}}/associated-entities`,
             qs: {
               'option[releasedItemsOnly]': '={{$parameter["releasedItemsOnly"]}}',
               'option[releasedFilesOnly]': '={{$parameter["releasedFilesOnly"]}}',
@@ -60,7 +61,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/change-order-comments/{{$parameter["changeOrderId"]}}/attachments',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/change-order-comments/{{$parameter["changeOrderId"]}}/attachments`,
             qs: {
               'option[releasedOnly]': '={{$parameter["releasedOnly"] || undefined}}',
               'option[extendedModels]': '={{$parameter["extendedModels"] || undefined}}',
@@ -87,7 +88,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/change-orders/{{$parameter["changeOrderId"]}}/comments',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/change-orders/{{$parameter["changeOrderId"]}}/comments`,
           },
           output: {
             postReceive: [
@@ -110,7 +111,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/change-orders/{{$parameter["changeOrderId"]}}/all-related-files',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/change-orders/{{$parameter["changeOrderId"]}}/all-related-files`,
             qs: {
               'option[releasedOnly]': '={{$parameter["releasedOnly"] || undefined}}',
               'option[extendedModels]': '={{$parameter["extendedModels"] || undefined}}',
@@ -137,7 +138,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/change-orders',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/change-orders`,
             qs: {
               'filter[state]': '={{$parameter["ecoState"] || undefined}}',
               'filter[assignees]': '={{$parameter["filterAssignees"] || undefined}}',

@@ -1,5 +1,6 @@
 import { ILoadOptions, INodeProperties, INodePropertyMode } from 'n8n-workflow';
 import { paginateByCursor } from '../utils/pagination';
+import { API_BASE } from '../utils/constants';
 
 /**
  * Builds a declarative loadOptions routing block that fetches a list from the
@@ -157,7 +158,7 @@ export const parameters: INodeProperties[] = [
     name: 'vaultId',
     type: 'options',
     typeOptions: {
-      loadOptions: listLoadOptions('/AutodeskDM/Services/api/vault/v2/vaults'),
+      loadOptions: listLoadOptions(`${API_BASE}/vaults`),
     },
     required: true,
     description: 'The ID of the knowledge vault to retrieve. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
@@ -274,7 +275,7 @@ export const parameters: INodeProperties[] = [
     name: 'groupId',
     type: 'options',
     typeOptions: {
-      loadOptions: listLoadOptions('/AutodeskDM/Services/api/vault/v2/groups'),
+      loadOptions: listLoadOptions(`${API_BASE}/groups`),
     },
     required: true,
     description: 'The ID of the group to retrieve',
@@ -330,7 +331,7 @@ export const parameters: INodeProperties[] = [
     type: 'options',
     typeOptions: {
       loadOptions: listLoadOptions(
-        '/AutodeskDM/Services/api/vault/v2/profile-attribute-definitions',
+        `${API_BASE}/profile-attribute-definitions`,
         '={{$responseItem.attributeName}}',
       ),
     },
@@ -351,7 +352,7 @@ export const parameters: INodeProperties[] = [
     type: 'options',
     typeOptions: {
       loadOptions: listLoadOptions(
-        '/AutodeskDM/Services/api/vault/v2/roles',
+        `${API_BASE}/roles`,
         '={{$responseItem.roleName}}',
       ),
     },
@@ -371,7 +372,7 @@ export const parameters: INodeProperties[] = [
     name: 'userId',
     type: 'options',
     typeOptions: {
-      loadOptions: listLoadOptions('/AutodeskDM/Services/api/vault/v2/users'),
+      loadOptions: listLoadOptions(`${API_BASE}/users`),
     },
     required: true,
     default: '',
@@ -433,7 +434,7 @@ export const parameters: INodeProperties[] = [
     name: 'systemOptionId',
     type: 'options',
     typeOptions: {
-      loadOptions: listLoadOptions('/AutodeskDM/Services/api/vault/v2/system-options'),
+      loadOptions: listLoadOptions(`${API_BASE}/system-options`),
     },
     required: true,
     default: '',
@@ -453,7 +454,7 @@ export const parameters: INodeProperties[] = [
     typeOptions: {
       loadOptionsDependsOn: ['vaultId'],
       loadOptions: listLoadOptions(
-        '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/vault-options',
+        `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/vault-options`,
       ),
     },
     required: true,
@@ -490,7 +491,7 @@ export const parameters: INodeProperties[] = [
     typeOptions: {
       loadOptionsDependsOn: ['vaultId'],
       loadOptions: listLoadOptions(
-        '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/property-definitions',
+        `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/property-definitions`,
         '={{$responseItem.displayName}} (Id: {{$responseItem.id}})',
       ),
     },
@@ -694,7 +695,7 @@ export const parameters: INodeProperties[] = [
             typeOptions: {
               loadOptionsDependsOn: ['vaultId'],
               loadOptions: listLoadOptions(
-                '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/property-definitions',
+                `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/property-definitions`,
                 '={{$responseItem.displayName}} (Type: {{$responseItem.dataType}})',
               ),
             },
@@ -762,7 +763,7 @@ export const parameters: INodeProperties[] = [
             typeOptions: {
               loadOptionsDependsOn: ['vaultId'],
               loadOptions: listLoadOptions(
-                '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/property-definitions',
+                `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/property-definitions`,
                 '={{$responseItem.displayName}} (Id: {{$responseItem.id}})',
               ),
             },
@@ -1022,7 +1023,7 @@ export const parameters: INodeProperties[] = [
     typeOptions: {
       loadOptionsDependsOn: ['vaultId'],
       loadOptions: listLoadOptions(
-        '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/change-orders',
+        `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/change-orders`,
         '={{$responseItem.number}}{{$responseItem.title ? " - " + $responseItem.title : ""}}',
       ),
     },
@@ -1209,7 +1210,7 @@ export const parameters: INodeProperties[] = [
     typeOptions: {
       loadOptionsDependsOn: ['vaultId'],
       loadOptions: listLoadOptions(
-        '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/links',
+        `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/links`,
       ),
     },
     required: true,
@@ -1676,7 +1677,7 @@ export const parameters: INodeProperties[] = [
     typeOptions: {
       loadOptionsDependsOn: ['vaultId'],
       loadOptions: listLoadOptions(
-        '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/lifecycle-definitions',
+        `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/lifecycle-definitions`,
       ),
     },
     required: true,

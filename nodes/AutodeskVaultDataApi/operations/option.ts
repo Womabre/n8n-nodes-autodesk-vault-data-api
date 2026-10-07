@@ -1,5 +1,6 @@
 import { INodeProperties } from 'n8n-workflow';
 import { handleEmptyResponse } from '../utils/response';
+import { API_BASE } from '../utils/constants';
 
 export const operations: INodeProperties[] = [
   // Options: getSystemOptions, createSystemOption, getSystemOptionById,
@@ -24,7 +25,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'POST',
-            url: '=/AutodeskDM/Services/api/vault/v2/system-options',
+            url: `=${API_BASE}/system-options`,
             body: {
               name: '={{$parameter["optionName"]}}',
               value: '={{$parameter["optionValue"]}}',
@@ -45,7 +46,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'POST',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/vault-options',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/vault-options`,
             body: {
               name: '={{$parameter["optionName"]}}',
               value: '={{$parameter["optionValue"]}}',
@@ -66,7 +67,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'DELETE',
-            url: '=/AutodeskDM/Services/api/vault/v2/system-options/{{$parameter["systemOptionId"]}}',
+            url: `=${API_BASE}/system-options/{{$parameter["systemOptionId"]}}`,
           },
           output: {
             postReceive: [
@@ -83,7 +84,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'DELETE',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/vault-options/{{$parameter["vaultOptionId"]}}',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/vault-options/{{$parameter["vaultOptionId"]}}`,
           },
           output: {
             postReceive: [
@@ -101,7 +102,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/vault-options/ext-sync-configs',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/vault-options/ext-sync-configs`,
           },
           output: {
             postReceive: [
@@ -118,7 +119,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/system-options',
+            url: `=${API_BASE}/system-options`,
             qs: {
               'filter[name]': '={{$parameter["filterName"] || undefined}}',
             },
@@ -143,7 +144,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/vault-options',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/vault-options`,
             qs: {
               'filter[name]-starts': '={{$parameter["nameStartsWith"] || undefined}}',
             },
@@ -168,7 +169,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/system-options/{{$parameter["systemOptionId"]}}',
+            url: `=${API_BASE}/system-options/{{$parameter["systemOptionId"]}}`,
           },
         },
       },
@@ -180,7 +181,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/vault-options/{{$parameter["vaultOptionId"]}}',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/vault-options/{{$parameter["vaultOptionId"]}}`,
           },
         },
       },
@@ -192,7 +193,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'PATCH',
-            url: '=/AutodeskDM/Services/api/vault/v2/system-options/{{$parameter["systemOptionId"]}}',
+            url: `=${API_BASE}/system-options/{{$parameter["systemOptionId"]}}`,
             body: {
               value: '={{$parameter["optionValue"]}}',
             },
@@ -212,7 +213,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'PATCH',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/vault-options/{{$parameter["vaultOptionId"]}}',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/vault-options/{{$parameter["vaultOptionId"]}}`,
             body: {
               value: '={{$parameter["optionValue"]}}',
             },

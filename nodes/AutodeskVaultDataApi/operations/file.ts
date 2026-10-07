@@ -11,6 +11,7 @@ import {
   buildUpdateLifecycleDefinitionsBody,
   buildUpdateLifecycleStatesBody,
 } from '../utils/lifecycleBody';
+import { API_BASE } from '../utils/constants';
 
 interface BubbleNode {
   type?: string;
@@ -49,7 +50,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/files/{{$parameter["fileMasterId"]}}',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/files/{{$parameter["fileMasterId"]}}`,
             qs: {
               'option[releasedOnly]': '={{$parameter["releasedOnly"]}}',
             },
@@ -64,7 +65,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}`,
           },
         },
       },
@@ -77,7 +78,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/content',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/content`,
             qs: {
               allowSync: '={{$parameter["allowSync"]}}',
               wmSrcItemVerId: '={{$parameter["wmSrcItemVerId"] || undefined}}',
@@ -104,7 +105,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/svf/bubble.json',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/svf/bubble.json`,
             qs: {
               allowSync: '={{$parameter["allowSync"]}}',
               wmSrcItemVerId: '={{$parameter["wmSrcItemVerId"] || undefined}}',
@@ -161,7 +162,7 @@ export const operations: INodeProperties[] = [
                       credentialType,
                       {
                         method: 'GET',
-                        url: `${baseUrl}/AutodeskDM/Services/api/vault/v2/vaults/${vaultId}/file-versions/${fileId}/svf/bubble.json`,
+                        url: `${baseUrl}${API_BASE}/vaults/${vaultId}/file-versions/${fileId}/svf/bubble.json`,
                         qs,
                         json: false,
                         returnFullResponse: true,
@@ -209,7 +210,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'HEAD',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/content',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/content`,
             qs: {
               allowSync: '={{$parameter["allowSync"]}}',
               wmSrcItemVerId: '={{$parameter["wmSrcItemVerId"] || undefined}}',
@@ -245,7 +246,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/files/{{$parameter["fileMasterId"]}}/versions',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/files/{{$parameter["fileMasterId"]}}/versions`,
             qs: {
               'option[history]': '={{$parameter["history"] || undefined}}',
               'option[onlyShowTipReleasedForEachRev]':
@@ -276,7 +277,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/markups/{{$parameter["markupId"]}}',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/markups/{{$parameter["markupId"]}}`,
           },
         },
       },
@@ -288,7 +289,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/thumbnail',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/thumbnail`,
             returnFullResponse: true,
             encoding: 'arraybuffer', // ensures Buffer not string
           },
@@ -306,7 +307,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/signedurl',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/signedurl`,
             qs: {
               wmSrcItemVerId: '={{$parameter["wmSrcItemVerId"] || undefined}}',
               wmSrcFileVerId: '={{$parameter["wmSrcFileVerId"] || undefined}}',
@@ -324,7 +325,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/uses',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/uses`,
             qs: {
               'option[includeHidden]': '={{$parameter["includeHidden"]}}',
               'option[releaseBiased]': '={{$parameter["releaseBiased"]}}',
@@ -355,7 +356,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/parents',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/parents`,
             qs: {
               'option[includeHidden]': '={{$parameter["includeHidden"]}}',
               'option[releaseBiased]': '={{$parameter["releaseBiased"]}}',
@@ -386,7 +387,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/file-versions',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/file-versions`,
             qs: {
               q: '={{$parameter["q"] || undefined}}',
               'filter[CheckoutUserName]': '={{$parameter["checkoutUserName"] || undefined}}',
@@ -420,7 +421,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/files/{{$parameter["fileMasterId"]}}/change-orders',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/files/{{$parameter["fileMasterId"]}}/change-orders`,
             qs: {
               'option[includeClosedECOs]': '={{$parameter["includeClosedECOs"]}}',
               'option[extendedModels]': '={{$parameter["extendedModels"]}}',
@@ -447,7 +448,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/item-versions',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/item-versions`,
             qs: {
               'option[releasedOnly]': '={{$parameter["releasedOnly"]}}',
               'option[propDefIds]': '={{$parameter["propDefIds"]}}',
@@ -473,7 +474,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/markups',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/markups`,
           },
           output: {
             postReceive: [
@@ -495,7 +496,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/visualization-attachments',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/visualization-attachments`,
           },
           output: {
             postReceive: [
@@ -521,7 +522,7 @@ export const operations: INodeProperties[] = [
           },
           request: {
             method: 'POST',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/files:update-lifecycle-definitions',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/files:update-lifecycle-definitions`,
           },
           output: {
             postReceive: [
@@ -546,7 +547,7 @@ export const operations: INodeProperties[] = [
           },
           request: {
             method: 'POST',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/files:update-states',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/files:update-states`,
           },
           output: {
             postReceive: [

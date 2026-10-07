@@ -5,6 +5,7 @@ import {
 	NodeOperationError,
 } from 'n8n-workflow';
 import { handleEmptyResponse } from '../utils/response';
+import { API_BASE } from '../utils/constants';
 
 export async function formatJobBody(
 	this: IExecuteSingleFunctions,
@@ -52,7 +53,7 @@ export const operations: INodeProperties[] = [
 					},
 					request: {
 						method: 'POST',
-						url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/jobs',
+						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/jobs`,
 					},
 					output: {
 						postReceive: [
@@ -69,7 +70,7 @@ export const operations: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'GET',
-						url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/jobs/{{$parameter["jobId"]}}',
+						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/jobs/{{$parameter["jobId"]}}`,
 					},
 				},
 			},
@@ -82,7 +83,7 @@ export const operations: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'GET',
-						url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/jobs/job-queue-enabled',
+						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/jobs/job-queue-enabled`,
 					},
 				},
 			},

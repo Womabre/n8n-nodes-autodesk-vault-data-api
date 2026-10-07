@@ -1,4 +1,5 @@
 import { INodeProperties } from 'n8n-workflow';
+import { API_BASE } from '../utils/constants';
 
 export const operations: INodeProperties[] = [
   {
@@ -20,7 +21,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}`,
           },
         },
       },
@@ -32,7 +33,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '/AutodeskDM/Services/api/vault/v2/vaults',
+            url: `${API_BASE}/vaults`,
           },
           output: {
             postReceive: [

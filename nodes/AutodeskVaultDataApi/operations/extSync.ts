@@ -1,5 +1,6 @@
 import { IExecuteSingleFunctions, IHttpRequestOptions, INodeProperties, NodeOperationError } from 'n8n-workflow';
 import { handleEmptyResponse } from '../utils/response';
+import { API_BASE } from '../utils/constants';
 
 interface KeyValueEntry {
 	key?: string;
@@ -192,7 +193,7 @@ export const operations: INodeProperties[] = [
 					},
 					request: {
 						method: 'POST',
-						url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/ext-sync-tasks',
+						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/ext-sync-tasks`,
 					},
 					output: {
 						postReceive: [
@@ -212,7 +213,7 @@ export const operations: INodeProperties[] = [
 					},
 					request: {
 						method: 'POST',
-						url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/ext-sync-tasks:batch-create',
+						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/ext-sync-tasks:batch-create`,
 					},
 				},
 			},
@@ -225,7 +226,7 @@ export const operations: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'DELETE',
-						url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/ext-sync-tasks/{{$parameter["extSyncTaskId"]}}',
+						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/ext-sync-tasks/{{$parameter["extSyncTaskId"]}}`,
 					},
 					output: {
 						postReceive: [
@@ -245,7 +246,7 @@ export const operations: INodeProperties[] = [
 					},
 					request: {
 						method: 'POST',
-						url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/ext-sync-tasks:find-by-entity-ids',
+						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/ext-sync-tasks:find-by-entity-ids`,
 					},
 				},
 			},
@@ -257,7 +258,7 @@ export const operations: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'GET',
-						url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/ext-sync-tasks/{{$parameter["extSyncTaskId"]}}',
+						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/ext-sync-tasks/{{$parameter["extSyncTaskId"]}}`,
 					},
 				},
 			},
@@ -269,7 +270,7 @@ export const operations: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'GET',
-						url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/ext-sync-tasks',
+						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/ext-sync-tasks`,
 						qs: {
 							'filter[entityIds]': '={{$parameter["filterEntityIds"] || undefined}}',
 							'filter[entityId]': '={{$parameter["filterEntityId"] || undefined}}',
@@ -299,7 +300,7 @@ export const operations: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'POST',
-						url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/ext-sync-tasks/{{$parameter["extSyncTaskId"]}}:resubmit',
+						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/ext-sync-tasks/{{$parameter["extSyncTaskId"]}}:resubmit`,
 					},
 				},
 			},

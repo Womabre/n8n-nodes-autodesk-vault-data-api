@@ -1,7 +1,7 @@
 import { IExecuteSingleFunctions, IHttpRequestOptions, NodeOperationError } from 'n8n-workflow';
+import { API_BASE } from './constants';
 
 /** Base path shared by every Vault Data API v2 route. */
-const API_BASE = '/AutodeskDM/Services/api/vault/v2';
 
 /** Collection segment of the entity a lifecycle change applies to. */
 export type LifecycleEntityCollection = 'files' | 'folders' | 'items';

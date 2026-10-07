@@ -1,5 +1,6 @@
 import { INodeProperties } from 'n8n-workflow';
 import { handleEmptyResponse } from '../utils/response';
+import { API_BASE } from '../utils/constants';
 
 export const operations: INodeProperties[] = [
   {
@@ -21,7 +22,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/sessions/{{$parameter["sessionId"]}}',
+            url: `=${API_BASE}/sessions/{{$parameter["sessionId"]}}`,
           },
         },
       },
@@ -33,7 +34,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'DELETE',
-            url: '=/AutodeskDM/Services/api/vault/v2/sessions/{{$parameter["sessionId"]}}',
+            url: `=${API_BASE}/sessions/{{$parameter["sessionId"]}}`,
           },
           output: {
             postReceive: [

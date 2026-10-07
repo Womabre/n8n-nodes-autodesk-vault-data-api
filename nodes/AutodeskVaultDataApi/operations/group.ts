@@ -1,4 +1,5 @@
 import { INodeProperties } from 'n8n-workflow';
+import { API_BASE } from '../utils/constants';
 
 export const operations: INodeProperties[] = [
   {
@@ -20,7 +21,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/groups/{{$parameter["groupId"]}}',
+            url: `=${API_BASE}/groups/{{$parameter["groupId"]}}`,
           },
         },
       },
@@ -32,7 +33,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/groups/{{$parameter["groupId"]}}/accounts/{{$parameter["authType"]}}',
+            url: `=${API_BASE}/groups/{{$parameter["groupId"]}}/accounts/{{$parameter["authType"]}}`,
           },
         },
       },
@@ -44,7 +45,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '/AutodeskDM/Services/api/vault/v2/groups',
+            url: `${API_BASE}/groups`,
           },
           output: {
             postReceive: [

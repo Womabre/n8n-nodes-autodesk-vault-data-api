@@ -1,4 +1,5 @@
 import { INodeProperties } from 'n8n-workflow';
+import { API_BASE } from '../utils/constants';
 
 export const operations: INodeProperties[] = [
 	// Lifecycle: getLifecycleDefinitions, getLifecycleDefinitionById,
@@ -22,7 +23,7 @@ export const operations: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'GET',
-						url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/lifecycle-definitions/{{$parameter["lifecycleDefinitionId"]}}',
+						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/lifecycle-definitions/{{$parameter["lifecycleDefinitionId"]}}`,
 					},
 				},
 			},
@@ -34,7 +35,7 @@ export const operations: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'GET',
-						url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/lifecycle-states/{{$parameter["lifecycleStateId"]}}',
+						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/lifecycle-states/{{$parameter["lifecycleStateId"]}}`,
 					},
 				},
 			},
@@ -46,7 +47,7 @@ export const operations: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'GET',
-						url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/lifecycle-definitions',
+						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/lifecycle-definitions`,
 						qs: {
 							'filter[ids]': '={{$parameter["filterLifecycleDefinitionIds"] || undefined}}',
 							'option[extendedModels]': '={{$parameter["extendedModels"]}}',
@@ -73,7 +74,7 @@ export const operations: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'GET',
-						url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/lifecycle-states',
+						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/lifecycle-states`,
 						qs: {
 							'filter[ids]': '={{$parameter["filterLifecycleStateIds"]}}',
 							'option[extendedModels]': '={{$parameter["extendedModels"]}}',

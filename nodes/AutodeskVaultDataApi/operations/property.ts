@@ -1,4 +1,5 @@
 import { INodeProperties } from 'n8n-workflow';
+import { API_BASE } from '../utils/constants';
 
 export const operations: INodeProperties[] = [
   // Property: getPropertyDefinitions, getPropertyDefinitionById
@@ -21,7 +22,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/property-definitions/{{$parameter["propertyDefId"]}}',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/property-definitions/{{$parameter["propertyDefId"]}}`,
           },
         },
       },
@@ -33,7 +34,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/property-definitions',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/property-definitions`,
             qs: {
               'filter[entityClassId]': '={{$parameter["entityClassId"] || undefined}}',
               'filter[systemNames]': '={{$parameter["systemNames"] || undefined}}',

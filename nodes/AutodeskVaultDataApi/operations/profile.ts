@@ -1,4 +1,5 @@
 import { INodeProperties } from 'n8n-workflow';
+import { API_BASE } from '../utils/constants';
 
 export const operations: INodeProperties[] = [
   {
@@ -20,7 +21,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/profile-attribute-definitions/{{$parameter["profileAttributeDefId"]}}',
+            url: `=${API_BASE}/profile-attribute-definitions/{{$parameter["profileAttributeDefId"]}}`,
           },
         },
       },
@@ -33,7 +34,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '/AutodeskDM/Services/api/vault/v2/profile-attribute-definitions',
+            url: `${API_BASE}/profile-attribute-definitions`,
             qs: {
               'filter[association]': '={{$parameter["association"]}}',
             },

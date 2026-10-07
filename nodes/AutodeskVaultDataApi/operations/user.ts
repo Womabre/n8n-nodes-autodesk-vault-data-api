@@ -1,4 +1,5 @@
 import { INodeProperties } from 'n8n-workflow';
+import { API_BASE } from '../utils/constants';
 
 export const operations: INodeProperties[] = [
   {
@@ -20,7 +21,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/users/{{$parameter["userId"]}}',
+            url: `=${API_BASE}/users/{{$parameter["userId"]}}`,
           },
         },
       },
@@ -32,7 +33,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/users/{{$parameter["userId"]}}/accounts/{{$parameter["authType"]}}',
+            url: `=${API_BASE}/users/{{$parameter["userId"]}}/accounts/{{$parameter["authType"]}}`,
           },
         },
       },
@@ -44,7 +45,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '/AutodeskDM/Services/api/vault/v2/users',
+            url: `${API_BASE}/users`,
           },
           output: {
             postReceive: [
@@ -66,7 +67,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/users/{{$parameter["userId"]}}/accounts',
+            url: `=${API_BASE}/users/{{$parameter["userId"]}}/accounts`,
           },
         },
       },

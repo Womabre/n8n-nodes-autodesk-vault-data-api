@@ -3,6 +3,7 @@ import {
   buildUpdateLifecycleDefinitionsBody,
   buildUpdateLifecycleStatesBody,
 } from '../utils/lifecycleBody';
+import { API_BASE } from '../utils/constants';
 
 export const operations: INodeProperties[] = [
   {
@@ -25,7 +26,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/folders/{{$parameter["folderId"]}}',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/folders/{{$parameter["folderId"]}}`,
           },
         },
       },
@@ -37,7 +38,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/folders/{{$parameter["folderId"]}}/contents',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/folders/{{$parameter["folderId"]}}/contents`,
             qs: {
               q: '={{$parameter["q"] || undefined}}',
               'option[searchContent]': '={{$parameter["searchContent"]}}',
@@ -72,7 +73,7 @@ export const operations: INodeProperties[] = [
         routing: {
           request: {
             method: 'GET',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/folders/{{$parameter["folderId"]}}/sub-folders',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/folders/{{$parameter["folderId"]}}/sub-folders`,
             qs: {
               'option[extendedModels]': '={{$parameter["extendedModels"]}}',
               'option[propDefIds]': '={{$parameter["propDefIds"]}}',
@@ -102,7 +103,7 @@ export const operations: INodeProperties[] = [
           },
           request: {
             method: 'POST',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/folders:update-lifecycle-definitions',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/folders:update-lifecycle-definitions`,
           },
           output: {
             postReceive: [
@@ -127,7 +128,7 @@ export const operations: INodeProperties[] = [
           },
           request: {
             method: 'POST',
-            url: '=/AutodeskDM/Services/api/vault/v2/vaults/{{$parameter["vaultId"]}}/folders:update-states',
+            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/folders:update-states`,
           },
           output: {
             postReceive: [
