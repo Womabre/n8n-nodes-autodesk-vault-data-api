@@ -101,8 +101,8 @@ export async function formatFolderUrls(
   this: IExecuteSingleFunctions,
   requestOptions: IHttpRequestOptions,
 ): Promise<IHttpRequestOptions> {
-  const vaultId = this.getNodeParameter('vaultId', 0);
-  const folderIds = this.getNodeParameter('foldersToSearch', 0) as string[];
+  const vaultId = this.getNodeParameter('vaultId') as string;
+  const folderIds = this.getNodeParameter('foldersToSearch', []) as string[];
 
   // Ensure body is defined
   if (!requestOptions.body || typeof requestOptions.body !== 'object') {
@@ -121,9 +121,9 @@ export async function formatPropertyDefinitionUrls(
   this: IExecuteSingleFunctions,
   requestOptions: IHttpRequestOptions,
 ): Promise<IHttpRequestOptions> {
-  const vaultId = this.getNodeParameter('vaultId', 0);
-  const searchWrapper = this.getNodeParameter('searchCriteria', 0) as CriteriaWrapper;
-  const sortWrapper = this.getNodeParameter('sortCriteria', 0) as CriteriaWrapper;
+  const vaultId = this.getNodeParameter('vaultId') as string;
+  const searchWrapper = this.getNodeParameter('searchCriteria', {}) as CriteriaWrapper;
+  const sortWrapper = this.getNodeParameter('sortCriteria', {}) as CriteriaWrapper;
 
   // Ensure the body exists and is an object
   if (!requestOptions.body || typeof requestOptions.body !== 'object') {

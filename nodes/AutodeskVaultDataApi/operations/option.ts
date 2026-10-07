@@ -1,4 +1,5 @@
 import { INodeProperties } from 'n8n-workflow';
+import { handleEmptyResponse } from '../utils/response';
 
 export const operations: INodeProperties[] = [
   // Options: getSystemOptions, createSystemOption, getSystemOptionById,
@@ -31,12 +32,7 @@ export const operations: INodeProperties[] = [
           },
           output: {
             postReceive: [
-              {
-                type: 'setKeyValue',
-                properties: {
-                  response: '={{ $response || "" }}',
-                },
-              },
+              handleEmptyResponse,
             ],
           },
         },
@@ -57,12 +53,7 @@ export const operations: INodeProperties[] = [
           },
           output: {
             postReceive: [
-              {
-                type: 'setKeyValue',
-                properties: {
-                  response: '={{ $response || "" }}',
-                },
-              },
+              handleEmptyResponse,
             ],
           },
         },
@@ -79,12 +70,7 @@ export const operations: INodeProperties[] = [
           },
           output: {
             postReceive: [
-              {
-                type: 'setKeyValue',
-                properties: {
-                  response: '={{ $response || "" }}',
-                },
-              },
+              handleEmptyResponse,
             ],
           },
         },
@@ -101,12 +87,7 @@ export const operations: INodeProperties[] = [
           },
           output: {
             postReceive: [
-              {
-                type: 'setKeyValue',
-                properties: {
-                  response: '={{ $response || "" }}',
-                },
-              },
+              handleEmptyResponse,
             ],
           },
         },
@@ -124,12 +105,7 @@ export const operations: INodeProperties[] = [
           },
           output: {
             postReceive: [
-              {
-                type: 'setKeyValue',
-                properties: {
-                  response: '={{ $response || "" }}',
-                },
-              },
+              handleEmptyResponse,
             ],
           },
         },
@@ -223,12 +199,7 @@ export const operations: INodeProperties[] = [
           },
           output: {
             postReceive: [
-              {
-                type: 'setKeyValue',
-                properties: {
-                  response: '={{ $response || "" }}',
-                },
-              },
+              handleEmptyResponse,
             ],
           },
         },
@@ -248,12 +219,7 @@ export const operations: INodeProperties[] = [
           },
           output: {
             postReceive: [
-              {
-                type: 'setKeyValue',
-                properties: {
-                  response: '={{ $response || "" }}',
-                },
-              },
+              handleEmptyResponse,
             ],
           },
         },

@@ -1,4 +1,5 @@
 import { INodeProperties } from 'n8n-workflow';
+import { handleEmptyResponse } from '../utils/response';
 
 export const operations: INodeProperties[] = [
   {
@@ -36,12 +37,7 @@ export const operations: INodeProperties[] = [
           },
           output: {
             postReceive: [
-              {
-                type: 'setKeyValue',
-                properties: {
-                  response: '={{ $response || "" }}',
-                },
-              },
+              handleEmptyResponse,
             ],
           },
         },

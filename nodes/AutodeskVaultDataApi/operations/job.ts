@@ -1,18 +1,26 @@
-import { IExecuteSingleFunctions, IHttpRequestOptions, INodeProperties } from 'n8n-workflow';
+import {
+	IExecuteSingleFunctions,
+	IHttpRequestOptions,
+	INodeProperties,
+	NodeOperationError,
+} from 'n8n-workflow';
+import { handleEmptyResponse } from '../utils/response';
 
 export async function formatJobBody(
 	this: IExecuteSingleFunctions,
 	requestOptions: IHttpRequestOptions,
 ): Promise<IHttpRequestOptions> {
-	const jobType = this.getNodeParameter('jobType', 0) as string;
-	const priority = this.getNodeParameter('priority', 0) as number | '';
-	const description = this.getNodeParameter('description', 0) as string;
-	const paramsCollection = this.getNodeParameter('params', 0) as {
+	const jobType = (this.getNodeParameter('jobType') as string)?.trim();
+	if (!jobType) {
+		throw new NodeOperationError(this.getNode(), 'Enter a job type, for example Autodesk.Vault.SyncProperties');
+	}
+	const priority = this.getNodeParameter('priority', '') as number | '';
+	const description = this.getNodeParameter('description', '') as string;
+	const paramsCollection = this.getNodeParameter('params', {}) as {
 		parameter?: Array<{ key: string; value: string }>;
 	};
 
-	const body: Record<string, unknown> = {};
-	if (jobType) body.jobType = jobType;
+	const body: Record<string, unknown> = { jobType };
 	if (priority !== '' && priority !== undefined) body.priority = priority;
 	if (description) body.description = description;
 	if (paramsCollection?.parameter?.length) body.params = paramsCollection.parameter;
@@ -48,12 +56,7 @@ export const operations: INodeProperties[] = [
 					},
 					output: {
 						postReceive: [
-							{
-								type: 'setKeyValue',
-								properties: {
-									response: '={{ $response || "" }}',
-								},
-							},
+							handleEmptyResponse,
 						],
 					},
 				},

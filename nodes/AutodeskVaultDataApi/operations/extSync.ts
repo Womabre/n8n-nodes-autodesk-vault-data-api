@@ -1,4 +1,5 @@
 import { IExecuteSingleFunctions, IHttpRequestOptions, INodeProperties, NodeOperationError } from 'n8n-workflow';
+import { handleEmptyResponse } from '../utils/response';
 
 interface KeyValueEntry {
 	key?: string;
@@ -195,12 +196,7 @@ export const operations: INodeProperties[] = [
 					},
 					output: {
 						postReceive: [
-							{
-								type: 'setKeyValue',
-								properties: {
-									response: '={{ $response || "" }}',
-								},
-							},
+							handleEmptyResponse,
 						],
 					},
 				},
@@ -233,12 +229,7 @@ export const operations: INodeProperties[] = [
 					},
 					output: {
 						postReceive: [
-							{
-								type: 'setKeyValue',
-								properties: {
-									response: '={{ $response || "" }}',
-								},
-							},
+							handleEmptyResponse,
 						],
 					},
 				},

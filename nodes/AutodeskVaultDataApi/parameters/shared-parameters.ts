@@ -1301,6 +1301,7 @@ export const parameters: INodeProperties[] = [
     displayName: 'Job Type',
     name: 'jobType',
     type: 'string',
+    required: true,
     default: '',
     placeholder: 'e.g. Autodesk.Vault.SyncProperties',
     displayOptions: {

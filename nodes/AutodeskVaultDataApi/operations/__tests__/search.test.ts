@@ -4,7 +4,9 @@ import { IExecuteSingleFunctions, IHttpRequestOptions } from 'n8n-workflow';
 
 function makeCtx(params: Record<string, unknown>): IExecuteSingleFunctions {
   return {
-    getNodeParameter: vi.fn((name: string) => params[name]),
+    getNodeParameter: vi.fn((name: string, fallback?: unknown) =>
+      name in params ? params[name] : fallback,
+    ),
   } as unknown as IExecuteSingleFunctions;
 }
 
@@ -118,5 +120,15 @@ describe('formatPropertyDefinitionUrls', () => {
 
     expect(body.searchCriteria).toBeUndefined();
     expect(body.sortCriteria).toBeUndefined();
+  });
+
+  it('treats unset criteria and folder parameters as empty', async () => {
+    const ctx = makeCtx({ vaultId: '1' });
+
+    const withCriteria = await formatPropertyDefinitionUrls.call(ctx, baseOptions());
+    const withFolders = await formatFolderUrls.call(ctx, baseOptions());
+
+    expect(withCriteria.body).toEqual({});
+    expect(withFolders.body).toEqual({ foldersToSearch: [] });
   });
 });

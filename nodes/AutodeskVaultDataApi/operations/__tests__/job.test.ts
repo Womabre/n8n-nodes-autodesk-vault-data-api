@@ -4,7 +4,10 @@ import { IExecuteSingleFunctions, IHttpRequestOptions } from 'n8n-workflow';
 
 function makeCtx(params: Record<string, unknown>): IExecuteSingleFunctions {
   return {
-    getNodeParameter: vi.fn((name: string) => params[name]),
+    getNodeParameter: vi.fn((name: string, fallback?: unknown) =>
+      name in params ? params[name] : fallback,
+    ),
+    getNode: vi.fn(() => ({ name: 'Vault', type: 'autodeskVaultDataApi', typeVersion: 1 })),
   } as unknown as IExecuteSingleFunctions;
 }
 
@@ -63,5 +66,16 @@ describe('formatJobBody', () => {
     const result = await formatJobBody.call(ctx, baseOptions());
 
     expect(result.body).not.toHaveProperty('params');
+  });
+
+  it('rejects an empty job type instead of sending a body the server refuses', async () => {
+    const ctx = makeCtx({ jobType: '  ' });
+    await expect(formatJobBody.call(ctx, baseOptions())).rejects.toThrow('Enter a job type');
+  });
+
+  it('uses the fallbacks for optional parameters that are not set', async () => {
+    const ctx = makeCtx({ jobType: 'MyJob' });
+    const result = await formatJobBody.call(ctx, baseOptions());
+    expect(result.body).toEqual({ jobType: 'MyJob' });
   });
 });
