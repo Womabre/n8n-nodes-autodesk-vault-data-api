@@ -138,9 +138,12 @@ describe('searchFileMasters', () => {
 	});
 
 	it('skips versions without a file master', async () => {
-		const { ctx } = makeCtx({ vaultId: '42' }, {
-			results: [{ id: 1, name: 'orphan.ipt' }],
-		});
+		const { ctx } = makeCtx(
+			{ vaultId: '42' },
+			{
+				results: [{ id: 1, name: 'orphan.ipt' }],
+			},
+		);
 
 		const result = await searchFileMasters.call(ctx);
 
@@ -150,12 +153,15 @@ describe('searchFileMasters', () => {
 
 describe('searchItemMasters', () => {
 	it('labels items by their item version number and filters client-side', async () => {
-		const { ctx, httpRequestWithAuthentication } = makeCtx({ vaultId: '42' }, {
-			results: [
-				{ id: 10, itemVersion: { number: 'ITM-001', title: 'Bracket' } },
-				{ id: 20, itemVersion: { number: 'ITM-002', title: 'Side Plate' } },
-			],
-		});
+		const { ctx, httpRequestWithAuthentication } = makeCtx(
+			{ vaultId: '42' },
+			{
+				results: [
+					{ id: 10, itemVersion: { number: 'ITM-001', title: 'Bracket' } },
+					{ id: 20, itemVersion: { number: 'ITM-002', title: 'Side Plate' } },
+				],
+			},
+		);
 
 		const result = await searchItemMasters.call(ctx, 'ITM-002');
 

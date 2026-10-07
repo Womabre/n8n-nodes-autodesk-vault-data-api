@@ -1,7 +1,7 @@
 import { IExecuteSingleFunctions, IHttpRequestOptions, NodeOperationError } from 'n8n-workflow';
+import { API_BASE } from './constants';
 
 /** Base path shared by every Vault Data API v2 route. */
-const API_BASE = '/AutodeskDM/Services/api/vault/v2';
 
 /** Collection segment of the entity a lifecycle change applies to. */
 export type LifecycleEntityCollection = 'files' | 'folders' | 'items';
@@ -21,7 +21,11 @@ interface LifecycleUpdateCollection {
  * entities, states and definitions by relative URL rather than by bare ID, so
  * the node collects IDs in the UI and assembles the URLs here.
  */
-function entityUrl(vaultId: string, collection: LifecycleEntityCollection, entityId: string): string {
+function entityUrl(
+	vaultId: string,
+	collection: LifecycleEntityCollection,
+	entityId: string,
+): string {
 	return `${API_BASE}/vaults/${vaultId}/${collection}/${entityId}`;
 }
 

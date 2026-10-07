@@ -1,4 +1,9 @@
-import { IBinaryData, IExecuteSingleFunctions, IN8nHttpFullResponse, INodeExecutionData } from 'n8n-workflow';
+import {
+	IBinaryData,
+	IExecuteSingleFunctions,
+	IN8nHttpFullResponse,
+	INodeExecutionData,
+} from 'n8n-workflow';
 
 const MIME_MAP: Record<string, string> = {
 	jpg: 'image/jpeg',
@@ -46,7 +51,10 @@ export async function processBinaryResponse(
 	items: INodeExecutionData[],
 	responseData: IN8nHttpFullResponse,
 ): Promise<INodeExecutionData[]> {
-	const contentType = resolveHeader(responseData.headers['content-type'], 'application/octet-stream');
+	const contentType = resolveHeader(
+		responseData.headers['content-type'],
+		'application/octet-stream',
+	);
 	const contentDisposition = resolveHeader(responseData.headers['content-disposition'], '');
 
 	const fileName = extractFileName(contentDisposition);
