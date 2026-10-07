@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { processBinaryResponse } from '../binary';
 import { IExecuteSingleFunctions, IN8nHttpFullResponse, INodeExecutionData } from 'n8n-workflow';
 
-function makeContext(prepareBinaryData: (...args: any[]) => any): IExecuteSingleFunctions {
+function makeContext(prepareBinaryData: (...args: unknown[]) => unknown): IExecuteSingleFunctions {
 	return {
 		helpers: {
 			prepareBinaryData,

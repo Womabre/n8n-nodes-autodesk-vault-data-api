@@ -51,7 +51,7 @@ export class AutodeskVaultDataApi implements INodeType {
 		usableAsTool: true,
 		version: 1,
 		group: ['transform'],
-		icon: 'file:AutodeskVaultDataApi.svg',
+		icon: { light: 'file:AutodeskVaultDataApi.svg', dark: 'file:AutodeskVaultDataApi.dark.svg' },
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
 		description: 'Interact with the Autodesk Vault Data API',
 		defaults: {

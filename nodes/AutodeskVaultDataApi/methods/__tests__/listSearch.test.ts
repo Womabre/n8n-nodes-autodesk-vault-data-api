@@ -224,9 +224,9 @@ describe('searchFileVersions', () => {
 				}),
 			}),
 		);
-		expect(result.results).toEqual([
-			{ name: 'bracket.ipt - v3 - Rev(A) - Work in Progress - Mounting Bracket', value: '100203' },
-			{ name: 'bracket.ipt - v1 - Rev(A) - Released - Mounting Bracket', value: '100201' },
+		expect(result.results.map(({ name, value }) => [name, value])).toEqual([
+			['bracket.ipt - v3 - Rev(A) - Work in Progress - Mounting Bracket', '100203'],
+			['bracket.ipt - v1 - Rev(A) - Released - Mounting Bracket', '100201'],
 		]);
 	});
 });

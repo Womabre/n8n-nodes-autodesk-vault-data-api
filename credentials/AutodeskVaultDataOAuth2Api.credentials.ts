@@ -4,7 +4,10 @@ export class AutodeskVaultDataOAuth2Api implements ICredentialType {
 	name = 'autodeskVaultDataOAuth2Api';
 	displayName = 'Autodesk Vault Data OAuth2 API';
 	documentationUrl = 'https://aps.autodesk.com/en/docs/vaultdataapi/v2/developers_guide/basics/authentication/';
-	icon: Icon = 'file:AutodeskVaultDataApi.svg';
+	icon: Icon = {
+		light: 'file:AutodeskVaultDataApi.svg',
+		dark: 'file:AutodeskVaultDataApi.dark.svg',
+	};
 	extends = ['oAuth2Api'];
 	properties: INodeProperties[] = [
 		{
