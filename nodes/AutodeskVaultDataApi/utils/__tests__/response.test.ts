@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import type { IExecuteSingleFunctions, IN8nHttpFullResponse, INodeExecutionData } from 'n8n-workflow';
+import type {
+	IExecuteSingleFunctions,
+	IN8nHttpFullResponse,
+	INodeExecutionData,
+} from 'n8n-workflow';
 import { handleEmptyResponse } from '../response';
 
 const ctx = {} as IExecuteSingleFunctions;
@@ -10,9 +14,12 @@ function run(body: unknown, statusCode = 200): Promise<INodeExecutionData[]> {
 }
 
 describe('handleEmptyResponse', () => {
-	it.each([[''], [undefined], [null], [{}]])('reports success for an empty body (%j)', async (body) => {
-		expect(await run(body, 204)).toEqual([{ json: { success: true, statusCode: 204 } }]);
-	});
+	it.each([[''], [undefined], [null], [{}]])(
+		'reports success for an empty body (%j)',
+		async (body) => {
+			expect(await run(body, 204)).toEqual([{ json: { success: true, statusCode: 204 } }]);
+		},
+	);
 
 	it('passes an object body through unchanged', async () => {
 		const body = { id: '5', name: 'Option', value: 'x' };

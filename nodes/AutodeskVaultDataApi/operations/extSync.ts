@@ -1,4 +1,9 @@
-import { IExecuteSingleFunctions, IHttpRequestOptions, INodeProperties, NodeOperationError } from 'n8n-workflow';
+import {
+	IExecuteSingleFunctions,
+	IHttpRequestOptions,
+	INodeProperties,
+	NodeOperationError,
+} from 'n8n-workflow';
 import { handleEmptyResponse } from '../utils/response';
 import { API_BASE } from '../utils/constants';
 
@@ -196,9 +201,7 @@ export const operations: INodeProperties[] = [
 						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/ext-sync-tasks`,
 					},
 					output: {
-						postReceive: [
-							handleEmptyResponse,
-						],
+						postReceive: [handleEmptyResponse],
 					},
 				},
 			},
@@ -229,9 +232,7 @@ export const operations: INodeProperties[] = [
 						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/ext-sync-tasks/{{$parameter["extSyncTaskId"]}}`,
 					},
 					output: {
-						postReceive: [
-							handleEmptyResponse,
-						],
+						postReceive: [handleEmptyResponse],
 					},
 				},
 			},

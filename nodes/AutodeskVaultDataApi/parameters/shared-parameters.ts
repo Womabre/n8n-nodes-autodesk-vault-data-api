@@ -11,40 +11,40 @@ import { API_BASE } from '../utils/constants';
  * @param nameExpr Expression for the option label. Defaults to the result name.
  */
 export function listLoadOptions(url: string, nameExpr = '={{$responseItem.name}}'): ILoadOptions {
-  return {
-    routing: {
-      request: {
-        method: 'GET',
-        url,
-        qs: {
-          limit: '1000',
-        },
-      },
-      output: {
-        postReceive: [
-          {
-            type: 'rootProperty',
-            properties: {
-              property: 'results',
-            },
-          },
-          {
-            type: 'setKeyValue',
-            properties: {
-              name: nameExpr,
-              value: '={{$responseItem.id}}',
-            },
-          },
-          {
-            type: 'sort',
-            properties: {
-              key: 'name',
-            },
-          },
-        ],
-      },
-    },
-  };
+	return {
+		routing: {
+			request: {
+				method: 'GET',
+				url,
+				qs: {
+					limit: '1000',
+				},
+			},
+			output: {
+				postReceive: [
+					{
+						type: 'rootProperty',
+						properties: {
+							property: 'results',
+						},
+					},
+					{
+						type: 'setKeyValue',
+						properties: {
+							name: nameExpr,
+							value: '={{$responseItem.id}}',
+						},
+					},
+					{
+						type: 'sort',
+						properties: {
+							key: 'name',
+						},
+					},
+				],
+			},
+		},
+	};
 }
 
 /**
@@ -56,2224 +56,2261 @@ export function listLoadOptions(url: string, nameExpr = '={{$responseItem.name}}
  * @param idOptions        Optional hint and ID validation overrides
  */
 function resourceLocatorModes(
-  searchListMethod: string,
-  idPlaceholder: string,
-  idOptions: { idHint?: string; idRegex?: string; idError?: string } = {},
+	searchListMethod: string,
+	idPlaceholder: string,
+	idOptions: { idHint?: string; idRegex?: string; idError?: string } = {},
 ): INodePropertyMode[] {
-  const { idHint, idRegex = '^[0-9]+$', idError = 'Enter a numeric ID' } = idOptions;
-  // Resource-locator modes are not node parameters and have no `default`; the
-  // lint rule cannot tell them apart when they are built in a helper function.
-  /* eslint-disable n8n-nodes-base/node-param-default-missing */
-  return [
-    {
-      displayName: 'From List',
-      name: 'list',
-      type: 'list',
-      typeOptions: {
-        searchListMethod,
-        searchable: true,
-      },
-    },
-    {
-      displayName: 'By ID',
-      name: 'id',
-      type: 'string',
-      placeholder: idPlaceholder,
-      ...(idHint ? { hint: idHint } : {}),
-      validation: [
-        {
-          type: 'regex',
-          properties: {
-            regex: idRegex,
-            errorMessage: idError,
-          },
-        },
-      ],
-    },
-  ];
-  /* eslint-enable n8n-nodes-base/node-param-default-missing */
+	const { idHint, idRegex = '^[0-9]+$', idError = 'Enter a numeric ID' } = idOptions;
+	// Resource-locator modes are not node parameters and have no `default`; the
+	// lint rule cannot tell them apart when they are built in a helper function.
+	/* eslint-disable n8n-nodes-base/node-param-default-missing */
+	return [
+		{
+			displayName: 'From List',
+			name: 'list',
+			type: 'list',
+			typeOptions: {
+				searchListMethod,
+				searchable: true,
+			},
+		},
+		{
+			displayName: 'By ID',
+			name: 'id',
+			type: 'string',
+			placeholder: idPlaceholder,
+			...(idHint ? { hint: idHint } : {}),
+			validation: [
+				{
+					type: 'regex',
+					properties: {
+						regex: idRegex,
+						errorMessage: idError,
+					},
+				},
+			],
+		},
+	];
+	/* eslint-enable n8n-nodes-base/node-param-default-missing */
 }
 
 /** Resources that expose at least one paginated "Get Many" operation. */
 const PAGINATED_RESOURCES = [
-  'changeOrders',
-  'extSyncTasks',
-  'files',
-  'folders',
-  'group',
-  'items',
-  'lifecycle',
-  'links',
-  'options',
-  'profile',
-  'property',
-  'role',
-  'search',
-  'user',
-  'vault',
+	'changeOrders',
+	'extSyncTasks',
+	'files',
+	'folders',
+	'group',
+	'items',
+	'lifecycle',
+	'links',
+	'options',
+	'profile',
+	'property',
+	'role',
+	'search',
+	'user',
+	'vault',
 ];
 
 /** Operations that return a paginated collection (support Limit / Cursor State). */
 const PAGINATED_OPERATIONS = [
-  'advancedSearch',
-  'getAllUsers',
-  'getChangeOrderAssociatedEntities',
-  'getChangeOrderCommentAttachments',
-  'getChangeOrderComments',
-  'getChangeOrderRelatedFiles',
-  'getChangeOrders',
-  'getExtSyncTasks',
-  'getFileAssociatedChangeOrders',
-  'getFileHistory',
-  'getFileVersionAssociatedItemVersions',
-  'getFileVersionMarkups',
-  'getFileVersions',
-  'getFileVersionUses',
-  'getFileVersionVisualizationAttachments',
-  'getFileVersionWhereUsed',
-  'getFolderContents',
-  'getFolderSubFolders',
-  'getGroups',
-  'getItemAssociatedChangeOrders',
-  'getItemExtSyncInfos',
-  'getItemHistory',
-  'getItems',
-  'getItemVersionExtSyncInfos',
-  'getItemVersions',
-  'getLifecycleDefinitions',
-  'getLifecycleStates',
-  'getLinks',
-  'getProfileAttributeDefinitions',
-  'getPropertyDefinitions',
-  'getRoles',
-  'getSystemOptions',
-  'getVaultOptions',
-  'getVaults',
-  'search',
+	'advancedSearch',
+	'getAllUsers',
+	'getChangeOrderAssociatedEntities',
+	'getChangeOrderCommentAttachments',
+	'getChangeOrderComments',
+	'getChangeOrderRelatedFiles',
+	'getChangeOrders',
+	'getExtSyncTasks',
+	'getFileAssociatedChangeOrders',
+	'getFileHistory',
+	'getFileVersionAssociatedItemVersions',
+	'getFileVersionMarkups',
+	'getFileVersions',
+	'getFileVersionUses',
+	'getFileVersionVisualizationAttachments',
+	'getFileVersionWhereUsed',
+	'getFolderContents',
+	'getFolderSubFolders',
+	'getGroups',
+	'getItemAssociatedChangeOrders',
+	'getItemExtSyncInfos',
+	'getItemHistory',
+	'getItems',
+	'getItemVersionExtSyncInfos',
+	'getItemVersions',
+	'getLifecycleDefinitions',
+	'getLifecycleStates',
+	'getLinks',
+	'getProfileAttributeDefinitions',
+	'getPropertyDefinitions',
+	'getRoles',
+	'getSystemOptions',
+	'getVaultOptions',
+	'getVaults',
+	'search',
 ];
 
 export const parameters: INodeProperties[] = [
-  {
-    displayName: 'Vault Name',
-    name: 'vaultId',
-    type: 'options',
-    typeOptions: {
-      loadOptions: listLoadOptions(`${API_BASE}/vaults`),
-    },
-    required: true,
-    description: 'The ID of the knowledge vault to retrieve. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
-    displayOptions: {
-      show: {
-        resource: [
-          'changeOrders',
-          'extSyncTasks',
-          'files',
-          'folders',
-          'items',
-          'jobs',
-          'lifecycle',
-          'links',
-          'options',
-          'property',
-          'search',
-          'vault',
-        ],
-        operation: [
-          'getChangeOrders',
-          'getChangeOrderById',
-          'getChangeOrderRelatedFiles',
-          'getChangeOrderAssociatedEntities',
-          'getChangeOrderComments',
-          'getChangeOrderCommentAttachments',
-          'getFileVersions',
-          'getFileVersionById',
-          'getFileVersionSignedUrl',
-          'getFileVersionContent',
-          'getFileVersionContentHead',
-          'getFileVersionLmvRoot',
-          'getFileVersionAssociatedItemVersions',
-          'getFileVersionMarkups',
-          'getFileVersionMarkupById',
-          'getFileVersionThumbnailById',
-          'getFileVersionVisualizationAttachments',
-          'getFileVersionUses',
-          'getFileVersionWhereUsed',
-          'getFileById',
-          'getFileAssociatedChangeOrders',
-          'getFileHistory',
-          'getFolderById',
-          'getFolderContents',
-          'getFolderSubFolders',
-          'getVaultById',
-          'getItemVersions',
-          'getItemVersionById',
-          'getItemVersionAssociatedFiles',
-          'getItemVersionBom',
-          'getItemVersionWhereUsed',
-          'getItemVersionThumbnail',
-          'getItems',
-          'getItemById',
-          'getItemAssociatedChangeOrders',
-          'getItemHistory',
-          'addJob',
-          'getJobQueueEnabled',
-          'getJobsById',
-          'getLinks',
-          'getLinkById',
-          'getVaultOptions',
-          'createVaultOption',
-          'getVaultOptionById',
-          'updateVaultOptionById',
-          'deleteVaultOptionById',
-          'getPropertyDefinitions',
-          'getPropertyDefinitionById',
-          'search',
-          'advancedSearch',
-          'getExtSyncTasks',
-          'getExtSyncTaskById',
-          'addExtSyncTask',
-          'addExtSyncTasks',
-          'deleteExtSyncTaskById',
-          'resubmitExtSyncTaskById',
-          'queryExtSyncTasks',
-          'getExtSyncConfigs',
-          'getLifecycleDefinitions',
-          'getLifecycleDefinitionById',
-          'getLifecycleStates',
-          'getLifecycleStateById',
-          'getItemExtSyncInfos',
-          'getItemExtSyncInfoByName',
-          'getItemVersionExtSyncInfos',
-          'getItemVersionExtSyncInfoByName',
-          'updateItemLifecycleStates',
-          'updateItemLifecycleDefinitions',
-          'updateFileLifecycleStates',
-          'updateFileLifecycleDefinitions',
-          'updateFolderLifecycleStates',
-          'updateFolderLifecycleDefinitions',
-        ],
-      },
-    },
-    default: '',
-  },
-  {
-    displayName: 'Session ID',
-    name: 'sessionId',
-    type: 'string',
-    required: true,
-    default: '@current',
-    description: 'The ID of the session. Use @current for current session.',
-    displayOptions: {
-      show: {
-        resource: ['session'],
-        operation: ['getSessionById', 'deleteSession'],
-      },
-    },
-  },
-  {
-    displayName: 'Group Name',
-    name: 'groupId',
-    type: 'options',
-    typeOptions: {
-      loadOptions: listLoadOptions(`${API_BASE}/groups`),
-    },
-    required: true,
-    description: 'The ID of the group to retrieve',
-    hint: 'You can find the group ID in the response of "Get All Groups" operation',
-    displayOptions: {
-      show: {
-        resource: ['group'],
-        operation: ['getGroupById', 'getAccountByAuthType'],
-      },
-    },
-    default: '',
-  },
-  {
-    displayName: 'Auth Type',
-    name: 'authType',
-    type: 'options',
-    required: true,
-    default: 'Vault',
-    options: [
-      { name: 'Vault Account', value: 'Vault' },
-      { name: 'Windows Account', value: 'ActiveDirectory' },
-      { name: 'Autodesk ID', value: 'Autodesk' },
-    ],
-    description: 'The type of account to retrieve',
-    displayOptions: {
-      show: {
-        resource: ['group', 'user'],
-        operation: ['getAccountByAuthType', 'getUserAccountByAuthType'],
-      },
-    },
-  },
-  {
-    displayName: 'Association Filter',
-    name: 'association',
-    type: 'options',
-    description: 'Types the profile attribute definition is associated with',
-    options: [
-      { name: 'User', value: 'User' },
-      { name: 'Group', value: 'Group' },
-      { name: 'All', value: 'All' },
-    ],
-    default: 'All',
-    displayOptions: {
-      show: {
-        resource: ['profile'],
-        operation: ['getProfileAttributeDefinitions'],
-      },
-    },
-  },
-  {
-    displayName: 'Profile Attribute Definition Name or ID',
-    name: 'profileAttributeDefId',
-    type: 'options',
-    typeOptions: {
-      loadOptions: listLoadOptions(
-        `${API_BASE}/profile-attribute-definitions`,
-        '={{$responseItem.attributeName}}',
-      ),
-    },
-    required: true,
-    description:
-      'The profile attribute definition to retrieve. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
-    displayOptions: {
-      show: {
-        resource: ['profile'],
-        operation: ['getProfileAttributeDefinitionById'],
-      },
-    },
-    default: '',
-  },
-  {
-    displayName: 'Role Name or ID',
-    name: 'roleId',
-    type: 'options',
-    typeOptions: {
-      loadOptions: listLoadOptions(
-        `${API_BASE}/roles`,
-        '={{$responseItem.roleName}}',
-      ),
-    },
-    required: true,
-    description:
-      'The role to retrieve. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
-    displayOptions: {
-      show: {
-        resource: ['role'],
-        operation: ['getRoleById'],
-      },
-    },
-    default: '',
-  },
-  {
-    displayName: 'User Name or ID',
-    name: 'userId',
-    type: 'options',
-    typeOptions: {
-      loadOptions: listLoadOptions(`${API_BASE}/users`),
-    },
-    required: true,
-    default: '',
-    hint: 'Loading the list requires the AdminUserRead permission. If unavailable, switch to an expression to enter the ID manually.',
-    description:
-      'The user to retrieve. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
-    displayOptions: {
-      show: {
-        resource: ['user'],
-        operation: ['getUserById', 'getUserAccounts', 'getUserAccountByAuthType'],
-      },
-    },
-  },
-  {
-    displayName: 'Filter by Name',
-    name: 'filterName',
-    type: 'string',
-    default: '',
-    description: 'Return only options that exactly match this name',
-    displayOptions: {
-      show: {
-        resource: ['options'],
-        operation: ['getSystemOptions'],
-      },
-    },
-  },
-  {
-    displayName: 'Option Name',
-    name: 'optionName',
-    type: 'string',
-    required: true,
-    default: '',
-    placeholder: 'e.g. MyOption',
-    description: 'The name of the system option',
-    displayOptions: {
-      show: {
-        resource: ['options'],
-        operation: ['createSystemOption', 'createVaultOption',],
-      },
-    },
-  },
-  {
-    displayName: 'Option Value',
-    name: 'optionValue',
-    type: 'string',
-    required: true,
-    default: '',
-    placeholder: 'e.g. true',
-    description: 'The value of the system option',
-    displayOptions: {
-      show: {
-        resource: ['options'],
-        operation: ['createSystemOption', 'updateSystemOptionById', 'createVaultOption', 'updateVaultOptionById'],
-      },
-    },
-  },
-  {
-    displayName: 'System Option Name or ID',
-    name: 'systemOptionId',
-    type: 'options',
-    typeOptions: {
-      loadOptions: listLoadOptions(`${API_BASE}/system-options`),
-    },
-    required: true,
-    default: '',
-    description:
-      'The system option to use. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
-    displayOptions: {
-      show: {
-        resource: ['options'],
-        operation: ['getSystemOptionById', 'updateSystemOptionById', 'deleteSystemOptionById'],
-      },
-    },
-  },
-  {
-    displayName: 'Vault Option Name or ID',
-    name: 'vaultOptionId',
-    type: 'options',
-    typeOptions: {
-      loadOptionsDependsOn: ['vaultId'],
-      loadOptions: listLoadOptions(
-        `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/vault-options`,
-      ),
-    },
-    required: true,
-    default: '',
-    description:
-      'The vault option to use. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
-    displayOptions: {
-      show: {
-        resource: ['options'],
-        operation: ['getVaultOptionById', 'updateVaultOptionById', 'deleteVaultOptionById'],
-      },
-      hide: {
-        vaultId: [''],
-      },
-    },
-  },
-  {
-    displayName: 'Name Starts With',
-    name: 'nameStartsWith',
-    type: 'string',
-    default: '',
-    description: 'Filter options that start with this string',
-    displayOptions: {
-      show: {
-        resource: ['options'],
-        operation: ['getVaultOptions'],
-      },
-    },
-  },
-  {
-    displayName: 'Property Definition ID',
-    name: 'propertyDefId',
-    type: 'options',
-    typeOptions: {
-      loadOptionsDependsOn: ['vaultId'],
-      loadOptions: listLoadOptions(
-        `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/property-definitions`,
-        '={{$responseItem.displayName}} (Id: {{$responseItem.id}})',
-      ),
-    },
-    required: true,
-    default: '',
-    description: 'The unique identifier of the property definition',
-    displayOptions: {
-      show: {
-        resource: ['property'],
-        operation: ['getPropertyDefinitionById'],
-      },
-      hide: {
-        vaultId: [''],
-      },
-    },
-  },
-  {
-    displayName: 'Entity Class ID',
-    name: 'entityClassId',
-    type: 'options',
-    default: '',
-    description: 'Entity class to filter by. Leave empty to return all.',
-    options: [
-      { name: 'All', value: '' },
-      { name: 'Change Order', value: 'CO' },
-      { name: 'File', value: 'FILE' },
-      { name: 'Folder', value: 'FLDR' },
-      { name: 'Item', value: 'ITEM' },
-    ],
-    displayOptions: {
-      show: {
-        resource: ['property'],
-        operation: ['getPropertyDefinitions'],
-      },
-    },
-  },
-  {
-    displayName: 'System Names',
-    name: 'systemNames',
-    type: 'string',
-    default: '',
-    description: 'Comma-separated list of property system names to filter',
-    displayOptions: {
-      show: {
-        resource: ['property'],
-        operation: ['getPropertyDefinitions'],
-      },
-    },
-  },
-  {
-    displayName: 'Include BOM Association Property',
-    name: 'includeBOMAssociationProperty',
-    type: 'boolean',
-    default: false,
-    description: 'Whether to include BOM association property definitions',
-    displayOptions: {
-      show: {
-        resource: ['items', 'property'],
-        operation: ['getItemVersionBom', 'getPropertyDefinitions'],
-      },
-    },
-  },
+	{
+		displayName: 'Vault Name',
+		name: 'vaultId',
+		type: 'options',
+		typeOptions: {
+			loadOptions: listLoadOptions(`${API_BASE}/vaults`),
+		},
+		required: true,
+		description:
+			'The ID of the knowledge vault to retrieve. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+		displayOptions: {
+			show: {
+				resource: [
+					'changeOrders',
+					'extSyncTasks',
+					'files',
+					'folders',
+					'items',
+					'jobs',
+					'lifecycle',
+					'links',
+					'options',
+					'property',
+					'search',
+					'vault',
+				],
+				operation: [
+					'getChangeOrders',
+					'getChangeOrderById',
+					'getChangeOrderRelatedFiles',
+					'getChangeOrderAssociatedEntities',
+					'getChangeOrderComments',
+					'getChangeOrderCommentAttachments',
+					'getFileVersions',
+					'getFileVersionById',
+					'getFileVersionSignedUrl',
+					'getFileVersionContent',
+					'getFileVersionContentHead',
+					'getFileVersionLmvRoot',
+					'getFileVersionAssociatedItemVersions',
+					'getFileVersionMarkups',
+					'getFileVersionMarkupById',
+					'getFileVersionThumbnailById',
+					'getFileVersionVisualizationAttachments',
+					'getFileVersionUses',
+					'getFileVersionWhereUsed',
+					'getFileById',
+					'getFileAssociatedChangeOrders',
+					'getFileHistory',
+					'getFolderById',
+					'getFolderContents',
+					'getFolderSubFolders',
+					'getVaultById',
+					'getItemVersions',
+					'getItemVersionById',
+					'getItemVersionAssociatedFiles',
+					'getItemVersionBom',
+					'getItemVersionWhereUsed',
+					'getItemVersionThumbnail',
+					'getItems',
+					'getItemById',
+					'getItemAssociatedChangeOrders',
+					'getItemHistory',
+					'addJob',
+					'getJobQueueEnabled',
+					'getJobsById',
+					'getLinks',
+					'getLinkById',
+					'getVaultOptions',
+					'createVaultOption',
+					'getVaultOptionById',
+					'updateVaultOptionById',
+					'deleteVaultOptionById',
+					'getPropertyDefinitions',
+					'getPropertyDefinitionById',
+					'search',
+					'advancedSearch',
+					'getExtSyncTasks',
+					'getExtSyncTaskById',
+					'addExtSyncTask',
+					'addExtSyncTasks',
+					'deleteExtSyncTaskById',
+					'resubmitExtSyncTaskById',
+					'queryExtSyncTasks',
+					'getExtSyncConfigs',
+					'getLifecycleDefinitions',
+					'getLifecycleDefinitionById',
+					'getLifecycleStates',
+					'getLifecycleStateById',
+					'getItemExtSyncInfos',
+					'getItemExtSyncInfoByName',
+					'getItemVersionExtSyncInfos',
+					'getItemVersionExtSyncInfoByName',
+					'updateItemLifecycleStates',
+					'updateItemLifecycleDefinitions',
+					'updateFileLifecycleStates',
+					'updateFileLifecycleDefinitions',
+					'updateFolderLifecycleStates',
+					'updateFolderLifecycleDefinitions',
+				],
+			},
+		},
+		default: '',
+	},
+	{
+		displayName: 'Session ID',
+		name: 'sessionId',
+		type: 'string',
+		required: true,
+		default: '@current',
+		description: 'The ID of the session. Use @current for current session.',
+		displayOptions: {
+			show: {
+				resource: ['session'],
+				operation: ['getSessionById', 'deleteSession'],
+			},
+		},
+	},
+	{
+		displayName: 'Group Name',
+		name: 'groupId',
+		type: 'options',
+		typeOptions: {
+			loadOptions: listLoadOptions(`${API_BASE}/groups`),
+		},
+		required: true,
+		description: 'The ID of the group to retrieve',
+		hint: 'You can find the group ID in the response of "Get All Groups" operation',
+		displayOptions: {
+			show: {
+				resource: ['group'],
+				operation: ['getGroupById', 'getAccountByAuthType'],
+			},
+		},
+		default: '',
+	},
+	{
+		displayName: 'Auth Type',
+		name: 'authType',
+		type: 'options',
+		required: true,
+		default: 'Vault',
+		options: [
+			{ name: 'Vault Account', value: 'Vault' },
+			{ name: 'Windows Account', value: 'ActiveDirectory' },
+			{ name: 'Autodesk ID', value: 'Autodesk' },
+		],
+		description: 'The type of account to retrieve',
+		displayOptions: {
+			show: {
+				resource: ['group', 'user'],
+				operation: ['getAccountByAuthType', 'getUserAccountByAuthType'],
+			},
+		},
+	},
+	{
+		displayName: 'Association Filter',
+		name: 'association',
+		type: 'options',
+		description: 'Types the profile attribute definition is associated with',
+		options: [
+			{ name: 'User', value: 'User' },
+			{ name: 'Group', value: 'Group' },
+			{ name: 'All', value: 'All' },
+		],
+		default: 'All',
+		displayOptions: {
+			show: {
+				resource: ['profile'],
+				operation: ['getProfileAttributeDefinitions'],
+			},
+		},
+	},
+	{
+		displayName: 'Profile Attribute Definition Name or ID',
+		name: 'profileAttributeDefId',
+		type: 'options',
+		typeOptions: {
+			loadOptions: listLoadOptions(
+				`${API_BASE}/profile-attribute-definitions`,
+				'={{$responseItem.attributeName}}',
+			),
+		},
+		required: true,
+		description:
+			'The profile attribute definition to retrieve. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+		displayOptions: {
+			show: {
+				resource: ['profile'],
+				operation: ['getProfileAttributeDefinitionById'],
+			},
+		},
+		default: '',
+	},
+	{
+		displayName: 'Role Name or ID',
+		name: 'roleId',
+		type: 'options',
+		typeOptions: {
+			loadOptions: listLoadOptions(`${API_BASE}/roles`, '={{$responseItem.roleName}}'),
+		},
+		required: true,
+		description:
+			'The role to retrieve. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+		displayOptions: {
+			show: {
+				resource: ['role'],
+				operation: ['getRoleById'],
+			},
+		},
+		default: '',
+	},
+	{
+		displayName: 'User Name or ID',
+		name: 'userId',
+		type: 'options',
+		typeOptions: {
+			loadOptions: listLoadOptions(`${API_BASE}/users`),
+		},
+		required: true,
+		default: '',
+		hint: 'Loading the list requires the AdminUserRead permission. If unavailable, switch to an expression to enter the ID manually.',
+		description:
+			'The user to retrieve. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+		displayOptions: {
+			show: {
+				resource: ['user'],
+				operation: ['getUserById', 'getUserAccounts', 'getUserAccountByAuthType'],
+			},
+		},
+	},
+	{
+		displayName: 'Filter by Name',
+		name: 'filterName',
+		type: 'string',
+		default: '',
+		description: 'Return only options that exactly match this name',
+		displayOptions: {
+			show: {
+				resource: ['options'],
+				operation: ['getSystemOptions'],
+			},
+		},
+	},
+	{
+		displayName: 'Option Name',
+		name: 'optionName',
+		type: 'string',
+		required: true,
+		default: '',
+		placeholder: 'e.g. MyOption',
+		description: 'The name of the system option',
+		displayOptions: {
+			show: {
+				resource: ['options'],
+				operation: ['createSystemOption', 'createVaultOption'],
+			},
+		},
+	},
+	{
+		displayName: 'Option Value',
+		name: 'optionValue',
+		type: 'string',
+		required: true,
+		default: '',
+		placeholder: 'e.g. true',
+		description: 'The value of the system option',
+		displayOptions: {
+			show: {
+				resource: ['options'],
+				operation: [
+					'createSystemOption',
+					'updateSystemOptionById',
+					'createVaultOption',
+					'updateVaultOptionById',
+				],
+			},
+		},
+	},
+	{
+		displayName: 'System Option Name or ID',
+		name: 'systemOptionId',
+		type: 'options',
+		typeOptions: {
+			loadOptions: listLoadOptions(`${API_BASE}/system-options`),
+		},
+		required: true,
+		default: '',
+		description:
+			'The system option to use. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+		displayOptions: {
+			show: {
+				resource: ['options'],
+				operation: ['getSystemOptionById', 'updateSystemOptionById', 'deleteSystemOptionById'],
+			},
+		},
+	},
+	{
+		displayName: 'Vault Option Name or ID',
+		name: 'vaultOptionId',
+		type: 'options',
+		typeOptions: {
+			loadOptionsDependsOn: ['vaultId'],
+			loadOptions: listLoadOptions(`=${API_BASE}/vaults/{{$parameter["vaultId"]}}/vault-options`),
+		},
+		required: true,
+		default: '',
+		description:
+			'The vault option to use. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+		displayOptions: {
+			show: {
+				resource: ['options'],
+				operation: ['getVaultOptionById', 'updateVaultOptionById', 'deleteVaultOptionById'],
+			},
+			hide: {
+				vaultId: [''],
+			},
+		},
+	},
+	{
+		displayName: 'Name Starts With',
+		name: 'nameStartsWith',
+		type: 'string',
+		default: '',
+		description: 'Filter options that start with this string',
+		displayOptions: {
+			show: {
+				resource: ['options'],
+				operation: ['getVaultOptions'],
+			},
+		},
+	},
+	{
+		displayName: 'Property Definition ID',
+		name: 'propertyDefId',
+		type: 'options',
+		typeOptions: {
+			loadOptionsDependsOn: ['vaultId'],
+			loadOptions: listLoadOptions(
+				`=${API_BASE}/vaults/{{$parameter["vaultId"]}}/property-definitions`,
+				'={{$responseItem.displayName}} (Id: {{$responseItem.id}})',
+			),
+		},
+		required: true,
+		default: '',
+		description: 'The unique identifier of the property definition',
+		displayOptions: {
+			show: {
+				resource: ['property'],
+				operation: ['getPropertyDefinitionById'],
+			},
+			hide: {
+				vaultId: [''],
+			},
+		},
+	},
+	{
+		displayName: 'Entity Class ID',
+		name: 'entityClassId',
+		type: 'options',
+		default: '',
+		description: 'Entity class to filter by. Leave empty to return all.',
+		options: [
+			{ name: 'All', value: '' },
+			{ name: 'Change Order', value: 'CO' },
+			{ name: 'File', value: 'FILE' },
+			{ name: 'Folder', value: 'FLDR' },
+			{ name: 'Item', value: 'ITEM' },
+		],
+		displayOptions: {
+			show: {
+				resource: ['property'],
+				operation: ['getPropertyDefinitions'],
+			},
+		},
+	},
+	{
+		displayName: 'System Names',
+		name: 'systemNames',
+		type: 'string',
+		default: '',
+		description: 'Comma-separated list of property system names to filter',
+		displayOptions: {
+			show: {
+				resource: ['property'],
+				operation: ['getPropertyDefinitions'],
+			},
+		},
+	},
+	{
+		displayName: 'Include BOM Association Property',
+		name: 'includeBOMAssociationProperty',
+		type: 'boolean',
+		default: false,
+		description: 'Whether to include BOM association property definitions',
+		displayOptions: {
+			show: {
+				resource: ['items', 'property'],
+				operation: ['getItemVersionBom', 'getPropertyDefinitions'],
+			},
+		},
+	},
 
-  {
-    displayName: 'Search Content',
-    name: 'searchContent',
-    type: 'boolean',
-    default: false,
-    description: 'Whether to search the full content of the file',
-    displayOptions: {
-      show: {
-        resource: ['folders', 'search'],
-        operation: ['getFolderContents', 'search'],
-      },
-    },
-  },
+	{
+		displayName: 'Search Content',
+		name: 'searchContent',
+		type: 'boolean',
+		default: false,
+		description: 'Whether to search the full content of the file',
+		displayOptions: {
+			show: {
+				resource: ['folders', 'search'],
+				operation: ['getFolderContents', 'search'],
+			},
+		},
+	},
 
-  {
-    displayName: 'Search Subfolders',
-    name: 'searchSubFolders',
-    type: 'boolean',
-    default: false,
-    description: 'Whether to search subfolders',
-    displayOptions: {
-      show: {
-        resource: ['folders', 'search'],
-        operation: ['getFolderContents', 'search', 'advancedSearch'],
-      },
-    },
-  },
+	{
+		displayName: 'Search Subfolders',
+		name: 'searchSubFolders',
+		type: 'boolean',
+		default: false,
+		description: 'Whether to search subfolders',
+		displayOptions: {
+			show: {
+				resource: ['folders', 'search'],
+				operation: ['getFolderContents', 'search', 'advancedSearch'],
+			},
+		},
+	},
 
-  {
-    displayName: 'Released Files Only',
-    name: 'releasedFilesOnly',
-    type: 'boolean',
-    default: false,
-    description: 'Whether to include only file versions in a consumable (released) state',
-    displayOptions: {
-      show: {
-        resource: ['changeOrders', 'files', 'folders', 'search'],
-        operation: ['getChangeOrderAssociatedEntities', 'getFileVersions', 'getFolderContents', 'search', 'advancedSearch'],
-      },
-    },
-  },
+	{
+		displayName: 'Released Files Only',
+		name: 'releasedFilesOnly',
+		type: 'boolean',
+		default: false,
+		description: 'Whether to include only file versions in a consumable (released) state',
+		displayOptions: {
+			show: {
+				resource: ['changeOrders', 'files', 'folders', 'search'],
+				operation: [
+					'getChangeOrderAssociatedEntities',
+					'getFileVersions',
+					'getFolderContents',
+					'search',
+					'advancedSearch',
+				],
+			},
+		},
+	},
 
-  {
-    displayName: 'Released Items Only',
-    name: 'releasedItemsOnly',
-    type: 'boolean',
-    default: false,
-    description: 'Whether to include only item versions in a consumable (released) state',
-    displayOptions: {
-      show: {
-        resource: ['changeOrders', 'folders', 'items', 'search'],
-        operation: ['getChangeOrderAssociatedEntities', 'getFolderContents', 'getItemVersions', 'search', 'advancedSearch'],
-      },
-    },
-  },
+	{
+		displayName: 'Released Items Only',
+		name: 'releasedItemsOnly',
+		type: 'boolean',
+		default: false,
+		description: 'Whether to include only item versions in a consumable (released) state',
+		displayOptions: {
+			show: {
+				resource: ['changeOrders', 'folders', 'items', 'search'],
+				operation: [
+					'getChangeOrderAssociatedEntities',
+					'getFolderContents',
+					'getItemVersions',
+					'search',
+					'advancedSearch',
+				],
+			},
+		},
+	},
 
-  {
-    displayName: 'Latest Only',
-    name: 'latestOnly',
-    type: 'boolean',
-    default: true,
-    description: 'Whether to include only the latest version',
-    displayOptions: {
-      show: {
-        resource: ['files', 'folders', 'items', 'search'],
-        operation: ['getFileVersions', 'getFolderContents', 'getItemVersions', 'search', 'advancedSearch'],
-
-      },
-    },
-  },
-  {
-    displayName: 'Sort',
-    name: 'sort',
-    type: 'string',
-    default: '',
-    description: 'Specifies sorting criteria for search results. Format: {propertyDefSysName} {sort-order} Accepted values for sort-order: asc, desc. Ex: sort = Revision desc,Name asc',
-    placeholder: 'e.g. Revision desc,Name asc',
-    displayOptions: {
-      show: {
-        resource: ['changeOrders', 'files', 'folders', 'items', 'search'],
-        operation: ['getChangeOrders', 'getFileVersions', 'getFolderContents', 'getItemVersions', 'search'],
-      },
-    },
-  },
-  {
-    displayName: 'Entity Types To Search',
-    name: 'entityTypesToSearch',
-    type: 'multiOptions',
-    options: [
-      { name: 'Change Order', value: 'ChangeOrder' },
-      { name: 'File', value: 'File' },
-      { name: 'Folder', value: 'Folder' },
-      { name: 'Item', value: 'Item' },
-    ],
-    default: ['ChangeOrder', 'File', 'Folder', 'Item'],
-    description: 'EntityTypes to search. If null or empty value is passed, it will include results from all entity types.',
-    displayOptions: {
-      show: {
-        resource: ['search'],
-        operation: ['advancedSearch'],
-      },
-    },
-  },
-  {
-    displayName: 'Folder IDs',
-    name: 'foldersToSearch',
-    type: 'string',
-    typeOptions: {
-      multipleValues: true,
-    },
-    default: [],
-    placeholder: 'e.g. 1, 2, 3',
-    description: 'IDs of the folders to restrict the search to (just the numbers, e.g. 1, 2, 3)',
-    displayOptions: {
-      show: {
-        resource: ['search'],
-        operation: ['advancedSearch'],
-      },
-    },
-  },
-  {
-    displayName: 'Search Criteria',
-    name: 'searchCriteria',
-    type: 'fixedCollection',
-    typeOptions: {
-      multipleValues: true,
-    },
-    default: {},
-    options: [
-      {
-        name: 'criteria',
-        displayName: 'Criteria',
-        values: [
-          {
-            displayName: 'Property Name',
-            name: 'propertyDefinitionUrl',
-            type: 'options',
-            typeOptions: {
-              loadOptionsDependsOn: ['vaultId'],
-              loadOptions: listLoadOptions(
-                `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/property-definitions`,
-                '={{$responseItem.displayName}} (Type: {{$responseItem.dataType}})',
-              ),
-            },
-            default: '',
-            description: 'ID of the property definition',
-          },
-          {
-            displayName: 'Operator',
-            name: 'operator',
-            type: 'options',
-            options: [
-              { name: 'Contains', value: 'Contains' },
-              { name: 'Does Not Contain', value: 'DoesNotContain' },
-              { name: 'Greater Than', value: 'GreaterThan' },
-              { name: 'Greater Than Or Equal', value: 'GreaterThanOrEqualTo' },
-              { name: 'Is Empty', value: 'IsEmpty' },
-              { name: 'Is Exactly', value: 'IsExactly' },
-              { name: 'Is Not Empty', value: 'IsNotEmpty' },
-              { name: 'Less Than', value: 'LessThan' },
-              { name: 'Less Than Or Equal', value: 'LessThanOrEqualTo' },
-              { name: 'Not Equal To', value: 'NotEqualTo' },
-              { name: 'Unknown', value: 'Unknown' },
-            ],
-            default: 'Contains',
-          },
-          {
-            displayName: 'Search String',
-            name: 'searchString',
-            type: 'string',
-            default: '',
-            description: 'The value to use for the search',
-            placeholder: 'e.g. SM-TEST-01',
-          },
-        ],
-      },
-    ],
-    displayOptions: {
-      show: {
-        resource: ['search'],
-        operation: ['advancedSearch'],
-      },
-      hide: {
-        vaultId: [''],
-      },
-    },
-  },
-  {
-    displayName: 'Sort Criteria',
-    name: 'sortCriteria',
-    type: 'fixedCollection',
-    typeOptions: {
-      multipleValues: true,
-    },
-    default: {},
-    description: 'Sort criteria for the search results. Specify the property definition URL and whether to sort in ascending order.',
-    options: [
-      {
-        name: 'criteria',
-        displayName: 'Criteria',
-        values: [
-          {
-            displayName: 'Property Definition Name or ID',
-            name: 'propertyDefinitionUrl',
-            type: 'options',
-            typeOptions: {
-              loadOptionsDependsOn: ['vaultId'],
-              loadOptions: listLoadOptions(
-                `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/property-definitions`,
-                '={{$responseItem.displayName}} (Id: {{$responseItem.id}})',
-              ),
-            },
-            default: '',
-            description: 'ID of the property definition',
-          },
-          {
-            displayName: 'Ascending?',
-            name: 'ascending',
-            type: 'boolean',
-            default: true,
-            description: 'Whether the sort order is ascending'
-          },
-        ],
-      },
-    ],
-    displayOptions: {
-      show: {
-        resource: ['search'],
-        operation: ['advancedSearch'],
-      },
-      hide: {
-        vaultId: [''],
-      },
-    },
-  },
-  {
-    displayName: 'Allow Sync',
-    name: 'allowSync',
-    type: 'boolean',
-    default: false,
-    description: 'Whether the file should be synced to the local site in a multi-site environment',
-    displayOptions: {
-      show: {
-        resource: ['files'],
-        operation: ['getFileVersionContent', 'getFileVersionContentHead', 'getFileVersionLmvRoot'],
-      },
-    },
-  },
-  {
-    displayName: 'BOM Type',
-    name: 'bomType',
-    type: 'options',
-    options: [
-      { name: 'Latest', value: 'Latest' },
-      { name: 'Historic', value: 'Historic' },
-    ],
-    default: 'Latest',
-    description: 'Type of BOM to retrieve',
-    displayOptions: {
-      show: {
-        resource: ['items'],
-        operation: ['getItemVersionBom', 'getItemVersionWhereUsed'],
-      },
-    },
-  },
-  {
-    displayName: 'Category Name',
-    name: 'categoryName',
-    type: 'string',
-    default: '',
-    description: 'Search filter to include only file versions that match CategoryName property',
-    placeholder: 'e.g. Engineering',
-    displayOptions: {
-      show: {
-        resource: ['files'],
-        operation: ['getFileVersions'],
-      },
-    },
-  },
-  {
-    displayName: 'Checkout User Name',
-    name: 'checkoutUserName',
-    type: 'string',
-    default: '',
-    description: 'Search filter to include only file versions that match CheckoutUserName property',
-    placeholder: 'e.g. Administrator',
-    displayOptions: {
-      show: {
-        resource: ['files'],
-        operation: ['getFileVersions'],
-      },
-    },
-  },
-  {
-    displayName: 'Content Disposition',
-    name: 'contentDisposition',
-    type: 'options',
-    options: [
-      { name: 'Inline', value: 'inline' },
-      { name: 'Attachment', value: 'attachment' },
-    ],
-    default: 'inline',
-    description: "Specify the content disposition of the response header. Use 'inline' to display the file in the browser, or 'attachment' to trigger a download.",
-    displayOptions: {
-      show: {
-        resource: ['files'],
-        operation: ['getFileVersionContent', 'getFileVersionContentHead', 'getFileVersionSignedUrl'],
-      },
-    },
-  },
-  {
-    displayName: 'Create User Name',
-    name: 'createUserName',
-    type: 'string',
-    default: '',
-    description: 'The Name of the user who checked-in or uploaded this file',
-    placeholder: 'e.g. Administrator',
-    displayOptions: {
-      show: {
-        resource: ['files'],
-        operation: ['getFileVersions'],
-      },
-    },
-  },
-  {
-    displayName: 'Date',
-    name: 'date',
-    type: 'dateTime',
-    default: '',
-    description: 'The date that it was effective. Default value is DateTime.MinValue.',
-    displayOptions: {
-      show: {
-        resource: ['items'],
-        operation: ['getItemVersionBom', 'getItemVersionWhereUsed'],
-      },
-    },
-  },
-  {
-    displayName: 'Descending',
-    name: 'descending',
-    type: 'boolean',
-    default: false,
-    description: 'Whether to return the latest file version at the top',
-    displayOptions: {
-      show: {
-        resource: ['files', 'items'],
-        operation: ['getFileHistory', 'getItemHistory'],
-      },
-    },
-  },
-  {
-    displayName: 'Excluded BOM Links',
-    name: 'excludedBOMLinks',
-    type: 'boolean',
-    default: false,
-    description: 'Whether to include BOM rows that have been excluded',
-    displayOptions: {
-      show: {
-        resource: ['items'],
-        operation: ['getItemVersionBom'],
-      },
-    },
-  },
-  {
-    displayName: 'Expiration Time',
-    name: 'expirationTime',
-    type: 'number',
-    default: 180,
-    description: 'Duration for the signed URL to be valid in seconds. Max allowed time is 180 seconds. Ex: expirationTime=120',
-    displayOptions: {
-      show: {
-        resource: ['files'],
-        operation: ['getFileVersionSignedUrl'],
-      },
-    },
-  },
-  {
-    displayName: 'Filter Assignees',
-    name: 'filterAssignees',
-    type: 'string',
-    default: '',
-    description: 'Search filter to include only change orders that assignees user list can perform. ex: filter[assignees]=1,2,3,4.',
-    displayOptions: {
-      show: {
-        resource: ['changeOrders'],
-        operation: ['getChangeOrders'],
-      },
-    },
-  },
-  {
-    displayName: 'Filter Open Cos Only',
-    name: 'filterOpenCOsOnly',
-    type: 'boolean',
-    default: false,
-    description: 'Whether to include only open change orders',
-    displayOptions: {
-      show: {
-        resource: ['changeOrders'],
-        operation: ['getChangeOrders'],
-      },
-    },
-  },
-  {
-    displayName: 'State',
-    name: 'ecoState',
-    type: 'string',
-    default: '',
-    placeholder: 'e.g. open',
-    description: 'Search filter to include only change orders that match state property. e.g. \'open\'.',
-    displayOptions: {
-      show: {
-        resource: ['changeOrders'],
-        operation: ['getChangeOrders'],
-      },
-    },
-  },
-  {
-    displayName: 'Get Latest Associations',
-    name: 'getLatestAssociations',
-    type: 'boolean',
-    default: true,
-    description: 'Whether to get only the latest file associations',
-    displayOptions: {
-      show: {
-        resource: ['files'],
-        operation: ['getFileVersionUses', 'getFileVersionWhereUsed',],
-      },
-    },
-  },
-  {
-    displayName: 'Recurse',
-    name: 'recurse',
-    type: 'boolean',
-    default: false,
-    description: 'Whether to include all levels of parent files',
-    displayOptions: {
-      show: {
-        resource: ['files'],
-        operation: ['getFileVersionUses', 'getFileVersionWhereUsed',],
-      },
-    },
-  },
-  {
-    displayName: 'History',
-    name: 'history',
-    type: 'options',
-    options: [
-      { name: 'All', value: 'All' },
-      { name: 'Released Only', value: 'ReleasedOnly' },
-      { name: 'Released And Revision Tip', value: 'ReleasedAndRevisionTip' },
-      { name: 'Revision Tip', value: 'RevisionTip' },
-    ],
-    default: 'All',
-    description: 'Options for viewing item history',
-    displayOptions: {
-      show: {
-        resource: ['items'],
-        operation: ['getItemHistory'],
-      },
-    },
-  },
-  {
-    displayName: 'Change Order Name or ID',
-    name: 'changeOrderId',
-    type: 'options',
-    typeOptions: {
-      loadOptionsDependsOn: ['vaultId'],
-      loadOptions: listLoadOptions(
-        `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/change-orders`,
-        '={{$responseItem.number}}{{$responseItem.title ? " - " + $responseItem.title : ""}}',
-      ),
-    },
-    required: true,
-    description:
-      'The Change Order to use. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
-    displayOptions: {
-      show: {
-        resource: ['changeOrders'],
-        operation: [
-          'getChangeOrderById',
-          'getChangeOrderRelatedFiles',
-          'getChangeOrderAssociatedEntities',
-          'getChangeOrderComments',
-          'getChangeOrderCommentAttachments',
-        ],
-      },
-      hide: {
-        vaultId: [''],
-      },
-    },
-    default: '',
-  },
-  {
-    displayName: 'File Version',
-    name: 'fileId',
-    type: 'resourceLocator',
-    default: { mode: 'list', value: '' },
-    required: true,
-    description:
-      'The file version to use. Search by file name and select the version from the list, or enter a version ID directly.',
-    modes: resourceLocatorModes('searchFileVersions', 'e.g. 100201'),
-    displayOptions: {
-      show: {
-        resource: ['files'],
-        operation: [
-          'getFileVersionById',
-          'getFileVersionSignedUrl',
-          'getFileVersionContent',
-          'getFileVersionContentHead',
-          'getFileVersionAssociatedItemVersions',
-          'getFileVersionMarkups',
-          'getFileVersionMarkupById',
-          'getFileVersionThumbnailById',
-          'getFileVersionVisualizationAttachments',
-          'getFileVersionUses',
-          'getFileVersionWhereUsed',
-        ],
-      },
-      hide: {
-        vaultId: [''],
-      },
-    },
-  },
-  {
-    displayName: 'File Version ID',
-    name: 'fileId',
-    type: 'string',
-    required: true,
-    default: '',
-    placeholder: 'e.g. 100201',
-    description:
-      'The ID of the DWF/DWFx visualization file version to view. These files are usually hidden in Vault; find the ID via the Vault client or another File operation.',
-    displayOptions: {
-      show: {
-        resource: ['files'],
-        operation: ['getFileVersionLmvRoot'],
-      },
-    },
-  },
-  {
-    displayName: 'Max Wait Time (Seconds)',
-    name: 'lmvMaxWaitSeconds',
-    type: 'number',
-    typeOptions: {
-      minValue: 0,
-      numberPrecision: 0,
-    },
-    default: 180,
-    description:
-      'How long to keep polling while Vault translates the file for the viewer. Polls back off from 2 up to 30 seconds apart. Set to 0 to check once.',
-    displayOptions: {
-      show: {
-        resource: ['files'],
-        operation: ['getFileVersionLmvRoot'],
-      },
-    },
-  },
-  {
-    displayName: 'File',
-    name: 'fileMasterId',
-    type: 'resourceLocator',
-    default: { mode: 'list', value: '' },
-    required: true,
-    description:
-      'The file to use (groups all versions). Select one from the list, or provide the numeric file master ID directly.',
-    modes: resourceLocatorModes('searchFileMasters', 'e.g. 100200'),
-    displayOptions: {
-      show: {
-        resource: ['files'],
-        operation: ['getFileById', 'getFileAssociatedChangeOrders', 'getFileHistory'],
-      },
-      hide: {
-        vaultId: [''],
-      },
-    },
-  },
-  {
-    displayName: 'Folder',
-    name: 'folderId',
-    type: 'resourceLocator',
-    default: { mode: 'list', value: '' },
-    required: true,
-    description:
-      'The folder to use. Select one from the list, or provide the numeric folder ID directly ("1" is the root folder).',
-    modes: resourceLocatorModes('searchFolders', 'e.g. 1', {
-      idHint: '"1" is the root folder ID',
-      idRegex: '^([0-9]+|root)$',
-      idError: 'Enter a numeric folder ID (e.g. 1) or "root"',
-    }),
-    displayOptions: {
-      show: {
-        resource: ['folders'],
-        operation: ['getFolderById', 'getFolderContents', 'getFolderSubFolders'],
-      },
-      hide: {
-        vaultId: [''],
-      },
-    },
-  },
-  {
-    displayName: 'Item Version',
-    name: 'itemId',
-    type: 'resourceLocator',
-    default: { mode: 'list', value: '' },
-    required: true,
-    description:
-      'The item version to use. Search by item number and select the version from the list, or enter a version ID directly.',
-    modes: resourceLocatorModes('searchItemVersions', 'e.g. 56732'),
-    displayOptions: {
-      show: {
-        resource: ['items'],
-        operation: [
-          'getItemVersionById',
-          'getItemVersionAssociatedFiles',
-          'getItemVersionBom',
-          'getItemVersionExtSyncInfoByName',
-          'getItemVersionExtSyncInfos',
-          'getItemVersionWhereUsed',
-          'getItemVersionThumbnail',
-        ],
-      },
-      hide: {
-        vaultId: [''],
-      },
-    },
-  },
-  {
-    displayName: 'Item',
-    name: 'itemMasterId',
-    type: 'resourceLocator',
-    default: { mode: 'list', value: '' },
-    required: true,
-    description:
-      'The item to use (groups all versions). Select one from the list, or provide the numeric item master ID directly.',
-    modes: resourceLocatorModes('searchItemMasters', 'e.g. 30678'),
-    displayOptions: {
-      show: {
-        resource: ['items'],
-        operation: [
-          'getItemById',
-          'getItemAssociatedChangeOrders',
-          'getItemExtSyncInfoByName',
-          'getItemExtSyncInfos',
-          'getItemHistory',
-        ],
-      },
-      hide: {
-        vaultId: [''],
-      },
-    },
-  },
-  {
-    displayName: 'Job ID',
-    name: 'jobId',
-    type: 'string',
-    required: true,
-    placeholder: 'e.g. 1234',
-    description: 'The unique identifier of a job',
-    displayOptions: {
-      show: {
-        resource: ['jobs'],
-        operation: ['getJobsById'],
-      },
-    },
-    default: '',
-  },
-  {
-    displayName: 'Link Name or ID',
-    name: 'linkId',
-    type: 'options',
-    typeOptions: {
-      loadOptionsDependsOn: ['vaultId'],
-      loadOptions: listLoadOptions(
-        `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/links`,
-      ),
-    },
-    required: true,
-    description:
-      'The link to retrieve. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
-    displayOptions: {
-      show: {
-        resource: ['links'],
-        operation: ['getLinkById'],
-      },
-      hide: {
-        vaultId: [''],
-      },
-    },
-    default: '',
-  },
-  {
-    displayName: 'Markup',
-    name: 'markupId',
-    type: 'resourceLocator',
-    default: { mode: 'list', value: '' },
-    required: true,
-    description:
-      'The markup to use. Select one from the list (requires a File Version to be selected first), or provide the numeric markup ID directly.',
-    modes: resourceLocatorModes('searchMarkups', 'e.g. 1234'),
-    displayOptions: {
-      show: {
-        resource: ['files'],
-        operation: ['getFileVersionMarkupById'],
-      },
-      hide: {
-        vaultId: [''],
-      },
-    },
-  },
-  {
-    displayName: "Include Closed ECO's",
-    name: 'includeClosedECOs',
-    type: 'boolean',
-    default: false,
-    description: 'Whether to include change orders in a closed or cancelled state',
-    displayOptions: {
-      show: {
-        resource: ['files', 'items'],
-        operation: ['getFileAssociatedChangeOrders', 'getItemAssociatedChangeOrders',],
-      },
-    },
-  },
-  {
-    displayName: "Include Folders",
-    name: 'includeFolders',
-    type: 'boolean',
-    default: false,
-    description: 'Whether to include folders or folder links in the search results',
-    displayOptions: {
-      show: {
-        resource: ['folders'],
-        operation: ['getFolderContents'],
-      },
-    },
-  },
-  {
-    displayName: "Include Hidden",
-    name: 'includeHidden',
-    type: 'boolean',
-    default: false,
-    description: 'Whether to include files marked as hidden',
-    displayOptions: {
-      show: {
-        resource: ['files'],
-        operation: ['getFileVersionUses', 'getFileVersionWhereUsed',],
-      },
-    },
-  },
-  {
-    displayName: "Include Item ECO Links",
-    name: 'includeItemEcoLinks',
-    type: 'boolean',
-    default: true,
-    description: 'Whether to include Item/Change Order links in the search results',
-    displayOptions: {
-      show: {
-        resource: ['folders'],
-        operation: ['getFolderContents'],
-      },
-    },
-  },
-  {
-    displayName: 'Job Type',
-    name: 'jobType',
-    type: 'string',
-    required: true,
-    default: '',
-    placeholder: 'e.g. Autodesk.Vault.SyncProperties',
-    displayOptions: {
-      show: {
-        resource: ['jobs'],
-        operation: ['addJob'],
-      },
-    },
-  },
-  {
-    displayName: 'Priority',
-    name: 'priority',
-    type: 'number',
-    default: 1,
-    description: 'The priority of the job. A lower number means a higher priority. 1 is the lowest possible number.',
-    typeOptions: {
-      minValue: 1,
-    },
-    displayOptions: {
-      show: {
-        resource: ['jobs'],
-        operation: ['addJob'],
-      },
-    },
-  },
-  {
-    displayName: 'Description',
-    name: 'description',
-    type: 'string',
-    default: '',
-    description: 'A description of the job',
-    placeholder: 'e.g. Sync properties for files',
-    displayOptions: {
-      show: {
-        resource: ['jobs'],
-        operation: ['addJob'],
-      },
-    },
-  },
-  {
-    displayName: 'Parameters',
-    name: 'params',
-    type: 'fixedCollection',
-    typeOptions: {
-      multipleValues: true,
-    },
-    default: {},
-    options: [
-      {
-        displayName: 'Parameter',
-        name: 'parameter',
-        values: [
-          {
-            displayName: 'Key',
-            name: 'key',
-            type: 'string',
-            default: '',
-          },
-          {
-            displayName: 'Value',
-            name: 'value',
-            type: 'string',
-            default: '',
-          },
-        ],
-      },
-    ],
-    displayOptions: {
-      show: {
-        resource: ['jobs'],
-        operation: ['addJob'],
-      },
-    },
-  },
-  {
-    displayName: "Include Occurrences",
-    name: 'includeOccurrences',
-    type: 'boolean',
-    default: false,
-    description: 'Whether to include the occurrences',
-    displayOptions: {
-      show: {
-        resource: ['items'],
-        operation: ['getItemVersionBom'],
-      },
-    },
-  },
-  {
-    displayName: 'One Level',
-    name: 'oneLevel',
-    type: 'boolean',
-    default: false,
-    description: 'Whether to include only the current level and immediate children',
-    displayOptions: {
-      show: {
-        resource: ['items'],
-        operation: ['getItemVersionBom'],
-      },
-    },
-  },
-  {
-    displayName: 'Only Show Tip Released For Each Rev',
-    name: 'onlyShowTipReleasedForEachRev',
-    type: 'boolean',
-    default: true,
-    description: 'Whether to show only the tip (latest) released version for each revision',
-    displayOptions: {
-      show: {
-        resource: ['files'],
-        operation: ['getFileHistory'],
-      },
-    },
-  },
-  {
-    displayName: 'Query',
-    name: 'q',
-    type: 'string',
-    placeholder: 'e.g. Assembly',
-    description: 'The value to use for the search. Based on \'SearchContent\' option, this parameter will either search across all properties or across all properties and content. Ex: q=Assembly, all objects that contain \'Assembly\' within their properties will be returned.',
-    displayOptions: {
-      show: {
-        resource: ['files', 'folders', 'items', 'search'],
-        operation: ['getFileVersions', 'getFolderContents', 'getItemVersions', 'search'],
-      },
-    },
-    default: '',
-  },
-  {
-    displayName: 'Range',
-    name: 'range',
-    type: 'string',
-    description: "Request only part of the file content, e.g. bytes=0-999",
-    placeholder: 'e.g. bytes=0-999',
-    displayOptions: {
-      show: {
-        resource: ['files'],
-        operation: ['getFileVersionContent'],
-      },
-    },
-    default: '',
-  },
-  {
-    displayName: 'Reference Designators',
-    name: 'referenceDesignators',
-    type: 'boolean',
-    default: false,
-    description: 'Whether to include reference designators',
-    displayOptions: {
-      show: {
-        resource: ['items'],
-        operation: ['getItemVersionBom'],
-      },
-    },
-  },
-  {
-    displayName: 'Release Biased',
-    name: 'releaseBiased',
-    type: 'boolean',
-    default: true,
-    description: 'Whether to use the "Release biased" approach for gathering dependencies',
-    displayOptions: {
-      show: {
-        resource: ['files'],
-        operation: ['getFileVersionUses', 'getFileVersionWhereUsed'],
-      },
-    },
-  },
-  {
-    displayName: 'Released Only',
-    name: 'releasedOnly',
-    type: 'boolean',
-    default: false,
-    description: 'Whether to include only results in a consumable (released) state',
-    displayOptions: {
-      show: {
-        resource: ['changeOrders', 'files', 'items'],
-        operation: [
-          'getChangeOrderRelatedFiles',
-          'getChangeOrderCommentAttachments',
-          'getFileVersionAssociatedItemVersions',
-          'getFileVersionUses',
-          'getFileVersionWhereUsed',
-          'getFileById',
-          'getItemById',
-        ],
-      },
-    },
-  },
-  {
-    displayName: 'Revision',
-    name: 'revision',
-    type: 'options',
-    options: [
-      { name: 'All Revisions', value: 'AllRevision' },
-      { name: 'Current Revision', value: 'CurrentRevision' },
-    ],
-    default: 'AllRevision',
-    description: 'Options for viewing file history',
-    displayOptions: {
-      show: {
-        resource: ['files'],
-        operation: ['getFileHistory'],
-      },
-    },
-  },
-  {
-    displayName: 'Rolled Up',
-    name: 'rolledUp',
-    type: 'boolean',
-    default: false,
-    description: 'Whether to include a linear view of the BOM showing items for parts only (available for view operations only)',
-    displayOptions: {
-      show: {
-        resource: ['items'],
-        operation: ['getItemVersionBom'],
-      },
-    },
-  },
-  {
-    displayName: 'State',
-    name: 'state',
-    type: 'string',
-    default: '',
-    placeholder: 'e.g. For Review',
-    description: 'Search filter to include only file versions that match state property. e.g. \'For Review\'.',
-    displayOptions: {
-      show: {
-        resource: ['files'],
-        operation: ['getFileVersions'],
-      },
-    },
-  },
-  {
-    displayName: 'Unassigned Components',
-    name: 'unassignedComponents',
-    type: 'boolean',
-    default: false,
-    description: 'Whether to include unassigned components (BOM rows without associated items) in the BOM',
-    displayOptions: {
-      show: {
-        resource: ['items'],
-        operation: ['getItemVersionBom'],
-      },
-    },
-  },
-  {
-    displayName: 'Watermarked Source File Version ID',
-    name: 'wmSrcFileVerId',
-    type: 'string',
-    default: '',
-    placeholder: 'e.g. 100201',
-    description: 'When current file is a dwf associated to an Item, directly or as a CAD file\'s visualization attachment, to download its watermarked version, supply this File Version\'s ID or its CAD File Version\'s ID as the watermark source',
-    displayOptions: {
-      show: {
-        resource: ['files'],
-        operation: ['getFileVersionSignedUrl', 'getFileVersionContent', 'getFileVersionContentHead', 'getFileVersionLmvRoot'],
-      },
-    },
-  },
-  {
-    displayName: 'Watermarked Source Item Version ID',
-    name: 'wmSrcItemVerId',
-    type: 'string',
-    default: '',
-    placeholder: 'e.g. 56732',
-    description: 'When current file is a dwf associated to an Item, to download its watermarked version, supply this Item Version\'s ID as the watermark source',
-    displayOptions: {
-      show: {
-        resource: ['files'],
-        operation: ['getFileVersionSignedUrl', 'getFileVersionContent', 'getFileVersionContentHead', 'getFileVersionLmvRoot'],
-      },
-    },
-  },
-  {
-    displayName: 'Property Definition IDs',
-    name: 'propDefIds',
-    type: 'string',
-    default: '',
-    description: 'The properties that need to be returned. property IDs separated by \',\', e.g. \'1,2,3\' \'all\' means return all properties.',
-    hint: 'The properties that need to be returned. property IDs separated by \',\', e.g. \'1,2,3\' \'all\' means return all properties.',
-    placeholder: 'e.g. all',
-    displayOptions: {
-      show: {
-        resource: [
-          'changeOrders',
-          'files',
-          'folders',
-          'items',
-          'search',
-        ],
-        operation: [
-          'getChangeOrders',
-          'getChangeOrderRelatedFiles',
-          'getChangeOrderAssociatedEntities',
-          'getChangeOrderCommentAttachments',
-          'getFileVersions',
-          'getFileVersionAssociatedItemVersions',
-          'getFileVersionUses',
-          'getFileVersionWhereUsed',
-          'getFileAssociatedChangeOrders',
-          'getFileHistory',
-          'getFolderContents',
-          'getFolderSubFolders',
-          'getItemVersions',
-          'getItemVersionAssociatedFiles',
-          'getItemAssociatedChangeOrders',
-          'getItemHistory',
-          'search',
-          'advancedSearch',
-        ],
-      },
-    },
-  },
-  {
-    displayName: 'Property Definition IDs',
-    name: 'propDefIds',
-    type: 'string',
-    default: '',
-    description: 'Search filter to include only propertyDefs that match ID. PropertyDefIds, separated by \',\'.',
-    displayOptions: {
-      show: {
-        resource: ['property'],
-        operation: ['getPropertyDefinitions'],
-      },
-    },
-  },
-  {
-    displayName: 'Extended Models',
-    name: 'extendedModels',
-    type: 'boolean',
-    default: false,
-    description: 'Whether to include extended model data in the response',
-    displayOptions: {
-      show: {
-        resource: [
-          'changeOrders',
-          'files',
-          'folders',
-          'items',
-          'lifecycle',
-          'property',
-          'search',
-        ],
-        operation: [
-          'getChangeOrders',
-          'getChangeOrderRelatedFiles',
-          'getChangeOrderAssociatedEntities',
-          'getChangeOrderCommentAttachments',
-          'getFileVersions',
-          'getFileVersionUses',
-          'getFileVersionWhereUsed',
-          'getFileAssociatedChangeOrders',
-          'getFileHistory',
-          'getFolderContents',
-          'getFolderSubFolders',
-          'getItemVersionAssociatedFiles',
-          'getItemAssociatedChangeOrders',
-          'getItemHistory',
-          'getLifecycleDefinitions',
-          'getLifecycleStates',
-          'getPropertyDefinitions',
-          'search',
-          'advancedSearch',
-        ],
-      },
-    },
-  },
-  {
-    displayName: 'Lifecycle Definition Name or ID',
-    name: 'lifecycleDefinitionId',
-    type: 'options',
-    typeOptions: {
-      loadOptionsDependsOn: ['vaultId'],
-      loadOptions: listLoadOptions(
-        `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/lifecycle-definitions`,
-      ),
-    },
-    required: true,
-    default: '',
-    description:
-      'The lifecycle definition to retrieve. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
-    displayOptions: {
-      show: {
-        resource: ['lifecycle'],
-        operation: ['getLifecycleDefinitionById'],
-      },
-      hide: {
-        vaultId: [''],
-      },
-    },
-  },
-  {
-    displayName: 'Lifecycle State ID',
-    name: 'lifecycleStateId',
-    type: 'string',
-    required: true,
-    default: '',
-    placeholder: 'e.g. 28',
-    description: 'The unique identifier of the lifecycle state to retrieve',
-    hint: 'State IDs appear on the lifecycleState of any file, folder or item response',
-    displayOptions: {
-      show: {
-        resource: ['lifecycle'],
-        operation: ['getLifecycleStateById'],
-      },
-    },
-  },
-  {
-    displayName: 'Filter by Definition IDs',
-    name: 'filterLifecycleDefinitionIds',
-    type: 'string',
-    default: '',
-    placeholder: 'e.g. 1,2,7',
-    description: 'Return only lifecycle definitions with these IDs, separated by commas',
-    displayOptions: {
-      show: {
-        resource: ['lifecycle'],
-        operation: ['getLifecycleDefinitions'],
-      },
-    },
-  },
-  {
-    displayName: 'Lifecycle State IDs',
-    name: 'filterLifecycleStateIds',
-    type: 'string',
-    required: true,
-    default: '',
-    placeholder: 'e.g. 1,2,3',
-    description:
-      'The lifecycle state IDs to retrieve, separated by commas. The API has no "list all states" route, so this filter is required.',
-    displayOptions: {
-      show: {
-        resource: ['lifecycle'],
-        operation: ['getLifecycleStates'],
-      },
-    },
-  },
-  {
-    displayName: 'State Updates',
-    name: 'lifecycleStateUpdates',
-    type: 'fixedCollection',
-    typeOptions: {
-      multipleValues: true,
-    },
-    default: {},
-    description: 'One entry per entity whose lifecycle state should change',
-    options: [
-      {
-        displayName: 'Update',
-        name: 'update',
-        values: [
-          {
-            displayName: 'Entity ID',
-            name: 'entityId',
-            type: 'string',
-            default: '',
-            placeholder: 'e.g. 55',
-            description:
-              'The master ID of the file or item, or the folder ID, whose state should change',
-          },
-          {
-            displayName: 'Lifecycle State ID',
-            name: 'lifecycleStateId',
-            type: 'string',
-            default: '',
-            placeholder: 'e.g. 2',
-            description: 'The ID of the target lifecycle state',
-          },
-        ],
-      },
-    ],
-    displayOptions: {
-      show: {
-        resource: ['files', 'folders', 'items'],
-        operation: [
-          'updateFileLifecycleStates',
-          'updateFolderLifecycleStates',
-          'updateItemLifecycleStates',
-        ],
-      },
-    },
-  },
-  {
-    displayName: 'Definition Updates',
-    name: 'lifecycleDefinitionUpdates',
-    type: 'fixedCollection',
-    typeOptions: {
-      multipleValues: true,
-    },
-    default: {},
-    description:
-      'One entry per entity. The lifecycle state must belong to the lifecycle definition given on the same entry.',
-    options: [
-      {
-        displayName: 'Update',
-        name: 'update',
-        values: [
-          {
-            displayName: 'Entity ID',
-            name: 'entityId',
-            type: 'string',
-            default: '',
-            placeholder: 'e.g. 55',
-            description:
-              'The master ID of the file or item, or the folder ID, whose lifecycle should change',
-          },
-          {
-            displayName: 'Lifecycle Definition ID',
-            name: 'lifecycleDefinitionId',
-            type: 'string',
-            default: '',
-            placeholder: 'e.g. 2',
-            description: 'The ID of the target lifecycle definition',
-          },
-          {
-            displayName: 'Lifecycle State ID',
-            name: 'lifecycleStateId',
-            type: 'string',
-            default: '',
-            placeholder: 'e.g. 9',
-            description: 'The ID of a state that belongs to the target lifecycle definition',
-          },
-        ],
-      },
-    ],
-    displayOptions: {
-      show: {
-        resource: ['files', 'folders', 'items'],
-        operation: [
-          'updateFileLifecycleDefinitions',
-          'updateFolderLifecycleDefinitions',
-          'updateItemLifecycleDefinitions',
-        ],
-      },
-    },
-  },
-  {
-    displayName: 'Comment',
-    name: 'lifecycleComment',
-    type: 'string',
-    default: '',
-    placeholder: 'e.g. Released after approval',
-    description: 'A comment recorded with the lifecycle change',
-    displayOptions: {
-      show: {
-        resource: ['files', 'folders', 'items'],
-        operation: [
-          'updateFileLifecycleDefinitions',
-          'updateFileLifecycleStates',
-          'updateFolderLifecycleDefinitions',
-          'updateFolderLifecycleStates',
-          'updateItemLifecycleDefinitions',
-          'updateItemLifecycleStates',
-        ],
-      },
-    },
-  },
-  {
-    displayName: 'Info Name',
-    name: 'infoName',
-    type: 'string',
-    required: true,
-    default: '',
-    placeholder: 'e.g. Adsk.FusionManage.Status',
-    description: 'The name of the external sync info entry to retrieve',
-    displayOptions: {
-      show: {
-        resource: ['items'],
-        operation: ['getItemExtSyncInfoByName', 'getItemVersionExtSyncInfoByName'],
-      },
-    },
-  },
-  {
-    displayName: 'External Sync Task ID',
-    name: 'extSyncTaskId',
-    type: 'string',
-    required: true,
-    default: '',
-    placeholder: 'e.g. 233',
-    description: 'The unique identifier of an external sync task',
-    displayOptions: {
-      show: {
-        resource: ['extSyncTasks'],
-        operation: ['deleteExtSyncTaskById', 'getExtSyncTaskById', 'resubmitExtSyncTaskById'],
-      },
-    },
-  },
-  {
-    displayName: 'Filter by Entity IDs',
-    name: 'filterEntityIds',
-    type: 'string',
-    default: '',
-    placeholder: 'e.g. 127,119',
-    description: 'Return only tasks for these entity IDs, separated by commas or newlines',
-    displayOptions: {
-      show: {
-        resource: ['extSyncTasks'],
-        operation: ['getExtSyncTasks'],
-      },
-    },
-  },
-  {
-    displayName: 'Filter by Entity ID',
-    name: 'filterEntityId',
-    type: 'string',
-    default: '',
-    placeholder: 'e.g. 127',
-    description: 'Return only tasks whose entity ID exactly matches this value',
-    displayOptions: {
-      show: {
-        resource: ['extSyncTasks'],
-        operation: ['getExtSyncTasks'],
-      },
-    },
-  },
-  {
-    displayName: 'Entity ID Starts With',
-    name: 'entityIdStartsWith',
-    type: 'string',
-    default: '',
-    placeholder: 'e.g. 12',
-    description: 'Return only tasks whose entity ID begins with this string',
-    displayOptions: {
-      show: {
-        resource: ['extSyncTasks'],
-        operation: ['getExtSyncTasks'],
-      },
-    },
-  },
-  {
-    displayName: 'Workflow Type',
-    name: 'filterWorkflowType',
-    type: 'string',
-    default: '',
-    placeholder: 'e.g. Adsk.UploadItem',
-    description: 'Return only tasks whose workflow type exactly matches this value',
-    displayOptions: {
-      show: {
-        resource: ['extSyncTasks'],
-        operation: ['getExtSyncTasks', 'queryExtSyncTasks'],
-      },
-    },
-  },
-  {
-    displayName: 'Workflow Type Starts With',
-    name: 'workflowTypeStartsWith',
-    type: 'string',
-    default: '',
-    placeholder: 'e.g. Adsk.',
-    description: 'Return only tasks whose workflow type begins with this string',
-    displayOptions: {
-      show: {
-        resource: ['extSyncTasks'],
-        operation: ['getExtSyncTasks'],
-      },
-    },
-  },
-  {
-    displayName: 'Entity IDs',
-    name: 'syncEntityIds',
-    type: 'string',
-    required: true,
-    default: '',
-    placeholder: 'e.g. 127,119',
-    description: 'The entity IDs to search for, separated by commas or newlines',
-    displayOptions: {
-      show: {
-        resource: ['extSyncTasks'],
-        operation: ['queryExtSyncTasks'],
-      },
-    },
-  },
-  {
-    displayName: 'Entity ID',
-    name: 'syncEntityId',
-    type: 'string',
-    required: true,
-    default: '',
-    placeholder: 'e.g. 127',
-    description: 'The ID of the entity being synchronized',
-    displayOptions: {
-      show: {
-        resource: ['extSyncTasks'],
-        operation: ['addExtSyncTask'],
-      },
-    },
-  },
-  {
-    displayName: 'Entity Class',
-    name: 'syncEntityClassId',
-    type: 'options',
-    required: true,
-    default: 'ITEM',
-    description: 'The class of the entity being synchronized',
-    options: [
-      { name: 'Change Order', value: 'CO' },
-      { name: 'File', value: 'FILE' },
-      { name: 'Folder', value: 'FLDR' },
-      { name: 'Item', value: 'ITEM' },
-    ],
-    displayOptions: {
-      show: {
-        resource: ['extSyncTasks'],
-        operation: ['addExtSyncTask'],
-      },
-    },
-  },
-  {
-    displayName: 'Config ID',
-    name: 'syncConfigId',
-    type: 'string',
-    required: true,
-    default: '',
-    placeholder: 'e.g. Adsk.Vault.ExternalSyncTask.FusionManage',
-    description: 'The ID of the external sync configuration to use',
-    hint: 'Use the Option resource, "Get Many External Sync Configs", to list the available config IDs',
-    displayOptions: {
-      show: {
-        resource: ['extSyncTasks'],
-        operation: ['addExtSyncTask'],
-      },
-    },
-  },
-  {
-    displayName: 'Workflow Type',
-    name: 'syncWorkflowType',
-    type: 'string',
-    required: true,
-    default: '',
-    placeholder: 'e.g. Adsk.UploadItem',
-    description: 'The workflow type for this sync task, taken from the selected configuration',
-    displayOptions: {
-      show: {
-        resource: ['extSyncTasks'],
-        operation: ['addExtSyncTask'],
-      },
-    },
-  },
-  {
-    displayName: 'Description',
-    name: 'syncDescription',
-    type: 'string',
-    required: true,
-    default: '',
-    placeholder: 'e.g. Sync to Fusion Manage (1000007)',
-    description: 'A description of the external sync task',
-    displayOptions: {
-      show: {
-        resource: ['extSyncTasks'],
-        operation: ['addExtSyncTask'],
-      },
-    },
-  },
-  {
-    displayName: 'Parameters',
-    name: 'syncParams',
-    type: 'fixedCollection',
-    typeOptions: {
-      multipleValues: true,
-    },
-    default: {},
-    description: 'Extra key-value data carried along the task execution chain',
-    options: [
-      {
-        displayName: 'Parameter',
-        name: 'parameter',
-        values: [
-          {
-            displayName: 'Key',
-            name: 'key',
-            type: 'string',
-            default: '',
-          },
-          {
-            displayName: 'Value',
-            name: 'value',
-            type: 'string',
-            default: '',
-          },
-        ],
-      },
-    ],
-    displayOptions: {
-      show: {
-        resource: ['extSyncTasks'],
-        operation: ['addExtSyncTask'],
-      },
-    },
-  },
-  {
-    displayName: 'Execute Immediately',
-    name: 'syncExecuteImmediately',
-    type: 'boolean',
-    default: false,
-    description: 'Whether to notify the sync agent as soon as the task is created',
-    displayOptions: {
-      show: {
-        resource: ['extSyncTasks'],
-        operation: ['addExtSyncTask'],
-      },
-    },
-  },
-  {
-    displayName: 'Predecessor Task ID',
-    name: 'syncPredecessorTaskId',
-    type: 'string',
-    default: '',
-    placeholder: 'e.g. 232',
-    description: 'The ID of a task that must complete before this one runs',
-    displayOptions: {
-      show: {
-        resource: ['extSyncTasks'],
-        operation: ['addExtSyncTask'],
-      },
-    },
-  },
-  {
-    displayName: 'Tasks',
-    name: 'syncTasks',
-    type: 'fixedCollection',
-    typeOptions: {
-      multipleValues: true,
-    },
-    default: {},
-    description: 'One entry per external sync task to create',
-    options: [
-      {
-        displayName: 'Task',
-        name: 'task',
-        values: [
-          {
-            displayName: 'Config ID',
-            name: 'configId',
-            type: 'string',
-            default: '',
-            placeholder: 'e.g. Adsk.Vault.ExternalSyncTask.FusionManage',
-            description: 'The ID of the external sync configuration to use',
-          },
-          {
-            displayName: 'Description',
-            name: 'description',
-            type: 'string',
-            default: '',
-            placeholder: 'e.g. Sync to Fusion Manage (1000007)',
-            description: 'A description of the external sync task',
-          },
-          {
-            displayName: 'Entity Class',
-            name: 'entityClassId',
-            type: 'options',
-            default: 'ITEM',
-            description: 'The class of the entity being synchronized',
-            options: [
-              { name: 'Change Order', value: 'CO' },
-              { name: 'File', value: 'FILE' },
-              { name: 'Folder', value: 'FLDR' },
-              { name: 'Item', value: 'ITEM' },
-            ],
-          },
-          {
-            displayName: 'Entity ID',
-            name: 'entityId',
-            type: 'string',
-            default: '',
-            placeholder: 'e.g. 127',
-            description: 'The ID of the entity being synchronized',
-          },
-          {
-            displayName: 'Execute Immediately',
-            name: 'executeImmediately',
-            type: 'boolean',
-            default: false,
-            description: 'Whether to notify the sync agent as soon as the task is created',
-          },
-          {
-            displayName: 'Parameters (JSON)',
-            name: 'paramsJson',
-            type: 'json',
-            default: '',
-            placeholder: 'e.g. {"entityClassId": "ITEM", "entityId": "127"}',
-            description: 'Extra key-value data as a JSON object',
-          },
-          {
-            displayName: 'Predecessor Task ID',
-            name: 'predecessorTaskId',
-            type: 'string',
-            default: '',
-            placeholder: 'e.g. 232',
-            description: 'The ID of a task that must complete before this one runs',
-          },
-          {
-            displayName: 'Workflow Type',
-            name: 'workflowType',
-            type: 'string',
-            default: '',
-            placeholder: 'e.g. Adsk.UploadItem',
-            description: 'The workflow type for this sync task',
-          },
-        ],
-      },
-    ],
-    displayOptions: {
-      show: {
-        resource: ['extSyncTasks'],
-        operation: ['addExtSyncTasks'],
-      },
-    },
-  },
-  {
-    displayName: 'Return All',
-    name: 'returnAll',
-    type: 'boolean',
-    default: false,
-    description: 'Whether to return all results or only up to a given limit',
-    displayOptions: {
-      show: {
-        resource: PAGINATED_RESOURCES,
-        operation: PAGINATED_OPERATIONS,
-      },
-    },
-    routing: {
-      send: {
-        paginate: '={{ $value }}',
-      },
-      operations: {
-        pagination: paginateByCursor,
-      },
-    },
-  },
-  {
-    displayName: 'Limit',
-    name: 'limit',
-    type: 'number',
-    typeOptions: {
-      minValue: 1,
-      numberPrecision: 0,
-    },
-    description: 'Max number of results to return',
-    hint: 'The server caps a single page at its "Page size configuration" (up to 1000). Enable Return All to fetch every page.',
-    displayOptions: {
-      show: {
-        resource: PAGINATED_RESOURCES,
-        operation: PAGINATED_OPERATIONS,
-        returnAll: [false],
-      },
-    },
-    routing: {
-      send: {
-        type: 'query',
-        property: 'limit',
-      },
-    },
-    default: 50,
-  },
+	{
+		displayName: 'Latest Only',
+		name: 'latestOnly',
+		type: 'boolean',
+		default: true,
+		description: 'Whether to include only the latest version',
+		displayOptions: {
+			show: {
+				resource: ['files', 'folders', 'items', 'search'],
+				operation: [
+					'getFileVersions',
+					'getFolderContents',
+					'getItemVersions',
+					'search',
+					'advancedSearch',
+				],
+			},
+		},
+	},
+	{
+		displayName: 'Sort',
+		name: 'sort',
+		type: 'string',
+		default: '',
+		description:
+			'Specifies sorting criteria for search results. Format: {propertyDefSysName} {sort-order} Accepted values for sort-order: asc, desc. Ex: sort = Revision desc,Name asc',
+		placeholder: 'e.g. Revision desc,Name asc',
+		displayOptions: {
+			show: {
+				resource: ['changeOrders', 'files', 'folders', 'items', 'search'],
+				operation: [
+					'getChangeOrders',
+					'getFileVersions',
+					'getFolderContents',
+					'getItemVersions',
+					'search',
+				],
+			},
+		},
+	},
+	{
+		displayName: 'Entity Types To Search',
+		name: 'entityTypesToSearch',
+		type: 'multiOptions',
+		options: [
+			{ name: 'Change Order', value: 'ChangeOrder' },
+			{ name: 'File', value: 'File' },
+			{ name: 'Folder', value: 'Folder' },
+			{ name: 'Item', value: 'Item' },
+		],
+		default: ['ChangeOrder', 'File', 'Folder', 'Item'],
+		description:
+			'EntityTypes to search. If null or empty value is passed, it will include results from all entity types.',
+		displayOptions: {
+			show: {
+				resource: ['search'],
+				operation: ['advancedSearch'],
+			},
+		},
+	},
+	{
+		displayName: 'Folder IDs',
+		name: 'foldersToSearch',
+		type: 'string',
+		typeOptions: {
+			multipleValues: true,
+		},
+		default: [],
+		placeholder: 'e.g. 1, 2, 3',
+		description: 'IDs of the folders to restrict the search to (just the numbers, e.g. 1, 2, 3)',
+		displayOptions: {
+			show: {
+				resource: ['search'],
+				operation: ['advancedSearch'],
+			},
+		},
+	},
+	{
+		displayName: 'Search Criteria',
+		name: 'searchCriteria',
+		type: 'fixedCollection',
+		typeOptions: {
+			multipleValues: true,
+		},
+		default: {},
+		options: [
+			{
+				name: 'criteria',
+				displayName: 'Criteria',
+				values: [
+					{
+						displayName: 'Property Name',
+						name: 'propertyDefinitionUrl',
+						type: 'options',
+						typeOptions: {
+							loadOptionsDependsOn: ['vaultId'],
+							loadOptions: listLoadOptions(
+								`=${API_BASE}/vaults/{{$parameter["vaultId"]}}/property-definitions`,
+								'={{$responseItem.displayName}} (Type: {{$responseItem.dataType}})',
+							),
+						},
+						default: '',
+						description: 'ID of the property definition',
+					},
+					{
+						displayName: 'Operator',
+						name: 'operator',
+						type: 'options',
+						options: [
+							{ name: 'Contains', value: 'Contains' },
+							{ name: 'Does Not Contain', value: 'DoesNotContain' },
+							{ name: 'Greater Than', value: 'GreaterThan' },
+							{ name: 'Greater Than Or Equal', value: 'GreaterThanOrEqualTo' },
+							{ name: 'Is Empty', value: 'IsEmpty' },
+							{ name: 'Is Exactly', value: 'IsExactly' },
+							{ name: 'Is Not Empty', value: 'IsNotEmpty' },
+							{ name: 'Less Than', value: 'LessThan' },
+							{ name: 'Less Than Or Equal', value: 'LessThanOrEqualTo' },
+							{ name: 'Not Equal To', value: 'NotEqualTo' },
+							{ name: 'Unknown', value: 'Unknown' },
+						],
+						default: 'Contains',
+					},
+					{
+						displayName: 'Search String',
+						name: 'searchString',
+						type: 'string',
+						default: '',
+						description: 'The value to use for the search',
+						placeholder: 'e.g. SM-TEST-01',
+					},
+				],
+			},
+		],
+		displayOptions: {
+			show: {
+				resource: ['search'],
+				operation: ['advancedSearch'],
+			},
+			hide: {
+				vaultId: [''],
+			},
+		},
+	},
+	{
+		displayName: 'Sort Criteria',
+		name: 'sortCriteria',
+		type: 'fixedCollection',
+		typeOptions: {
+			multipleValues: true,
+		},
+		default: {},
+		description:
+			'Sort criteria for the search results. Specify the property definition URL and whether to sort in ascending order.',
+		options: [
+			{
+				name: 'criteria',
+				displayName: 'Criteria',
+				values: [
+					{
+						displayName: 'Property Definition Name or ID',
+						name: 'propertyDefinitionUrl',
+						type: 'options',
+						typeOptions: {
+							loadOptionsDependsOn: ['vaultId'],
+							loadOptions: listLoadOptions(
+								`=${API_BASE}/vaults/{{$parameter["vaultId"]}}/property-definitions`,
+								'={{$responseItem.displayName}} (Id: {{$responseItem.id}})',
+							),
+						},
+						default: '',
+						description: 'ID of the property definition',
+					},
+					{
+						displayName: 'Ascending?',
+						name: 'ascending',
+						type: 'boolean',
+						default: true,
+						description: 'Whether the sort order is ascending',
+					},
+				],
+			},
+		],
+		displayOptions: {
+			show: {
+				resource: ['search'],
+				operation: ['advancedSearch'],
+			},
+			hide: {
+				vaultId: [''],
+			},
+		},
+	},
+	{
+		displayName: 'Allow Sync',
+		name: 'allowSync',
+		type: 'boolean',
+		default: false,
+		description: 'Whether the file should be synced to the local site in a multi-site environment',
+		displayOptions: {
+			show: {
+				resource: ['files'],
+				operation: ['getFileVersionContent', 'getFileVersionContentHead', 'getFileVersionLmvRoot'],
+			},
+		},
+	},
+	{
+		displayName: 'BOM Type',
+		name: 'bomType',
+		type: 'options',
+		options: [
+			{ name: 'Latest', value: 'Latest' },
+			{ name: 'Historic', value: 'Historic' },
+		],
+		default: 'Latest',
+		description: 'Type of BOM to retrieve',
+		displayOptions: {
+			show: {
+				resource: ['items'],
+				operation: ['getItemVersionBom', 'getItemVersionWhereUsed'],
+			},
+		},
+	},
+	{
+		displayName: 'Category Name',
+		name: 'categoryName',
+		type: 'string',
+		default: '',
+		description: 'Search filter to include only file versions that match CategoryName property',
+		placeholder: 'e.g. Engineering',
+		displayOptions: {
+			show: {
+				resource: ['files'],
+				operation: ['getFileVersions'],
+			},
+		},
+	},
+	{
+		displayName: 'Checkout User Name',
+		name: 'checkoutUserName',
+		type: 'string',
+		default: '',
+		description: 'Search filter to include only file versions that match CheckoutUserName property',
+		placeholder: 'e.g. Administrator',
+		displayOptions: {
+			show: {
+				resource: ['files'],
+				operation: ['getFileVersions'],
+			},
+		},
+	},
+	{
+		displayName: 'Content Disposition',
+		name: 'contentDisposition',
+		type: 'options',
+		options: [
+			{ name: 'Inline', value: 'inline' },
+			{ name: 'Attachment', value: 'attachment' },
+		],
+		default: 'inline',
+		description:
+			"Specify the content disposition of the response header. Use 'inline' to display the file in the browser, or 'attachment' to trigger a download.",
+		displayOptions: {
+			show: {
+				resource: ['files'],
+				operation: [
+					'getFileVersionContent',
+					'getFileVersionContentHead',
+					'getFileVersionSignedUrl',
+				],
+			},
+		},
+	},
+	{
+		displayName: 'Create User Name',
+		name: 'createUserName',
+		type: 'string',
+		default: '',
+		description: 'The Name of the user who checked-in or uploaded this file',
+		placeholder: 'e.g. Administrator',
+		displayOptions: {
+			show: {
+				resource: ['files'],
+				operation: ['getFileVersions'],
+			},
+		},
+	},
+	{
+		displayName: 'Date',
+		name: 'date',
+		type: 'dateTime',
+		default: '',
+		description: 'The date that it was effective. Default value is DateTime.MinValue.',
+		displayOptions: {
+			show: {
+				resource: ['items'],
+				operation: ['getItemVersionBom', 'getItemVersionWhereUsed'],
+			},
+		},
+	},
+	{
+		displayName: 'Descending',
+		name: 'descending',
+		type: 'boolean',
+		default: false,
+		description: 'Whether to return the latest file version at the top',
+		displayOptions: {
+			show: {
+				resource: ['files', 'items'],
+				operation: ['getFileHistory', 'getItemHistory'],
+			},
+		},
+	},
+	{
+		displayName: 'Excluded BOM Links',
+		name: 'excludedBOMLinks',
+		type: 'boolean',
+		default: false,
+		description: 'Whether to include BOM rows that have been excluded',
+		displayOptions: {
+			show: {
+				resource: ['items'],
+				operation: ['getItemVersionBom'],
+			},
+		},
+	},
+	{
+		displayName: 'Expiration Time',
+		name: 'expirationTime',
+		type: 'number',
+		default: 180,
+		description:
+			'Duration for the signed URL to be valid in seconds. Max allowed time is 180 seconds. Ex: expirationTime=120',
+		displayOptions: {
+			show: {
+				resource: ['files'],
+				operation: ['getFileVersionSignedUrl'],
+			},
+		},
+	},
+	{
+		displayName: 'Filter Assignees',
+		name: 'filterAssignees',
+		type: 'string',
+		default: '',
+		description:
+			'Search filter to include only change orders that assignees user list can perform. ex: filter[assignees]=1,2,3,4.',
+		displayOptions: {
+			show: {
+				resource: ['changeOrders'],
+				operation: ['getChangeOrders'],
+			},
+		},
+	},
+	{
+		displayName: 'Filter Open Cos Only',
+		name: 'filterOpenCOsOnly',
+		type: 'boolean',
+		default: false,
+		description: 'Whether to include only open change orders',
+		displayOptions: {
+			show: {
+				resource: ['changeOrders'],
+				operation: ['getChangeOrders'],
+			},
+		},
+	},
+	{
+		displayName: 'State',
+		name: 'ecoState',
+		type: 'string',
+		default: '',
+		placeholder: 'e.g. open',
+		description:
+			"Search filter to include only change orders that match state property. e.g. 'open'.",
+		displayOptions: {
+			show: {
+				resource: ['changeOrders'],
+				operation: ['getChangeOrders'],
+			},
+		},
+	},
+	{
+		displayName: 'Get Latest Associations',
+		name: 'getLatestAssociations',
+		type: 'boolean',
+		default: true,
+		description: 'Whether to get only the latest file associations',
+		displayOptions: {
+			show: {
+				resource: ['files'],
+				operation: ['getFileVersionUses', 'getFileVersionWhereUsed'],
+			},
+		},
+	},
+	{
+		displayName: 'Recurse',
+		name: 'recurse',
+		type: 'boolean',
+		default: false,
+		description: 'Whether to include all levels of parent files',
+		displayOptions: {
+			show: {
+				resource: ['files'],
+				operation: ['getFileVersionUses', 'getFileVersionWhereUsed'],
+			},
+		},
+	},
+	{
+		displayName: 'History',
+		name: 'history',
+		type: 'options',
+		options: [
+			{ name: 'All', value: 'All' },
+			{ name: 'Released Only', value: 'ReleasedOnly' },
+			{ name: 'Released And Revision Tip', value: 'ReleasedAndRevisionTip' },
+			{ name: 'Revision Tip', value: 'RevisionTip' },
+		],
+		default: 'All',
+		description: 'Options for viewing item history',
+		displayOptions: {
+			show: {
+				resource: ['items'],
+				operation: ['getItemHistory'],
+			},
+		},
+	},
+	{
+		displayName: 'Change Order Name or ID',
+		name: 'changeOrderId',
+		type: 'options',
+		typeOptions: {
+			loadOptionsDependsOn: ['vaultId'],
+			loadOptions: listLoadOptions(
+				`=${API_BASE}/vaults/{{$parameter["vaultId"]}}/change-orders`,
+				'={{$responseItem.number}}{{$responseItem.title ? " - " + $responseItem.title : ""}}',
+			),
+		},
+		required: true,
+		description:
+			'The Change Order to use. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+		displayOptions: {
+			show: {
+				resource: ['changeOrders'],
+				operation: [
+					'getChangeOrderById',
+					'getChangeOrderRelatedFiles',
+					'getChangeOrderAssociatedEntities',
+					'getChangeOrderComments',
+					'getChangeOrderCommentAttachments',
+				],
+			},
+			hide: {
+				vaultId: [''],
+			},
+		},
+		default: '',
+	},
+	{
+		displayName: 'File Version',
+		name: 'fileId',
+		type: 'resourceLocator',
+		default: { mode: 'list', value: '' },
+		required: true,
+		description:
+			'The file version to use. Search by file name and select the version from the list, or enter a version ID directly.',
+		modes: resourceLocatorModes('searchFileVersions', 'e.g. 100201'),
+		displayOptions: {
+			show: {
+				resource: ['files'],
+				operation: [
+					'getFileVersionById',
+					'getFileVersionSignedUrl',
+					'getFileVersionContent',
+					'getFileVersionContentHead',
+					'getFileVersionAssociatedItemVersions',
+					'getFileVersionMarkups',
+					'getFileVersionMarkupById',
+					'getFileVersionThumbnailById',
+					'getFileVersionVisualizationAttachments',
+					'getFileVersionUses',
+					'getFileVersionWhereUsed',
+				],
+			},
+			hide: {
+				vaultId: [''],
+			},
+		},
+	},
+	{
+		displayName: 'File Version ID',
+		name: 'fileId',
+		type: 'string',
+		required: true,
+		default: '',
+		placeholder: 'e.g. 100201',
+		description:
+			'The ID of the DWF/DWFx visualization file version to view. These files are usually hidden in Vault; find the ID via the Vault client or another File operation.',
+		displayOptions: {
+			show: {
+				resource: ['files'],
+				operation: ['getFileVersionLmvRoot'],
+			},
+		},
+	},
+	{
+		displayName: 'Max Wait Time (Seconds)',
+		name: 'lmvMaxWaitSeconds',
+		type: 'number',
+		typeOptions: {
+			minValue: 0,
+			numberPrecision: 0,
+		},
+		default: 180,
+		description:
+			'How long to keep polling while Vault translates the file for the viewer. Polls back off from 2 up to 30 seconds apart. Set to 0 to check once.',
+		displayOptions: {
+			show: {
+				resource: ['files'],
+				operation: ['getFileVersionLmvRoot'],
+			},
+		},
+	},
+	{
+		displayName: 'File',
+		name: 'fileMasterId',
+		type: 'resourceLocator',
+		default: { mode: 'list', value: '' },
+		required: true,
+		description:
+			'The file to use (groups all versions). Select one from the list, or provide the numeric file master ID directly.',
+		modes: resourceLocatorModes('searchFileMasters', 'e.g. 100200'),
+		displayOptions: {
+			show: {
+				resource: ['files'],
+				operation: ['getFileById', 'getFileAssociatedChangeOrders', 'getFileHistory'],
+			},
+			hide: {
+				vaultId: [''],
+			},
+		},
+	},
+	{
+		displayName: 'Folder',
+		name: 'folderId',
+		type: 'resourceLocator',
+		default: { mode: 'list', value: '' },
+		required: true,
+		description:
+			'The folder to use. Select one from the list, or provide the numeric folder ID directly ("1" is the root folder).',
+		modes: resourceLocatorModes('searchFolders', 'e.g. 1', {
+			idHint: '"1" is the root folder ID',
+			idRegex: '^([0-9]+|root)$',
+			idError: 'Enter a numeric folder ID (e.g. 1) or "root"',
+		}),
+		displayOptions: {
+			show: {
+				resource: ['folders'],
+				operation: ['getFolderById', 'getFolderContents', 'getFolderSubFolders'],
+			},
+			hide: {
+				vaultId: [''],
+			},
+		},
+	},
+	{
+		displayName: 'Item Version',
+		name: 'itemId',
+		type: 'resourceLocator',
+		default: { mode: 'list', value: '' },
+		required: true,
+		description:
+			'The item version to use. Search by item number and select the version from the list, or enter a version ID directly.',
+		modes: resourceLocatorModes('searchItemVersions', 'e.g. 56732'),
+		displayOptions: {
+			show: {
+				resource: ['items'],
+				operation: [
+					'getItemVersionById',
+					'getItemVersionAssociatedFiles',
+					'getItemVersionBom',
+					'getItemVersionExtSyncInfoByName',
+					'getItemVersionExtSyncInfos',
+					'getItemVersionWhereUsed',
+					'getItemVersionThumbnail',
+				],
+			},
+			hide: {
+				vaultId: [''],
+			},
+		},
+	},
+	{
+		displayName: 'Item',
+		name: 'itemMasterId',
+		type: 'resourceLocator',
+		default: { mode: 'list', value: '' },
+		required: true,
+		description:
+			'The item to use (groups all versions). Select one from the list, or provide the numeric item master ID directly.',
+		modes: resourceLocatorModes('searchItemMasters', 'e.g. 30678'),
+		displayOptions: {
+			show: {
+				resource: ['items'],
+				operation: [
+					'getItemById',
+					'getItemAssociatedChangeOrders',
+					'getItemExtSyncInfoByName',
+					'getItemExtSyncInfos',
+					'getItemHistory',
+				],
+			},
+			hide: {
+				vaultId: [''],
+			},
+		},
+	},
+	{
+		displayName: 'Job ID',
+		name: 'jobId',
+		type: 'string',
+		required: true,
+		placeholder: 'e.g. 1234',
+		description: 'The unique identifier of a job',
+		displayOptions: {
+			show: {
+				resource: ['jobs'],
+				operation: ['getJobsById'],
+			},
+		},
+		default: '',
+	},
+	{
+		displayName: 'Link Name or ID',
+		name: 'linkId',
+		type: 'options',
+		typeOptions: {
+			loadOptionsDependsOn: ['vaultId'],
+			loadOptions: listLoadOptions(`=${API_BASE}/vaults/{{$parameter["vaultId"]}}/links`),
+		},
+		required: true,
+		description:
+			'The link to retrieve. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+		displayOptions: {
+			show: {
+				resource: ['links'],
+				operation: ['getLinkById'],
+			},
+			hide: {
+				vaultId: [''],
+			},
+		},
+		default: '',
+	},
+	{
+		displayName: 'Markup',
+		name: 'markupId',
+		type: 'resourceLocator',
+		default: { mode: 'list', value: '' },
+		required: true,
+		description:
+			'The markup to use. Select one from the list (requires a File Version to be selected first), or provide the numeric markup ID directly.',
+		modes: resourceLocatorModes('searchMarkups', 'e.g. 1234'),
+		displayOptions: {
+			show: {
+				resource: ['files'],
+				operation: ['getFileVersionMarkupById'],
+			},
+			hide: {
+				vaultId: [''],
+			},
+		},
+	},
+	{
+		displayName: "Include Closed ECO's",
+		name: 'includeClosedECOs',
+		type: 'boolean',
+		default: false,
+		description: 'Whether to include change orders in a closed or cancelled state',
+		displayOptions: {
+			show: {
+				resource: ['files', 'items'],
+				operation: ['getFileAssociatedChangeOrders', 'getItemAssociatedChangeOrders'],
+			},
+		},
+	},
+	{
+		displayName: 'Include Folders',
+		name: 'includeFolders',
+		type: 'boolean',
+		default: false,
+		description: 'Whether to include folders or folder links in the search results',
+		displayOptions: {
+			show: {
+				resource: ['folders'],
+				operation: ['getFolderContents'],
+			},
+		},
+	},
+	{
+		displayName: 'Include Hidden',
+		name: 'includeHidden',
+		type: 'boolean',
+		default: false,
+		description: 'Whether to include files marked as hidden',
+		displayOptions: {
+			show: {
+				resource: ['files'],
+				operation: ['getFileVersionUses', 'getFileVersionWhereUsed'],
+			},
+		},
+	},
+	{
+		displayName: 'Include Item ECO Links',
+		name: 'includeItemEcoLinks',
+		type: 'boolean',
+		default: true,
+		description: 'Whether to include Item/Change Order links in the search results',
+		displayOptions: {
+			show: {
+				resource: ['folders'],
+				operation: ['getFolderContents'],
+			},
+		},
+	},
+	{
+		displayName: 'Job Type',
+		name: 'jobType',
+		type: 'string',
+		required: true,
+		default: '',
+		placeholder: 'e.g. Autodesk.Vault.SyncProperties',
+		displayOptions: {
+			show: {
+				resource: ['jobs'],
+				operation: ['addJob'],
+			},
+		},
+	},
+	{
+		displayName: 'Priority',
+		name: 'priority',
+		type: 'number',
+		default: 1,
+		description:
+			'The priority of the job. A lower number means a higher priority. 1 is the lowest possible number.',
+		typeOptions: {
+			minValue: 1,
+		},
+		displayOptions: {
+			show: {
+				resource: ['jobs'],
+				operation: ['addJob'],
+			},
+		},
+	},
+	{
+		displayName: 'Description',
+		name: 'description',
+		type: 'string',
+		default: '',
+		description: 'A description of the job',
+		placeholder: 'e.g. Sync properties for files',
+		displayOptions: {
+			show: {
+				resource: ['jobs'],
+				operation: ['addJob'],
+			},
+		},
+	},
+	{
+		displayName: 'Parameters',
+		name: 'params',
+		type: 'fixedCollection',
+		typeOptions: {
+			multipleValues: true,
+		},
+		default: {},
+		options: [
+			{
+				displayName: 'Parameter',
+				name: 'parameter',
+				values: [
+					{
+						displayName: 'Key',
+						name: 'key',
+						type: 'string',
+						default: '',
+					},
+					{
+						displayName: 'Value',
+						name: 'value',
+						type: 'string',
+						default: '',
+					},
+				],
+			},
+		],
+		displayOptions: {
+			show: {
+				resource: ['jobs'],
+				operation: ['addJob'],
+			},
+		},
+	},
+	{
+		displayName: 'Include Occurrences',
+		name: 'includeOccurrences',
+		type: 'boolean',
+		default: false,
+		description: 'Whether to include the occurrences',
+		displayOptions: {
+			show: {
+				resource: ['items'],
+				operation: ['getItemVersionBom'],
+			},
+		},
+	},
+	{
+		displayName: 'One Level',
+		name: 'oneLevel',
+		type: 'boolean',
+		default: false,
+		description: 'Whether to include only the current level and immediate children',
+		displayOptions: {
+			show: {
+				resource: ['items'],
+				operation: ['getItemVersionBom'],
+			},
+		},
+	},
+	{
+		displayName: 'Only Show Tip Released For Each Rev',
+		name: 'onlyShowTipReleasedForEachRev',
+		type: 'boolean',
+		default: true,
+		description: 'Whether to show only the tip (latest) released version for each revision',
+		displayOptions: {
+			show: {
+				resource: ['files'],
+				operation: ['getFileHistory'],
+			},
+		},
+	},
+	{
+		displayName: 'Query',
+		name: 'q',
+		type: 'string',
+		placeholder: 'e.g. Assembly',
+		description:
+			"The value to use for the search. Based on 'SearchContent' option, this parameter will either search across all properties or across all properties and content. Ex: q=Assembly, all objects that contain 'Assembly' within their properties will be returned.",
+		displayOptions: {
+			show: {
+				resource: ['files', 'folders', 'items', 'search'],
+				operation: ['getFileVersions', 'getFolderContents', 'getItemVersions', 'search'],
+			},
+		},
+		default: '',
+	},
+	{
+		displayName: 'Range',
+		name: 'range',
+		type: 'string',
+		description: 'Request only part of the file content, e.g. bytes=0-999',
+		placeholder: 'e.g. bytes=0-999',
+		displayOptions: {
+			show: {
+				resource: ['files'],
+				operation: ['getFileVersionContent'],
+			},
+		},
+		default: '',
+	},
+	{
+		displayName: 'Reference Designators',
+		name: 'referenceDesignators',
+		type: 'boolean',
+		default: false,
+		description: 'Whether to include reference designators',
+		displayOptions: {
+			show: {
+				resource: ['items'],
+				operation: ['getItemVersionBom'],
+			},
+		},
+	},
+	{
+		displayName: 'Release Biased',
+		name: 'releaseBiased',
+		type: 'boolean',
+		default: true,
+		description: 'Whether to use the "Release biased" approach for gathering dependencies',
+		displayOptions: {
+			show: {
+				resource: ['files'],
+				operation: ['getFileVersionUses', 'getFileVersionWhereUsed'],
+			},
+		},
+	},
+	{
+		displayName: 'Released Only',
+		name: 'releasedOnly',
+		type: 'boolean',
+		default: false,
+		description: 'Whether to include only results in a consumable (released) state',
+		displayOptions: {
+			show: {
+				resource: ['changeOrders', 'files', 'items'],
+				operation: [
+					'getChangeOrderRelatedFiles',
+					'getChangeOrderCommentAttachments',
+					'getFileVersionAssociatedItemVersions',
+					'getFileVersionUses',
+					'getFileVersionWhereUsed',
+					'getFileById',
+					'getItemById',
+				],
+			},
+		},
+	},
+	{
+		displayName: 'Revision',
+		name: 'revision',
+		type: 'options',
+		options: [
+			{ name: 'All Revisions', value: 'AllRevision' },
+			{ name: 'Current Revision', value: 'CurrentRevision' },
+		],
+		default: 'AllRevision',
+		description: 'Options for viewing file history',
+		displayOptions: {
+			show: {
+				resource: ['files'],
+				operation: ['getFileHistory'],
+			},
+		},
+	},
+	{
+		displayName: 'Rolled Up',
+		name: 'rolledUp',
+		type: 'boolean',
+		default: false,
+		description:
+			'Whether to include a linear view of the BOM showing items for parts only (available for view operations only)',
+		displayOptions: {
+			show: {
+				resource: ['items'],
+				operation: ['getItemVersionBom'],
+			},
+		},
+	},
+	{
+		displayName: 'State',
+		name: 'state',
+		type: 'string',
+		default: '',
+		placeholder: 'e.g. For Review',
+		description:
+			"Search filter to include only file versions that match state property. e.g. 'For Review'.",
+		displayOptions: {
+			show: {
+				resource: ['files'],
+				operation: ['getFileVersions'],
+			},
+		},
+	},
+	{
+		displayName: 'Unassigned Components',
+		name: 'unassignedComponents',
+		type: 'boolean',
+		default: false,
+		description:
+			'Whether to include unassigned components (BOM rows without associated items) in the BOM',
+		displayOptions: {
+			show: {
+				resource: ['items'],
+				operation: ['getItemVersionBom'],
+			},
+		},
+	},
+	{
+		displayName: 'Watermarked Source File Version ID',
+		name: 'wmSrcFileVerId',
+		type: 'string',
+		default: '',
+		placeholder: 'e.g. 100201',
+		description:
+			"When current file is a dwf associated to an Item, directly or as a CAD file's visualization attachment, to download its watermarked version, supply this File Version's ID or its CAD File Version's ID as the watermark source",
+		displayOptions: {
+			show: {
+				resource: ['files'],
+				operation: [
+					'getFileVersionSignedUrl',
+					'getFileVersionContent',
+					'getFileVersionContentHead',
+					'getFileVersionLmvRoot',
+				],
+			},
+		},
+	},
+	{
+		displayName: 'Watermarked Source Item Version ID',
+		name: 'wmSrcItemVerId',
+		type: 'string',
+		default: '',
+		placeholder: 'e.g. 56732',
+		description:
+			"When current file is a dwf associated to an Item, to download its watermarked version, supply this Item Version's ID as the watermark source",
+		displayOptions: {
+			show: {
+				resource: ['files'],
+				operation: [
+					'getFileVersionSignedUrl',
+					'getFileVersionContent',
+					'getFileVersionContentHead',
+					'getFileVersionLmvRoot',
+				],
+			},
+		},
+	},
+	{
+		displayName: 'Property Definition IDs',
+		name: 'propDefIds',
+		type: 'string',
+		default: '',
+		description:
+			"The properties that need to be returned. property IDs separated by ',', e.g. '1,2,3' 'all' means return all properties.",
+		hint: "The properties that need to be returned. property IDs separated by ',', e.g. '1,2,3' 'all' means return all properties.",
+		placeholder: 'e.g. all',
+		displayOptions: {
+			show: {
+				resource: ['changeOrders', 'files', 'folders', 'items', 'search'],
+				operation: [
+					'getChangeOrders',
+					'getChangeOrderRelatedFiles',
+					'getChangeOrderAssociatedEntities',
+					'getChangeOrderCommentAttachments',
+					'getFileVersions',
+					'getFileVersionAssociatedItemVersions',
+					'getFileVersionUses',
+					'getFileVersionWhereUsed',
+					'getFileAssociatedChangeOrders',
+					'getFileHistory',
+					'getFolderContents',
+					'getFolderSubFolders',
+					'getItemVersions',
+					'getItemVersionAssociatedFiles',
+					'getItemAssociatedChangeOrders',
+					'getItemHistory',
+					'search',
+					'advancedSearch',
+				],
+			},
+		},
+	},
+	{
+		displayName: 'Property Definition IDs',
+		name: 'propDefIds',
+		type: 'string',
+		default: '',
+		description:
+			"Search filter to include only propertyDefs that match ID. PropertyDefIds, separated by ','.",
+		displayOptions: {
+			show: {
+				resource: ['property'],
+				operation: ['getPropertyDefinitions'],
+			},
+		},
+	},
+	{
+		displayName: 'Extended Models',
+		name: 'extendedModels',
+		type: 'boolean',
+		default: false,
+		description: 'Whether to include extended model data in the response',
+		displayOptions: {
+			show: {
+				resource: ['changeOrders', 'files', 'folders', 'items', 'lifecycle', 'property', 'search'],
+				operation: [
+					'getChangeOrders',
+					'getChangeOrderRelatedFiles',
+					'getChangeOrderAssociatedEntities',
+					'getChangeOrderCommentAttachments',
+					'getFileVersions',
+					'getFileVersionUses',
+					'getFileVersionWhereUsed',
+					'getFileAssociatedChangeOrders',
+					'getFileHistory',
+					'getFolderContents',
+					'getFolderSubFolders',
+					'getItemVersionAssociatedFiles',
+					'getItemAssociatedChangeOrders',
+					'getItemHistory',
+					'getLifecycleDefinitions',
+					'getLifecycleStates',
+					'getPropertyDefinitions',
+					'search',
+					'advancedSearch',
+				],
+			},
+		},
+	},
+	{
+		displayName: 'Lifecycle Definition Name or ID',
+		name: 'lifecycleDefinitionId',
+		type: 'options',
+		typeOptions: {
+			loadOptionsDependsOn: ['vaultId'],
+			loadOptions: listLoadOptions(
+				`=${API_BASE}/vaults/{{$parameter["vaultId"]}}/lifecycle-definitions`,
+			),
+		},
+		required: true,
+		default: '',
+		description:
+			'The lifecycle definition to retrieve. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+		displayOptions: {
+			show: {
+				resource: ['lifecycle'],
+				operation: ['getLifecycleDefinitionById'],
+			},
+			hide: {
+				vaultId: [''],
+			},
+		},
+	},
+	{
+		displayName: 'Lifecycle State ID',
+		name: 'lifecycleStateId',
+		type: 'string',
+		required: true,
+		default: '',
+		placeholder: 'e.g. 28',
+		description: 'The unique identifier of the lifecycle state to retrieve',
+		hint: 'State IDs appear on the lifecycleState of any file, folder or item response',
+		displayOptions: {
+			show: {
+				resource: ['lifecycle'],
+				operation: ['getLifecycleStateById'],
+			},
+		},
+	},
+	{
+		displayName: 'Filter by Definition IDs',
+		name: 'filterLifecycleDefinitionIds',
+		type: 'string',
+		default: '',
+		placeholder: 'e.g. 1,2,7',
+		description: 'Return only lifecycle definitions with these IDs, separated by commas',
+		displayOptions: {
+			show: {
+				resource: ['lifecycle'],
+				operation: ['getLifecycleDefinitions'],
+			},
+		},
+	},
+	{
+		displayName: 'Lifecycle State IDs',
+		name: 'filterLifecycleStateIds',
+		type: 'string',
+		required: true,
+		default: '',
+		placeholder: 'e.g. 1,2,3',
+		description:
+			'The lifecycle state IDs to retrieve, separated by commas. The API has no "list all states" route, so this filter is required.',
+		displayOptions: {
+			show: {
+				resource: ['lifecycle'],
+				operation: ['getLifecycleStates'],
+			},
+		},
+	},
+	{
+		displayName: 'State Updates',
+		name: 'lifecycleStateUpdates',
+		type: 'fixedCollection',
+		typeOptions: {
+			multipleValues: true,
+		},
+		default: {},
+		description: 'One entry per entity whose lifecycle state should change',
+		options: [
+			{
+				displayName: 'Update',
+				name: 'update',
+				values: [
+					{
+						displayName: 'Entity ID',
+						name: 'entityId',
+						type: 'string',
+						default: '',
+						placeholder: 'e.g. 55',
+						description:
+							'The master ID of the file or item, or the folder ID, whose state should change',
+					},
+					{
+						displayName: 'Lifecycle State ID',
+						name: 'lifecycleStateId',
+						type: 'string',
+						default: '',
+						placeholder: 'e.g. 2',
+						description: 'The ID of the target lifecycle state',
+					},
+				],
+			},
+		],
+		displayOptions: {
+			show: {
+				resource: ['files', 'folders', 'items'],
+				operation: [
+					'updateFileLifecycleStates',
+					'updateFolderLifecycleStates',
+					'updateItemLifecycleStates',
+				],
+			},
+		},
+	},
+	{
+		displayName: 'Definition Updates',
+		name: 'lifecycleDefinitionUpdates',
+		type: 'fixedCollection',
+		typeOptions: {
+			multipleValues: true,
+		},
+		default: {},
+		description:
+			'One entry per entity. The lifecycle state must belong to the lifecycle definition given on the same entry.',
+		options: [
+			{
+				displayName: 'Update',
+				name: 'update',
+				values: [
+					{
+						displayName: 'Entity ID',
+						name: 'entityId',
+						type: 'string',
+						default: '',
+						placeholder: 'e.g. 55',
+						description:
+							'The master ID of the file or item, or the folder ID, whose lifecycle should change',
+					},
+					{
+						displayName: 'Lifecycle Definition ID',
+						name: 'lifecycleDefinitionId',
+						type: 'string',
+						default: '',
+						placeholder: 'e.g. 2',
+						description: 'The ID of the target lifecycle definition',
+					},
+					{
+						displayName: 'Lifecycle State ID',
+						name: 'lifecycleStateId',
+						type: 'string',
+						default: '',
+						placeholder: 'e.g. 9',
+						description: 'The ID of a state that belongs to the target lifecycle definition',
+					},
+				],
+			},
+		],
+		displayOptions: {
+			show: {
+				resource: ['files', 'folders', 'items'],
+				operation: [
+					'updateFileLifecycleDefinitions',
+					'updateFolderLifecycleDefinitions',
+					'updateItemLifecycleDefinitions',
+				],
+			},
+		},
+	},
+	{
+		displayName: 'Comment',
+		name: 'lifecycleComment',
+		type: 'string',
+		default: '',
+		placeholder: 'e.g. Released after approval',
+		description: 'A comment recorded with the lifecycle change',
+		displayOptions: {
+			show: {
+				resource: ['files', 'folders', 'items'],
+				operation: [
+					'updateFileLifecycleDefinitions',
+					'updateFileLifecycleStates',
+					'updateFolderLifecycleDefinitions',
+					'updateFolderLifecycleStates',
+					'updateItemLifecycleDefinitions',
+					'updateItemLifecycleStates',
+				],
+			},
+		},
+	},
+	{
+		displayName: 'Info Name',
+		name: 'infoName',
+		type: 'string',
+		required: true,
+		default: '',
+		placeholder: 'e.g. Adsk.FusionManage.Status',
+		description: 'The name of the external sync info entry to retrieve',
+		displayOptions: {
+			show: {
+				resource: ['items'],
+				operation: ['getItemExtSyncInfoByName', 'getItemVersionExtSyncInfoByName'],
+			},
+		},
+	},
+	{
+		displayName: 'External Sync Task ID',
+		name: 'extSyncTaskId',
+		type: 'string',
+		required: true,
+		default: '',
+		placeholder: 'e.g. 233',
+		description: 'The unique identifier of an external sync task',
+		displayOptions: {
+			show: {
+				resource: ['extSyncTasks'],
+				operation: ['deleteExtSyncTaskById', 'getExtSyncTaskById', 'resubmitExtSyncTaskById'],
+			},
+		},
+	},
+	{
+		displayName: 'Filter by Entity IDs',
+		name: 'filterEntityIds',
+		type: 'string',
+		default: '',
+		placeholder: 'e.g. 127,119',
+		description: 'Return only tasks for these entity IDs, separated by commas or newlines',
+		displayOptions: {
+			show: {
+				resource: ['extSyncTasks'],
+				operation: ['getExtSyncTasks'],
+			},
+		},
+	},
+	{
+		displayName: 'Filter by Entity ID',
+		name: 'filterEntityId',
+		type: 'string',
+		default: '',
+		placeholder: 'e.g. 127',
+		description: 'Return only tasks whose entity ID exactly matches this value',
+		displayOptions: {
+			show: {
+				resource: ['extSyncTasks'],
+				operation: ['getExtSyncTasks'],
+			},
+		},
+	},
+	{
+		displayName: 'Entity ID Starts With',
+		name: 'entityIdStartsWith',
+		type: 'string',
+		default: '',
+		placeholder: 'e.g. 12',
+		description: 'Return only tasks whose entity ID begins with this string',
+		displayOptions: {
+			show: {
+				resource: ['extSyncTasks'],
+				operation: ['getExtSyncTasks'],
+			},
+		},
+	},
+	{
+		displayName: 'Workflow Type',
+		name: 'filterWorkflowType',
+		type: 'string',
+		default: '',
+		placeholder: 'e.g. Adsk.UploadItem',
+		description: 'Return only tasks whose workflow type exactly matches this value',
+		displayOptions: {
+			show: {
+				resource: ['extSyncTasks'],
+				operation: ['getExtSyncTasks', 'queryExtSyncTasks'],
+			},
+		},
+	},
+	{
+		displayName: 'Workflow Type Starts With',
+		name: 'workflowTypeStartsWith',
+		type: 'string',
+		default: '',
+		placeholder: 'e.g. Adsk.',
+		description: 'Return only tasks whose workflow type begins with this string',
+		displayOptions: {
+			show: {
+				resource: ['extSyncTasks'],
+				operation: ['getExtSyncTasks'],
+			},
+		},
+	},
+	{
+		displayName: 'Entity IDs',
+		name: 'syncEntityIds',
+		type: 'string',
+		required: true,
+		default: '',
+		placeholder: 'e.g. 127,119',
+		description: 'The entity IDs to search for, separated by commas or newlines',
+		displayOptions: {
+			show: {
+				resource: ['extSyncTasks'],
+				operation: ['queryExtSyncTasks'],
+			},
+		},
+	},
+	{
+		displayName: 'Entity ID',
+		name: 'syncEntityId',
+		type: 'string',
+		required: true,
+		default: '',
+		placeholder: 'e.g. 127',
+		description: 'The ID of the entity being synchronized',
+		displayOptions: {
+			show: {
+				resource: ['extSyncTasks'],
+				operation: ['addExtSyncTask'],
+			},
+		},
+	},
+	{
+		displayName: 'Entity Class',
+		name: 'syncEntityClassId',
+		type: 'options',
+		required: true,
+		default: 'ITEM',
+		description: 'The class of the entity being synchronized',
+		options: [
+			{ name: 'Change Order', value: 'CO' },
+			{ name: 'File', value: 'FILE' },
+			{ name: 'Folder', value: 'FLDR' },
+			{ name: 'Item', value: 'ITEM' },
+		],
+		displayOptions: {
+			show: {
+				resource: ['extSyncTasks'],
+				operation: ['addExtSyncTask'],
+			},
+		},
+	},
+	{
+		displayName: 'Config ID',
+		name: 'syncConfigId',
+		type: 'string',
+		required: true,
+		default: '',
+		placeholder: 'e.g. Adsk.Vault.ExternalSyncTask.FusionManage',
+		description: 'The ID of the external sync configuration to use',
+		hint: 'Use the Option resource, "Get Many External Sync Configs", to list the available config IDs',
+		displayOptions: {
+			show: {
+				resource: ['extSyncTasks'],
+				operation: ['addExtSyncTask'],
+			},
+		},
+	},
+	{
+		displayName: 'Workflow Type',
+		name: 'syncWorkflowType',
+		type: 'string',
+		required: true,
+		default: '',
+		placeholder: 'e.g. Adsk.UploadItem',
+		description: 'The workflow type for this sync task, taken from the selected configuration',
+		displayOptions: {
+			show: {
+				resource: ['extSyncTasks'],
+				operation: ['addExtSyncTask'],
+			},
+		},
+	},
+	{
+		displayName: 'Description',
+		name: 'syncDescription',
+		type: 'string',
+		required: true,
+		default: '',
+		placeholder: 'e.g. Sync to Fusion Manage (1000007)',
+		description: 'A description of the external sync task',
+		displayOptions: {
+			show: {
+				resource: ['extSyncTasks'],
+				operation: ['addExtSyncTask'],
+			},
+		},
+	},
+	{
+		displayName: 'Parameters',
+		name: 'syncParams',
+		type: 'fixedCollection',
+		typeOptions: {
+			multipleValues: true,
+		},
+		default: {},
+		description: 'Extra key-value data carried along the task execution chain',
+		options: [
+			{
+				displayName: 'Parameter',
+				name: 'parameter',
+				values: [
+					{
+						displayName: 'Key',
+						name: 'key',
+						type: 'string',
+						default: '',
+					},
+					{
+						displayName: 'Value',
+						name: 'value',
+						type: 'string',
+						default: '',
+					},
+				],
+			},
+		],
+		displayOptions: {
+			show: {
+				resource: ['extSyncTasks'],
+				operation: ['addExtSyncTask'],
+			},
+		},
+	},
+	{
+		displayName: 'Execute Immediately',
+		name: 'syncExecuteImmediately',
+		type: 'boolean',
+		default: false,
+		description: 'Whether to notify the sync agent as soon as the task is created',
+		displayOptions: {
+			show: {
+				resource: ['extSyncTasks'],
+				operation: ['addExtSyncTask'],
+			},
+		},
+	},
+	{
+		displayName: 'Predecessor Task ID',
+		name: 'syncPredecessorTaskId',
+		type: 'string',
+		default: '',
+		placeholder: 'e.g. 232',
+		description: 'The ID of a task that must complete before this one runs',
+		displayOptions: {
+			show: {
+				resource: ['extSyncTasks'],
+				operation: ['addExtSyncTask'],
+			},
+		},
+	},
+	{
+		displayName: 'Tasks',
+		name: 'syncTasks',
+		type: 'fixedCollection',
+		typeOptions: {
+			multipleValues: true,
+		},
+		default: {},
+		description: 'One entry per external sync task to create',
+		options: [
+			{
+				displayName: 'Task',
+				name: 'task',
+				values: [
+					{
+						displayName: 'Config ID',
+						name: 'configId',
+						type: 'string',
+						default: '',
+						placeholder: 'e.g. Adsk.Vault.ExternalSyncTask.FusionManage',
+						description: 'The ID of the external sync configuration to use',
+					},
+					{
+						displayName: 'Description',
+						name: 'description',
+						type: 'string',
+						default: '',
+						placeholder: 'e.g. Sync to Fusion Manage (1000007)',
+						description: 'A description of the external sync task',
+					},
+					{
+						displayName: 'Entity Class',
+						name: 'entityClassId',
+						type: 'options',
+						default: 'ITEM',
+						description: 'The class of the entity being synchronized',
+						options: [
+							{ name: 'Change Order', value: 'CO' },
+							{ name: 'File', value: 'FILE' },
+							{ name: 'Folder', value: 'FLDR' },
+							{ name: 'Item', value: 'ITEM' },
+						],
+					},
+					{
+						displayName: 'Entity ID',
+						name: 'entityId',
+						type: 'string',
+						default: '',
+						placeholder: 'e.g. 127',
+						description: 'The ID of the entity being synchronized',
+					},
+					{
+						displayName: 'Execute Immediately',
+						name: 'executeImmediately',
+						type: 'boolean',
+						default: false,
+						description: 'Whether to notify the sync agent as soon as the task is created',
+					},
+					{
+						displayName: 'Parameters (JSON)',
+						name: 'paramsJson',
+						type: 'json',
+						default: '',
+						placeholder: 'e.g. {"entityClassId": "ITEM", "entityId": "127"}',
+						description: 'Extra key-value data as a JSON object',
+					},
+					{
+						displayName: 'Predecessor Task ID',
+						name: 'predecessorTaskId',
+						type: 'string',
+						default: '',
+						placeholder: 'e.g. 232',
+						description: 'The ID of a task that must complete before this one runs',
+					},
+					{
+						displayName: 'Workflow Type',
+						name: 'workflowType',
+						type: 'string',
+						default: '',
+						placeholder: 'e.g. Adsk.UploadItem',
+						description: 'The workflow type for this sync task',
+					},
+				],
+			},
+		],
+		displayOptions: {
+			show: {
+				resource: ['extSyncTasks'],
+				operation: ['addExtSyncTasks'],
+			},
+		},
+	},
+	{
+		displayName: 'Return All',
+		name: 'returnAll',
+		type: 'boolean',
+		default: false,
+		description: 'Whether to return all results or only up to a given limit',
+		displayOptions: {
+			show: {
+				resource: PAGINATED_RESOURCES,
+				operation: PAGINATED_OPERATIONS,
+			},
+		},
+		routing: {
+			send: {
+				paginate: '={{ $value }}',
+			},
+			operations: {
+				pagination: paginateByCursor,
+			},
+		},
+	},
+	{
+		displayName: 'Limit',
+		name: 'limit',
+		type: 'number',
+		typeOptions: {
+			minValue: 1,
+			numberPrecision: 0,
+		},
+		description: 'Max number of results to return',
+		hint: 'The server caps a single page at its "Page size configuration" (up to 1000). Enable Return All to fetch every page.',
+		displayOptions: {
+			show: {
+				resource: PAGINATED_RESOURCES,
+				operation: PAGINATED_OPERATIONS,
+				returnAll: [false],
+			},
+		},
+		routing: {
+			send: {
+				type: 'query',
+				property: 'limit',
+			},
+		},
+		default: 50,
+	},
 ];
-

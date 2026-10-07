@@ -21,7 +21,11 @@ interface LifecycleUpdateCollection {
  * entities, states and definitions by relative URL rather than by bare ID, so
  * the node collects IDs in the UI and assembles the URLs here.
  */
-function entityUrl(vaultId: string, collection: LifecycleEntityCollection, entityId: string): string {
+function entityUrl(
+	vaultId: string,
+	collection: LifecycleEntityCollection,
+	entityId: string,
+): string {
 	return `${API_BASE}/vaults/${vaultId}/${collection}/${entityId}`;
 }
 

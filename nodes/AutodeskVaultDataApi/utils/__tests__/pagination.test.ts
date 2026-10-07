@@ -9,7 +9,8 @@ import type {
 } from 'n8n-workflow';
 import { extractCursor, paginateByCursor } from '../pagination';
 
-const BASE = 'https://vault.example.com/AutodeskDM/Services/api/vault/v2/vaults/1/folders/1/contents';
+const BASE =
+	'https://vault.example.com/AutodeskDM/Services/api/vault/v2/vaults/1/folders/1/contents';
 
 function page(ids: number[], nextCursor?: string): IDataObject {
 	return {
@@ -27,21 +28,23 @@ function page(ids: number[], nextCursor?: string): IDataObject {
  */
 function makeContext(pages: IDataObject[]) {
 	const requests: IDataObject[] = [];
-	const makeRoutingRequest = vi.fn(async (requestData: DeclarativeRestApiSettings.ResultOptions) => {
-		requests.push({ ...(requestData.options.qs as IDataObject) });
-		const body = pages[requests.length - 1];
-		const response: IN8nHttpFullResponse = { body, headers: {}, statusCode: 200 };
-		let items: INodeExecutionData[] = [{ json: body }];
-		for (const step of requestData.postReceive) {
-			for (const action of step.actions) {
-				if (typeof action === 'function') {
-					items = await action.call({} as IExecuteSingleFunctions, items, response);
+	const makeRoutingRequest = vi.fn(
+		async (requestData: DeclarativeRestApiSettings.ResultOptions) => {
+			requests.push({ ...(requestData.options.qs as IDataObject) });
+			const body = pages[requests.length - 1];
+			const response: IN8nHttpFullResponse = { body, headers: {}, statusCode: 200 };
+			let items: INodeExecutionData[] = [{ json: body }];
+			for (const step of requestData.postReceive) {
+				for (const action of step.actions) {
+					if (typeof action === 'function') {
+						items = await action.call({} as IExecuteSingleFunctions, items, response);
+					}
 				}
 			}
-		}
-		// rootProperty: 'results'
-		return (items[0].json.results as IDataObject[]).map((json) => ({ json }));
-	});
+			// rootProperty: 'results'
+			return (items[0].json.results as IDataObject[]).map((json) => ({ json }));
+		},
+	);
 	return { ctx: { makeRoutingRequest } as unknown as IExecutePaginationFunctions, requests };
 }
 

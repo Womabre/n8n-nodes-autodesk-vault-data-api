@@ -13,7 +13,10 @@ export async function formatJobBody(
 ): Promise<IHttpRequestOptions> {
 	const jobType = (this.getNodeParameter('jobType') as string)?.trim();
 	if (!jobType) {
-		throw new NodeOperationError(this.getNode(), 'Enter a job type, for example Autodesk.Vault.SyncProperties');
+		throw new NodeOperationError(
+			this.getNode(),
+			'Enter a job type, for example Autodesk.Vault.SyncProperties',
+		);
 	}
 	const priority = this.getNodeParameter('priority', '') as number | '';
 	const description = this.getNodeParameter('description', '') as string;
@@ -56,9 +59,7 @@ export const operations: INodeProperties[] = [
 						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/jobs`,
 					},
 					output: {
-						postReceive: [
-							handleEmptyResponse,
-						],
+						postReceive: [handleEmptyResponse],
 					},
 				},
 			},

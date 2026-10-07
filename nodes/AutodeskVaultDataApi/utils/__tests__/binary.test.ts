@@ -37,7 +37,11 @@ describe('processBinaryResponse', () => {
 	it('uses content-type header when extension is unknown', async () => {
 		const ctx = makeContext(prepareBinaryData);
 		const body = Buffer.from('data');
-		const response = makeResponse(body, 'application/octet-stream', 'attachment; filename="report.xyz"');
+		const response = makeResponse(
+			body,
+			'application/octet-stream',
+			'attachment; filename="report.xyz"',
+		);
 
 		await processBinaryResponse.call(ctx, [dummyItem], response);
 
@@ -116,7 +120,11 @@ describe('processBinaryResponse', () => {
 	it('decodes the RFC 5987 extended filename* form', async () => {
 		const ctx = makeContext(prepareBinaryData);
 		const body = Buffer.from('data');
-		const response = makeResponse(body, 'application/pdf', "attachment; filename*=UTF-8''my%20report.pdf");
+		const response = makeResponse(
+			body,
+			'application/pdf',
+			"attachment; filename*=UTF-8''my%20report.pdf",
+		);
 
 		await processBinaryResponse.call(ctx, [dummyItem], response);
 

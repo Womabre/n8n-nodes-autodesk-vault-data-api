@@ -11,7 +11,8 @@ import {
 export class AutodeskVaultAccountApi implements ICredentialType {
 	name = 'autodeskVaultAccountApi';
 	displayName = 'Vault Account API';
-	documentationUrl = 'https://aps.autodesk.com/en/docs/vaultdataapi/v2/developers_guide/basics/authentication/';
+	documentationUrl =
+		'https://aps.autodesk.com/en/docs/vaultdataapi/v2/developers_guide/basics/authentication/';
 	icon: Icon = {
 		light: 'file:AutodeskVaultDataApi.svg',
 		dark: 'file:AutodeskVaultDataApi.dark.svg',

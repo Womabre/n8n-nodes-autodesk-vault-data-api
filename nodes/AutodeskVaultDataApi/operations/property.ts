@@ -2,61 +2,61 @@ import { INodeProperties } from 'n8n-workflow';
 import { API_BASE } from '../utils/constants';
 
 export const operations: INodeProperties[] = [
-  // Property: getPropertyDefinitions, getPropertyDefinitionById
-  {
-    displayName: 'Operation',
-    name: 'operation',
-    type: 'options',
-    noDataExpression: true,
-    displayOptions: {
-      show: {
-        resource: ['property'],
-      },
-    },
-    options: [
-      {
-        name: 'Get Property Definition',
-        value: 'getPropertyDefinitionById',
-        action: 'Get property definition',
-        description: 'Get the property definition object for the given ID',
-        routing: {
-          request: {
-            method: 'GET',
-            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/property-definitions/{{$parameter["propertyDefId"]}}`,
-          },
-        },
-      },
-      {
-        name: 'Get Many Property Definitions',
-        value: 'getPropertyDefinitions',
-        action: 'Get many property definitions',
-        description: 'Get all property definitions in the vault',
-        routing: {
-          request: {
-            method: 'GET',
-            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/property-definitions`,
-            qs: {
-              'filter[entityClassId]': '={{$parameter["entityClassId"] || undefined}}',
-              'filter[systemNames]': '={{$parameter["systemNames"] || undefined}}',
-              'filter[propDefIds]': '={{$parameter["propDefIds"] || undefined}}',
-              'option[includeBOMAssociationProperty]':
-                '={{$parameter["includeBOMAssociationProperty"] || undefined}}',
-              'option[extendedModels]': '={{$parameter["extendedModels"] || undefined}}',
-            },
-          },
-          output: {
-            postReceive: [
-              {
-                type: 'rootProperty',
-                properties: {
-                  property: 'results',
-                },
-              },
-            ],
-          },
-        },
-      },
-    ],
-    default: 'getPropertyDefinitionById',
-  },
+	// Property: getPropertyDefinitions, getPropertyDefinitionById
+	{
+		displayName: 'Operation',
+		name: 'operation',
+		type: 'options',
+		noDataExpression: true,
+		displayOptions: {
+			show: {
+				resource: ['property'],
+			},
+		},
+		options: [
+			{
+				name: 'Get Property Definition',
+				value: 'getPropertyDefinitionById',
+				action: 'Get property definition',
+				description: 'Get the property definition object for the given ID',
+				routing: {
+					request: {
+						method: 'GET',
+						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/property-definitions/{{$parameter["propertyDefId"]}}`,
+					},
+				},
+			},
+			{
+				name: 'Get Many Property Definitions',
+				value: 'getPropertyDefinitions',
+				action: 'Get many property definitions',
+				description: 'Get all property definitions in the vault',
+				routing: {
+					request: {
+						method: 'GET',
+						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/property-definitions`,
+						qs: {
+							'filter[entityClassId]': '={{$parameter["entityClassId"] || undefined}}',
+							'filter[systemNames]': '={{$parameter["systemNames"] || undefined}}',
+							'filter[propDefIds]': '={{$parameter["propDefIds"] || undefined}}',
+							'option[includeBOMAssociationProperty]':
+								'={{$parameter["includeBOMAssociationProperty"] || undefined}}',
+							'option[extendedModels]': '={{$parameter["extendedModels"] || undefined}}',
+						},
+					},
+					output: {
+						postReceive: [
+							{
+								type: 'rootProperty',
+								properties: {
+									property: 'results',
+								},
+							},
+						],
+					},
+				},
+			},
+		],
+		default: 'getPropertyDefinitionById',
+	},
 ];

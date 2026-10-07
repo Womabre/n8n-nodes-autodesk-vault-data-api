@@ -3,7 +3,8 @@ import { Icon, ICredentialTestRequest, ICredentialType, INodeProperties } from '
 export class AutodeskVaultDataOAuth2Api implements ICredentialType {
 	name = 'autodeskVaultDataOAuth2Api';
 	displayName = 'Autodesk Vault Data OAuth2 API';
-	documentationUrl = 'https://aps.autodesk.com/en/docs/vaultdataapi/v2/developers_guide/basics/authentication/';
+	documentationUrl =
+		'https://aps.autodesk.com/en/docs/vaultdataapi/v2/developers_guide/basics/authentication/';
 	icon: Icon = {
 		light: 'file:AutodeskVaultDataApi.svg',
 		dark: 'file:AutodeskVaultDataApi.dark.svg',

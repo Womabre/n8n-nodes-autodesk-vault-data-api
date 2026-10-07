@@ -1,33 +1,33 @@
 import {
-  IDataObject,
-  IExecuteSingleFunctions,
-  IN8nHttpFullResponse,
-  INodeExecutionData,
-  INodeProperties,
-  NodeOperationError,
-  sleep,
+	IDataObject,
+	IExecuteSingleFunctions,
+	IN8nHttpFullResponse,
+	INodeExecutionData,
+	INodeProperties,
+	NodeOperationError,
+	sleep,
 } from 'n8n-workflow';
 import { processBinaryResponse } from '../utils/binary';
 import {
-  buildUpdateLifecycleDefinitionsBody,
-  buildUpdateLifecycleStatesBody,
+	buildUpdateLifecycleDefinitionsBody,
+	buildUpdateLifecycleStatesBody,
 } from '../utils/lifecycleBody';
 import { API_BASE } from '../utils/constants';
 
 interface BubbleNode {
-  type?: string;
-  role?: string;
-  children?: BubbleNode[];
+	type?: string;
+	role?: string;
+	children?: BubbleNode[];
 }
 
 function containsRenderableGeometry(node: BubbleNode): boolean {
-  if (node.type === 'geometry' && (node.role === '3d' || node.role === '2d')) {
-    return true;
-  }
-  if (Array.isArray(node.children)) {
-    return node.children.some(containsRenderableGeometry);
-  }
-  return false;
+	if (node.type === 'geometry' && (node.role === '3d' || node.role === '2d')) {
+		return true;
+	}
+	if (Array.isArray(node.children)) {
+		return node.children.some(containsRenderableGeometry);
+	}
+	return false;
 }
 
 /**
@@ -35,555 +35,545 @@ function containsRenderableGeometry(node: BubbleNode): boolean {
  * it contains renderable geometry or "Max Wait Time (Seconds)" is used up.
  */
 export async function waitForLmvBubble(
-  this: IExecuteSingleFunctions,
-  items: INodeExecutionData[],
-  response: IN8nHttpFullResponse,
+	this: IExecuteSingleFunctions,
+	items: INodeExecutionData[],
+	response: IN8nHttpFullResponse,
 ): Promise<INodeExecutionData[]> {
-  // Vault LMV (SVF) translation is asynchronous: bubble.json is served as
-  // soon as translation starts but only gains renderable geometry once it
-  // finishes. Poll with exponential backoff (2s, 4s, 8s, 16s, then 30s per
-  // attempt) until the configured maximum wait time has been used up.
-  const maxWaitMs = Math.max(0, this.getNodeParameter('lmvMaxWaitSeconds', 180) as number) * 1000;
-  const baseDelayMs = 2000;
-  let waitedMs = 0;
+	// Vault LMV (SVF) translation is asynchronous: bubble.json is served as
+	// soon as translation starts but only gains renderable geometry once it
+	// finishes. Poll with exponential backoff (2s, 4s, 8s, 16s, then 30s per
+	// attempt) until the configured maximum wait time has been used up.
+	const maxWaitMs = Math.max(0, this.getNodeParameter('lmvMaxWaitSeconds', 180) as number) * 1000;
+	const baseDelayMs = 2000;
+	let waitedMs = 0;
 
-  let attempt = 0;
-  let json: BubbleNode | undefined;
-  let lastFailureReason = 'unknown';
+	let attempt = 0;
+	let json: BubbleNode | undefined;
+	let lastFailureReason = 'unknown';
 
-  // Re-request through the authenticated helper so the bearer token is
-  // refreshed automatically if it expires during a long-running poll.
-  const authMethod = this.getNodeParameter('authentication') as string;
-  const credentialType =
-    authMethod === 'OAuth2' ? 'autodeskVaultDataOAuth2Api' : 'autodeskVaultAccountApi';
-  const { vaultServerUrl } = (await this.getCredentials(credentialType)) as {
-    vaultServerUrl: string;
-  };
-  const baseUrl = String(vaultServerUrl).replace(/\/$/, '');
+	// Re-request through the authenticated helper so the bearer token is
+	// refreshed automatically if it expires during a long-running poll.
+	const authMethod = this.getNodeParameter('authentication') as string;
+	const credentialType =
+		authMethod === 'OAuth2' ? 'autodeskVaultDataOAuth2Api' : 'autodeskVaultAccountApi';
+	const { vaultServerUrl } = (await this.getCredentials(credentialType)) as {
+		vaultServerUrl: string;
+	};
+	const baseUrl = String(vaultServerUrl).replace(/\/$/, '');
 
-  const vaultId = this.getNodeParameter('vaultId');
-  const fileId = this.getNodeParameter('fileId');
-  const allowSync = this.getNodeParameter('allowSync');
-  const wmSrcItemVerId = this.getNodeParameter('wmSrcItemVerId');
-  const wmSrcFileVerId = this.getNodeParameter('wmSrcFileVerId');
+	const vaultId = this.getNodeParameter('vaultId');
+	const fileId = this.getNodeParameter('fileId');
+	const allowSync = this.getNodeParameter('allowSync');
+	const wmSrcItemVerId = this.getNodeParameter('wmSrcItemVerId');
+	const wmSrcFileVerId = this.getNodeParameter('wmSrcFileVerId');
 
-  const qs: Record<string, string> = { allowSync: String(allowSync) };
-  if (wmSrcItemVerId) qs.wmSrcItemVerId = String(wmSrcItemVerId);
-  if (wmSrcFileVerId) qs.wmSrcFileVerId = String(wmSrcFileVerId);
+	const qs: Record<string, string> = { allowSync: String(allowSync) };
+	if (wmSrcItemVerId) qs.wmSrcItemVerId = String(wmSrcItemVerId);
+	if (wmSrcFileVerId) qs.wmSrcFileVerId = String(wmSrcFileVerId);
 
-  while (true) {
-    if (attempt > 0) {
-      // Exponential backoff: 2s, 4s, 8s, 16s, capped at 30s, and never
-      // past the maximum wait time.
-      const delayMs = Math.min(
-        baseDelayMs * Math.pow(2, attempt - 1),
-        30000,
-        maxWaitMs - waitedMs,
-      );
-      if (delayMs <= 0) {
-        break;
-      }
-      await sleep(delayMs);
-      waitedMs += delayMs;
+	while (true) {
+		if (attempt > 0) {
+			// Exponential backoff: 2s, 4s, 8s, 16s, capped at 30s, and never
+			// past the maximum wait time.
+			const delayMs = Math.min(baseDelayMs * Math.pow(2, attempt - 1), 30000, maxWaitMs - waitedMs);
+			if (delayMs <= 0) {
+				break;
+			}
+			await sleep(delayMs);
+			waitedMs += delayMs;
 
-      response = (await this.helpers.httpRequestWithAuthentication.call(
-        this,
-        credentialType,
-        {
-          method: 'GET',
-          url: `${baseUrl}${API_BASE}/vaults/${vaultId}/file-versions/${fileId}/svf/bubble.json`,
-          qs,
-          json: false,
-          returnFullResponse: true,
-        },
-      )) as IN8nHttpFullResponse;
-    }
+			response = (await this.helpers.httpRequestWithAuthentication.call(this, credentialType, {
+				method: 'GET',
+				url: `${baseUrl}${API_BASE}/vaults/${vaultId}/file-versions/${fileId}/svf/bubble.json`,
+				qs,
+				json: false,
+				returnFullResponse: true,
+			})) as IN8nHttpFullResponse;
+		}
 
-    try {
-      json =
-        typeof response.body === 'string'
-          ? (JSON.parse(response.body) as BubbleNode)
-          : (response.body as BubbleNode);
+		try {
+			json =
+				typeof response.body === 'string'
+					? (JSON.parse(response.body) as BubbleNode)
+					: (response.body as BubbleNode);
 
-      if (json && containsRenderableGeometry(json)) {
-        break;
-      }
-      lastFailureReason = 'renderable geometry not yet present in bubble.json';
-      json = undefined;
-    } catch {
-      lastFailureReason = 'bubble.json could not be parsed as JSON';
-      json = undefined;
-    }
+			if (json && containsRenderableGeometry(json)) {
+				break;
+			}
+			lastFailureReason = 'renderable geometry not yet present in bubble.json';
+			json = undefined;
+		} catch {
+			lastFailureReason = 'bubble.json could not be parsed as JSON';
+			json = undefined;
+		}
 
-    attempt++;
-  }
+		attempt++;
+	}
 
-  if (!json) {
-    throw new NodeOperationError(
-      this.getNode(),
-      `bubble.json not ready after ${attempt} attempt(s) over ${Math.round(waitedMs / 1000)} seconds. Last failure: ${lastFailureReason}`,
-      {
-        description:
-          'Vault may still be translating this file for the viewer. Increase "Max Wait Time (Seconds)" or try again later.',
-      },
-    );
-  }
+	if (!json) {
+		throw new NodeOperationError(
+			this.getNode(),
+			`bubble.json not ready after ${attempt} attempt(s) over ${Math.round(waitedMs / 1000)} seconds. Last failure: ${lastFailureReason}`,
+			{
+				description:
+					'Vault may still be translating this file for the viewer. Increase "Max Wait Time (Seconds)" or try again later.',
+			},
+		);
+	}
 
-  return [{ json: json as unknown as IDataObject }];
+	return [{ json: json as unknown as IDataObject }];
 }
 
 export const operations: INodeProperties[] = [
-  {
-    displayName: 'Operation',
-    name: 'operation',
-    type: 'options',
-    noDataExpression: true,
-    displayOptions: {
-      show: {
-        resource: ['files'],
-      },
-    },
-    options: [
-      {
-        name: 'Get File',
-        value: 'getFileById',
-        action: 'Get file',
-        description:
-          'Retrieve a file object by its ID (MasterId), optionally returning only the latest released version',
-        routing: {
-          request: {
-            method: 'GET',
-            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/files/{{$parameter["fileMasterId"]}}`,
-            qs: {
-              'option[releasedOnly]': '={{$parameter["releasedOnly"]}}',
-            },
-          },
-        },
-      },
-      {
-        name: 'Get File Version',
-        value: 'getFileVersionById',
-        action: 'Get file version',
-        description: 'Get file version object by its ID',
-        routing: {
-          request: {
-            method: 'GET',
-            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}`,
-          },
-        },
-      },
-      {
-        name: 'Get File Version Content',
-        value: 'getFileVersionContent',
-        action: 'Get file version content',
-        description:
-          'Retrieve the content of a specific file version, supporting full and partial content downloads',
-        routing: {
-          request: {
-            method: 'GET',
-            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/content`,
-            qs: {
-              allowSync: '={{$parameter["allowSync"]}}',
-              wmSrcItemVerId: '={{$parameter["wmSrcItemVerId"] || undefined}}',
-              wmSrcFileVerId: '={{$parameter["wmSrcFileVerId"] || undefined}}',
-              contentDisposition: '={{$parameter["contentDisposition"] || undefined}}',
-            },
-            headers: {
-              Range: '={{$parameter["range"] || undefined}}',
-            },
-            returnFullResponse: true,
-            encoding: 'arraybuffer', // ensures Buffer not string
-          },
-          output: {
-            postReceive: [processBinaryResponse],
-          },
-        },
-      },
-      {
-        name: 'Get File Version LMV Bubble JSON',
-        value: 'getFileVersionLmvRoot',
-        action: 'Get file version LMV bubble json',
-        description:
-          'Retrieve the bubble.JSON root metadata file for a DWF/DWFx file used in the Autodesk Large Model Viewer (LMV)',
-        routing: {
-          request: {
-            method: 'GET',
-            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/svf/bubble.json`,
-            qs: {
-              allowSync: '={{$parameter["allowSync"]}}',
-              wmSrcItemVerId: '={{$parameter["wmSrcItemVerId"] || undefined}}',
-              wmSrcFileVerId: '={{$parameter["wmSrcFileVerId"] || undefined}}',
-            },
-            returnFullResponse: true,
-          },
-          output: {
-            postReceive: [
-              waitForLmvBubble,
-            ],
-          },
-        },
-      },
-      {
-        name: 'Get File Version Metadata',
-        value: 'getFileVersionContentHead',
-        action: 'Get file version metadata',
-        description:
-          'Retrieve metadata for a specific file version content without downloading the full content',
-        routing: {
-          request: {
-            method: 'HEAD',
-            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/content`,
-            qs: {
-              allowSync: '={{$parameter["allowSync"]}}',
-              wmSrcItemVerId: '={{$parameter["wmSrcItemVerId"] || undefined}}',
-              wmSrcFileVerId: '={{$parameter["wmSrcFileVerId"] || undefined}}',
-              contentDisposition: '={{$parameter["contentDisposition"] || undefined}}',
-            },
-            returnFullResponse: true,
-          },
-          output: {
-            postReceive: [
-              async function (
-                this: IExecuteSingleFunctions,
-                items: INodeExecutionData[],
-                responseData: IN8nHttpFullResponse,
-              ): Promise<INodeExecutionData[]> {
-                return items.map(() => ({
-                  json: {
-                    headers: responseData.headers,
-                    statusCode: responseData.statusCode,
-                  },
-                }));
-              },
-            ],
-          },
-        },
-      },
-      {
-        name: 'Get File Version History',
-        value: 'getFileHistory',
-        action: 'Get file version history',
-        description:
-          'Retrieve the version history for the specified file (MasterId), with various filtering and revision options',
-        routing: {
-          request: {
-            method: 'GET',
-            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/files/{{$parameter["fileMasterId"]}}/versions`,
-            qs: {
-              'option[history]': '={{$parameter["history"] || undefined}}',
-              'option[onlyShowTipReleasedForEachRev]':
-                '={{$parameter["onlyShowTipReleasedForEachRev"]}}',
-              'option[extendedModels]': '={{$parameter["extendedModels"]}}',
-              'option[propDefIds]': '={{$parameter["propDefIds"]}}',
-              'option[revision]': '={{$parameter["revision"] || undefined}}',
-              descending: '={{$parameter["descending"]}}',
-            },
-          },
-          output: {
-            postReceive: [
-              {
-                type: 'rootProperty',
-                properties: {
-                  property: 'results',
-                },
-              },
-            ],
-          },
-        },
-      },
-      {
-        name: 'Get File Version Markup',
-        value: 'getFileVersionMarkupById',
-        action: 'Get file version markup',
-        description: 'Retrieve a specific markup associated with a file version by its ID',
-        routing: {
-          request: {
-            method: 'GET',
-            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/markups/{{$parameter["markupId"]}}`,
-          },
-        },
-      },
-      {
-        name: 'Get File Version Thumbnail',
-        value: 'getFileVersionThumbnailById',
-        action: 'Get file version thumbnail',
-        description: 'Retrieve the thumbnail image for a specific file version',
-        routing: {
-          request: {
-            method: 'GET',
-            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/thumbnail`,
-            returnFullResponse: true,
-            encoding: 'arraybuffer', // ensures Buffer not string
-          },
-          output: {
-            postReceive: [processBinaryResponse],
-          },
-        },
-      },
-      {
-        name: 'Get File Version Signed URL',
-        value: 'getFileVersionSignedUrl',
-        action: 'Get file version signed url',
-        description:
-          'Generate a time-limited signed URL for securely downloading the specified file version',
-        routing: {
-          request: {
-            method: 'GET',
-            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/signedurl`,
-            qs: {
-              wmSrcItemVerId: '={{$parameter["wmSrcItemVerId"] || undefined}}',
-              wmSrcFileVerId: '={{$parameter["wmSrcFileVerId"] || undefined}}',
-              contentDisposition: '={{$parameter["contentDisposition"] || undefined}}',
-              expirationTime: '={{$parameter["expirationTime"] || undefined}}',
-            },
-          },
-        },
-      },
-      {
-        name: 'Get File Version Uses',
-        value: 'getFileVersionUses',
-        action: 'Get file version uses',
-        description: 'Retrieve file dependencies and attachments for the specified file version',
-        routing: {
-          request: {
-            method: 'GET',
-            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/uses`,
-            qs: {
-              'option[includeHidden]': '={{$parameter["includeHidden"]}}',
-              'option[releaseBiased]': '={{$parameter["releaseBiased"]}}',
-              'option[releasedOnly]': '={{$parameter["releasedOnly"]}}',
-              'option[extendedModels]': '={{$parameter["extendedModels"]}}',
-              'option[propDefIds]': '={{$parameter["propDefIds"]}}',
-              'option[getLatestAssociations]': '={{$parameter["getLatestAssociations"]}}',
-              'option[recurse]': '={{$parameter["recurse"]}}',
-            },
-          },
-          output: {
-            postReceive: [
-              {
-                type: 'rootProperty',
-                properties: {
-                  property: 'results',
-                },
-              },
-            ],
-          },
-        },
-      },
-      {
-        name: 'Get File Version Where Used',
-        value: 'getFileVersionWhereUsed',
-        action: 'Get file version where used',
-        description: 'Retrieve parent file associations for the specified file version',
-        routing: {
-          request: {
-            method: 'GET',
-            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/parents`,
-            qs: {
-              'option[includeHidden]': '={{$parameter["includeHidden"]}}',
-              'option[releaseBiased]': '={{$parameter["releaseBiased"]}}',
-              'option[releasedOnly]': '={{$parameter["releasedOnly"]}}',
-              'option[extendedModels]': '={{$parameter["extendedModels"]}}',
-              'option[propDefIds]': '={{$parameter["propDefIds"]}}',
-              'option[getLatestAssociations]': '={{$parameter["getLatestAssociations"]}}',
-              'option[recurse]': '={{$parameter["recurse"]}}',
-            },
-          },
-          output: {
-            postReceive: [
-              {
-                type: 'rootProperty',
-                properties: {
-                  property: 'results',
-                },
-              },
-            ],
-          },
-        },
-      },
-      {
-        name: 'Get Many File Versions',
-        value: 'getFileVersions',
-        action: 'Get many file versions',
-        description: 'Retrieve a list of file versions based on filters and conditions',
-        routing: {
-          request: {
-            method: 'GET',
-            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/file-versions`,
-            qs: {
-              q: '={{$parameter["q"] || undefined}}',
-              'filter[CheckoutUserName]': '={{$parameter["checkoutUserName"] || undefined}}',
-              'filter[CreateUserName]': '={{$parameter["createUserName"] || undefined}}',
-              'filter[CategoryName]': '={{$parameter["categoryName"] || undefined}}',
-              'filter[State]': '={{$parameter["state"] || undefined}}',
-              'option[latestOnly]': '={{$parameter["latestOnly"]}}',
-              'option[releasedFilesOnly]': '={{$parameter["releasedFilesOnly"]}}',
-              'option[extendedModels]': '={{$parameter["extendedModels"]}}',
-              'option[propDefIds]': '={{$parameter["propDefIds"] || undefined}}',
-              sort: '={{$parameter["sort"] || undefined}}',
-            },
-          },
-          output: {
-            postReceive: [
-              {
-                type: 'rootProperty',
-                properties: {
-                  property: 'results',
-                },
-              },
-            ],
-          },
-        },
-      },
-      {
-        name: 'Get Many File Version Associated Change Orders',
-        value: 'getFileAssociatedChangeOrders',
-        action: 'Get many file version associated change orders',
-        description: 'Retrieve the change orders driving the specified file (MasterId)',
-        routing: {
-          request: {
-            method: 'GET',
-            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/files/{{$parameter["fileMasterId"]}}/change-orders`,
-            qs: {
-              'option[includeClosedECOs]': '={{$parameter["includeClosedECOs"]}}',
-              'option[extendedModels]': '={{$parameter["extendedModels"]}}',
-              'option[propDefIds]': '={{$parameter["propDefIds"]}}',
-            },
-          },
-          output: {
-            postReceive: [
-              {
-                type: 'rootProperty',
-                properties: {
-                  property: 'results',
-                },
-              },
-            ],
-          },
-        },
-      },
-      {
-        name: 'Get Many File Version Associated Item Versions',
-        value: 'getFileVersionAssociatedItemVersions',
-        action: 'Get many file version associated item versions',
-        description: 'Retrieve all items assigned to a specific file version',
-        routing: {
-          request: {
-            method: 'GET',
-            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/item-versions`,
-            qs: {
-              'option[releasedOnly]': '={{$parameter["releasedOnly"]}}',
-              'option[propDefIds]': '={{$parameter["propDefIds"]}}',
-            },
-          },
-          output: {
-            postReceive: [
-              {
-                type: 'rootProperty',
-                properties: {
-                  property: 'results',
-                },
-              },
-            ],
-          },
-        },
-      },
-      {
-        name: 'Get Many File Version Markups',
-        value: 'getFileVersionMarkups',
-        action: 'Get many file version markups',
-        description: 'Retrieve all markups associated with a specific file version',
-        routing: {
-          request: {
-            method: 'GET',
-            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/markups`,
-          },
-          output: {
-            postReceive: [
-              {
-                type: 'rootProperty',
-                properties: {
-                  property: 'results',
-                },
-              },
-            ],
-          },
-        },
-      },
-      {
-        name: 'Get Many File Version Visualization Attachments',
-        value: 'getFileVersionVisualizationAttachments',
-        action: 'Get many file version visualization attachments',
-        description: 'Retrieve the visualization attachments for a specific file version',
-        routing: {
-          request: {
-            method: 'GET',
-            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/visualization-attachments`,
-          },
-          output: {
-            postReceive: [
-              {
-                type: 'rootProperty',
-                properties: {
-                  property: 'results',
-                },
-              },
-            ],
-          },
-        },
-      },
-      {
-        name: 'Update File Lifecycle Definitions',
-        value: 'updateFileLifecycleDefinitions',
-        action: 'Update file lifecycle definitions',
-        description:
-          'Move files onto a different lifecycle definition. Each entry needs a definition and a state that belongs to it.',
-        routing: {
-          send: {
-            preSend: [buildUpdateLifecycleDefinitionsBody('files')],
-          },
-          request: {
-            method: 'POST',
-            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/files:update-lifecycle-definitions`,
-          },
-          output: {
-            postReceive: [
-              {
-                type: 'rootProperty',
-                properties: {
-                  property: 'results',
-                },
-              },
-            ],
-          },
-        },
-      },
-      {
-        name: 'Update File Lifecycle States',
-        value: 'updateFileLifecycleStates',
-        action: 'Update file lifecycle states',
-        description: 'Update the lifecycle state of one or more files',
-        routing: {
-          send: {
-            preSend: [buildUpdateLifecycleStatesBody('files')],
-          },
-          request: {
-            method: 'POST',
-            url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/files:update-states`,
-          },
-          output: {
-            postReceive: [
-              {
-                type: 'rootProperty',
-                properties: {
-                  property: 'results',
-                },
-              },
-            ],
-          },
-        },
-      },
-    ],
-    default: 'getFileById',
-  },
+	{
+		displayName: 'Operation',
+		name: 'operation',
+		type: 'options',
+		noDataExpression: true,
+		displayOptions: {
+			show: {
+				resource: ['files'],
+			},
+		},
+		options: [
+			{
+				name: 'Get File',
+				value: 'getFileById',
+				action: 'Get file',
+				description:
+					'Retrieve a file object by its ID (MasterId), optionally returning only the latest released version',
+				routing: {
+					request: {
+						method: 'GET',
+						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/files/{{$parameter["fileMasterId"]}}`,
+						qs: {
+							'option[releasedOnly]': '={{$parameter["releasedOnly"]}}',
+						},
+					},
+				},
+			},
+			{
+				name: 'Get File Version',
+				value: 'getFileVersionById',
+				action: 'Get file version',
+				description: 'Get file version object by its ID',
+				routing: {
+					request: {
+						method: 'GET',
+						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}`,
+					},
+				},
+			},
+			{
+				name: 'Get File Version Content',
+				value: 'getFileVersionContent',
+				action: 'Get file version content',
+				description:
+					'Retrieve the content of a specific file version, supporting full and partial content downloads',
+				routing: {
+					request: {
+						method: 'GET',
+						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/content`,
+						qs: {
+							allowSync: '={{$parameter["allowSync"]}}',
+							wmSrcItemVerId: '={{$parameter["wmSrcItemVerId"] || undefined}}',
+							wmSrcFileVerId: '={{$parameter["wmSrcFileVerId"] || undefined}}',
+							contentDisposition: '={{$parameter["contentDisposition"] || undefined}}',
+						},
+						headers: {
+							Range: '={{$parameter["range"] || undefined}}',
+						},
+						returnFullResponse: true,
+						encoding: 'arraybuffer', // ensures Buffer not string
+					},
+					output: {
+						postReceive: [processBinaryResponse],
+					},
+				},
+			},
+			{
+				name: 'Get File Version LMV Bubble JSON',
+				value: 'getFileVersionLmvRoot',
+				action: 'Get file version LMV bubble json',
+				description:
+					'Retrieve the bubble.JSON root metadata file for a DWF/DWFx file used in the Autodesk Large Model Viewer (LMV)',
+				routing: {
+					request: {
+						method: 'GET',
+						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/svf/bubble.json`,
+						qs: {
+							allowSync: '={{$parameter["allowSync"]}}',
+							wmSrcItemVerId: '={{$parameter["wmSrcItemVerId"] || undefined}}',
+							wmSrcFileVerId: '={{$parameter["wmSrcFileVerId"] || undefined}}',
+						},
+						returnFullResponse: true,
+					},
+					output: {
+						postReceive: [waitForLmvBubble],
+					},
+				},
+			},
+			{
+				name: 'Get File Version Metadata',
+				value: 'getFileVersionContentHead',
+				action: 'Get file version metadata',
+				description:
+					'Retrieve metadata for a specific file version content without downloading the full content',
+				routing: {
+					request: {
+						method: 'HEAD',
+						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/content`,
+						qs: {
+							allowSync: '={{$parameter["allowSync"]}}',
+							wmSrcItemVerId: '={{$parameter["wmSrcItemVerId"] || undefined}}',
+							wmSrcFileVerId: '={{$parameter["wmSrcFileVerId"] || undefined}}',
+							contentDisposition: '={{$parameter["contentDisposition"] || undefined}}',
+						},
+						returnFullResponse: true,
+					},
+					output: {
+						postReceive: [
+							async function (
+								this: IExecuteSingleFunctions,
+								items: INodeExecutionData[],
+								responseData: IN8nHttpFullResponse,
+							): Promise<INodeExecutionData[]> {
+								return items.map(() => ({
+									json: {
+										headers: responseData.headers,
+										statusCode: responseData.statusCode,
+									},
+								}));
+							},
+						],
+					},
+				},
+			},
+			{
+				name: 'Get File Version History',
+				value: 'getFileHistory',
+				action: 'Get file version history',
+				description:
+					'Retrieve the version history for the specified file (MasterId), with various filtering and revision options',
+				routing: {
+					request: {
+						method: 'GET',
+						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/files/{{$parameter["fileMasterId"]}}/versions`,
+						qs: {
+							'option[history]': '={{$parameter["history"] || undefined}}',
+							'option[onlyShowTipReleasedForEachRev]':
+								'={{$parameter["onlyShowTipReleasedForEachRev"]}}',
+							'option[extendedModels]': '={{$parameter["extendedModels"]}}',
+							'option[propDefIds]': '={{$parameter["propDefIds"]}}',
+							'option[revision]': '={{$parameter["revision"] || undefined}}',
+							descending: '={{$parameter["descending"]}}',
+						},
+					},
+					output: {
+						postReceive: [
+							{
+								type: 'rootProperty',
+								properties: {
+									property: 'results',
+								},
+							},
+						],
+					},
+				},
+			},
+			{
+				name: 'Get File Version Markup',
+				value: 'getFileVersionMarkupById',
+				action: 'Get file version markup',
+				description: 'Retrieve a specific markup associated with a file version by its ID',
+				routing: {
+					request: {
+						method: 'GET',
+						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/markups/{{$parameter["markupId"]}}`,
+					},
+				},
+			},
+			{
+				name: 'Get File Version Thumbnail',
+				value: 'getFileVersionThumbnailById',
+				action: 'Get file version thumbnail',
+				description: 'Retrieve the thumbnail image for a specific file version',
+				routing: {
+					request: {
+						method: 'GET',
+						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/thumbnail`,
+						returnFullResponse: true,
+						encoding: 'arraybuffer', // ensures Buffer not string
+					},
+					output: {
+						postReceive: [processBinaryResponse],
+					},
+				},
+			},
+			{
+				name: 'Get File Version Signed URL',
+				value: 'getFileVersionSignedUrl',
+				action: 'Get file version signed url',
+				description:
+					'Generate a time-limited signed URL for securely downloading the specified file version',
+				routing: {
+					request: {
+						method: 'GET',
+						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/signedurl`,
+						qs: {
+							wmSrcItemVerId: '={{$parameter["wmSrcItemVerId"] || undefined}}',
+							wmSrcFileVerId: '={{$parameter["wmSrcFileVerId"] || undefined}}',
+							contentDisposition: '={{$parameter["contentDisposition"] || undefined}}',
+							expirationTime: '={{$parameter["expirationTime"] || undefined}}',
+						},
+					},
+				},
+			},
+			{
+				name: 'Get File Version Uses',
+				value: 'getFileVersionUses',
+				action: 'Get file version uses',
+				description: 'Retrieve file dependencies and attachments for the specified file version',
+				routing: {
+					request: {
+						method: 'GET',
+						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/uses`,
+						qs: {
+							'option[includeHidden]': '={{$parameter["includeHidden"]}}',
+							'option[releaseBiased]': '={{$parameter["releaseBiased"]}}',
+							'option[releasedOnly]': '={{$parameter["releasedOnly"]}}',
+							'option[extendedModels]': '={{$parameter["extendedModels"]}}',
+							'option[propDefIds]': '={{$parameter["propDefIds"]}}',
+							'option[getLatestAssociations]': '={{$parameter["getLatestAssociations"]}}',
+							'option[recurse]': '={{$parameter["recurse"]}}',
+						},
+					},
+					output: {
+						postReceive: [
+							{
+								type: 'rootProperty',
+								properties: {
+									property: 'results',
+								},
+							},
+						],
+					},
+				},
+			},
+			{
+				name: 'Get File Version Where Used',
+				value: 'getFileVersionWhereUsed',
+				action: 'Get file version where used',
+				description: 'Retrieve parent file associations for the specified file version',
+				routing: {
+					request: {
+						method: 'GET',
+						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/parents`,
+						qs: {
+							'option[includeHidden]': '={{$parameter["includeHidden"]}}',
+							'option[releaseBiased]': '={{$parameter["releaseBiased"]}}',
+							'option[releasedOnly]': '={{$parameter["releasedOnly"]}}',
+							'option[extendedModels]': '={{$parameter["extendedModels"]}}',
+							'option[propDefIds]': '={{$parameter["propDefIds"]}}',
+							'option[getLatestAssociations]': '={{$parameter["getLatestAssociations"]}}',
+							'option[recurse]': '={{$parameter["recurse"]}}',
+						},
+					},
+					output: {
+						postReceive: [
+							{
+								type: 'rootProperty',
+								properties: {
+									property: 'results',
+								},
+							},
+						],
+					},
+				},
+			},
+			{
+				name: 'Get Many File Versions',
+				value: 'getFileVersions',
+				action: 'Get many file versions',
+				description: 'Retrieve a list of file versions based on filters and conditions',
+				routing: {
+					request: {
+						method: 'GET',
+						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/file-versions`,
+						qs: {
+							q: '={{$parameter["q"] || undefined}}',
+							'filter[CheckoutUserName]': '={{$parameter["checkoutUserName"] || undefined}}',
+							'filter[CreateUserName]': '={{$parameter["createUserName"] || undefined}}',
+							'filter[CategoryName]': '={{$parameter["categoryName"] || undefined}}',
+							'filter[State]': '={{$parameter["state"] || undefined}}',
+							'option[latestOnly]': '={{$parameter["latestOnly"]}}',
+							'option[releasedFilesOnly]': '={{$parameter["releasedFilesOnly"]}}',
+							'option[extendedModels]': '={{$parameter["extendedModels"]}}',
+							'option[propDefIds]': '={{$parameter["propDefIds"] || undefined}}',
+							sort: '={{$parameter["sort"] || undefined}}',
+						},
+					},
+					output: {
+						postReceive: [
+							{
+								type: 'rootProperty',
+								properties: {
+									property: 'results',
+								},
+							},
+						],
+					},
+				},
+			},
+			{
+				name: 'Get Many File Version Associated Change Orders',
+				value: 'getFileAssociatedChangeOrders',
+				action: 'Get many file version associated change orders',
+				description: 'Retrieve the change orders driving the specified file (MasterId)',
+				routing: {
+					request: {
+						method: 'GET',
+						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/files/{{$parameter["fileMasterId"]}}/change-orders`,
+						qs: {
+							'option[includeClosedECOs]': '={{$parameter["includeClosedECOs"]}}',
+							'option[extendedModels]': '={{$parameter["extendedModels"]}}',
+							'option[propDefIds]': '={{$parameter["propDefIds"]}}',
+						},
+					},
+					output: {
+						postReceive: [
+							{
+								type: 'rootProperty',
+								properties: {
+									property: 'results',
+								},
+							},
+						],
+					},
+				},
+			},
+			{
+				name: 'Get Many File Version Associated Item Versions',
+				value: 'getFileVersionAssociatedItemVersions',
+				action: 'Get many file version associated item versions',
+				description: 'Retrieve all items assigned to a specific file version',
+				routing: {
+					request: {
+						method: 'GET',
+						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/item-versions`,
+						qs: {
+							'option[releasedOnly]': '={{$parameter["releasedOnly"]}}',
+							'option[propDefIds]': '={{$parameter["propDefIds"]}}',
+						},
+					},
+					output: {
+						postReceive: [
+							{
+								type: 'rootProperty',
+								properties: {
+									property: 'results',
+								},
+							},
+						],
+					},
+				},
+			},
+			{
+				name: 'Get Many File Version Markups',
+				value: 'getFileVersionMarkups',
+				action: 'Get many file version markups',
+				description: 'Retrieve all markups associated with a specific file version',
+				routing: {
+					request: {
+						method: 'GET',
+						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/markups`,
+					},
+					output: {
+						postReceive: [
+							{
+								type: 'rootProperty',
+								properties: {
+									property: 'results',
+								},
+							},
+						],
+					},
+				},
+			},
+			{
+				name: 'Get Many File Version Visualization Attachments',
+				value: 'getFileVersionVisualizationAttachments',
+				action: 'Get many file version visualization attachments',
+				description: 'Retrieve the visualization attachments for a specific file version',
+				routing: {
+					request: {
+						method: 'GET',
+						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/visualization-attachments`,
+					},
+					output: {
+						postReceive: [
+							{
+								type: 'rootProperty',
+								properties: {
+									property: 'results',
+								},
+							},
+						],
+					},
+				},
+			},
+			{
+				name: 'Update File Lifecycle Definitions',
+				value: 'updateFileLifecycleDefinitions',
+				action: 'Update file lifecycle definitions',
+				description:
+					'Move files onto a different lifecycle definition. Each entry needs a definition and a state that belongs to it.',
+				routing: {
+					send: {
+						preSend: [buildUpdateLifecycleDefinitionsBody('files')],
+					},
+					request: {
+						method: 'POST',
+						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/files:update-lifecycle-definitions`,
+					},
+					output: {
+						postReceive: [
+							{
+								type: 'rootProperty',
+								properties: {
+									property: 'results',
+								},
+							},
+						],
+					},
+				},
+			},
+			{
+				name: 'Update File Lifecycle States',
+				value: 'updateFileLifecycleStates',
+				action: 'Update file lifecycle states',
+				description: 'Update the lifecycle state of one or more files',
+				routing: {
+					send: {
+						preSend: [buildUpdateLifecycleStatesBody('files')],
+					},
+					request: {
+						method: 'POST',
+						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/files:update-states`,
+					},
+					output: {
+						postReceive: [
+							{
+								type: 'rootProperty',
+								properties: {
+									property: 'results',
+								},
+							},
+						],
+					},
+				},
+			},
+		],
+		default: 'getFileById',
+	},
 ];
