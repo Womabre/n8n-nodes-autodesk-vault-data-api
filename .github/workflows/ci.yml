@@ -18,8 +18,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # package.json declares node >=20.15; cover every supported major.
-        node-version: ['20.x', '22.x', '24.x']
+        # Node 20 is not listed: the dev toolchain (@n8n/node-cli, via
+        # isolated-vm) needs Node >= 22 and does not install on Node 20.
+        node-version: ['22.x', '24.x']
 
     name: Node ${{ matrix.node-version }}
 
