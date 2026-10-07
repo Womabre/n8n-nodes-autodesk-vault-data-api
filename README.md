@@ -235,7 +235,7 @@ Required fields:
 
 ## Compatibility
 
-- **Minimum n8n version:** requires `n8n-workflow ^2.0.0`
+- **n8n version:** built and tested against n8n 2.x (`n8n-workflow` 2.x); the peer dependency is left open (`*`) as n8n recommends for community nodes
 - **Node.js:** `>=20.15`
 - Tested against Autodesk Vault Data API v2 (spec version 2.1.0)
 - The External Sync Task and Lifecycle resources, and the lifecycle update operations on File,

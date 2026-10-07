@@ -15,17 +15,28 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    strategy:
+      fail-fast: false
+      matrix:
+        # package.json declares node >=20.15; cover every supported major.
+        node-version: ['20.x', '22.x', '24.x']
+
+    name: Node ${{ matrix.node-version }}
+
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 'lts/*'
+          node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
       - name: Install dependencies
         run: 'npm ci'
+
+      - name: Check formatting
+        run: 'npm run format:check'
 
       - name: Run lint
         run: 'npm run lint'
@@ -35,3 +46,20 @@ jobs:
 
       - name: Run build
         run: 'npm run build'
+
+      - name: Check package size
+        # Guards against reference files or build caches ending up in the
+        # published package again (it was ~980 KB before they were removed).
+        run: |
+          npm pack --dry-run --json > pack.json
+          node -e '
+            const [pkg] = require("./pack.json");
+            const limitKb = 500;
+            const sizeKb = Math.round(pkg.unpackedSize / 1024);
+            console.log(`Unpacked package size: ${sizeKb} KB in ${pkg.entryCount} files (limit ${limitKb} KB)`);
+            if (sizeKb > limitKb) {
+              const largest = [...pkg.files].sort((a, b) => b.size - a.size).slice(0, 5);
+              for (const f of largest) console.log(`  ${Math.round(f.size / 1024)} KB  ${f.path}`);
+              process.exit(1);
+            }
+          '

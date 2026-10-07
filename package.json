@@ -30,6 +30,7 @@
 		"build:watch": "tsc --watch",
 		"dev": "n8n-node dev",
 		"format": "prettier nodes credentials --write",
+		"format:check": "prettier nodes credentials --check",
 		"lint": "n8n-node lint",
 		"lint:fix": "n8n-node lint --fix",
 		"release": "n8n-node release",
@@ -53,10 +54,10 @@
 		]
 	},
 	"devDependencies": {
-		"@n8n/node-cli": "*",
+		"@n8n/node-cli": "^0.51.2",
 		"@types/node": "^24.1.0",
 		"@vitest/coverage-v8": "^4.1.2",
-		"auto-changelog": "*",
+		"auto-changelog": "^2.5.1",
 		"eslint": "9.39.4",
 		"prettier": "3.8.3",
 		"release-it": "20.2.0",
