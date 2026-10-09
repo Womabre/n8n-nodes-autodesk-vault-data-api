@@ -49,7 +49,12 @@ export function listLoadOptions(url: string, nameExpr = '={{$responseItem.name}}
 
 /**
  * Builds the "From List" / "By ID" modes for a resource-locator field backed by
- * a searchable listSearch method.
+ * a searchable listSearch method. Spread the result into the field definition.
+ *
+ * It returns `{ modes }` rather than the bare array so the mode objects sit
+ * under a `modes` key in the source, which is how the n8n lint rule (and the
+ * community package scanner) tells them apart from parameters that need a
+ * `default`.
  *
  * @param searchListMethod Name of the registered listSearch method
  * @param idPlaceholder    Placeholder for the manual "By ID" input
@@ -59,39 +64,37 @@ function resourceLocatorModes(
 	searchListMethod: string,
 	idPlaceholder: string,
 	idOptions: { idHint?: string; idRegex?: string; idError?: string } = {},
-): INodePropertyMode[] {
+): { modes: INodePropertyMode[] } {
 	const { idHint, idRegex = '^[0-9]+$', idError = 'Enter a numeric ID' } = idOptions;
-	// Resource-locator modes are not node parameters and have no `default`; the
-	// lint rule cannot tell them apart when they are built in a helper function.
-	/* eslint-disable n8n-nodes-base/node-param-default-missing */
-	return [
-		{
-			displayName: 'From List',
-			name: 'list',
-			type: 'list',
-			typeOptions: {
-				searchListMethod,
-				searchable: true,
-			},
-		},
-		{
-			displayName: 'By ID',
-			name: 'id',
-			type: 'string',
-			placeholder: idPlaceholder,
-			...(idHint ? { hint: idHint } : {}),
-			validation: [
-				{
-					type: 'regex',
-					properties: {
-						regex: idRegex,
-						errorMessage: idError,
-					},
+	return {
+		modes: [
+			{
+				displayName: 'From List',
+				name: 'list',
+				type: 'list',
+				typeOptions: {
+					searchListMethod,
+					searchable: true,
 				},
-			],
-		},
-	];
-	/* eslint-enable n8n-nodes-base/node-param-default-missing */
+			},
+			{
+				displayName: 'By ID',
+				name: 'id',
+				type: 'string',
+				placeholder: idPlaceholder,
+				...(idHint ? { hint: idHint } : {}),
+				validation: [
+					{
+						type: 'regex',
+						properties: {
+							regex: idRegex,
+							errorMessage: idError,
+						},
+					},
+				],
+			},
+		],
+	};
 }
 
 /** Resources that expose at least one paginated "Get Many" operation. */
@@ -1090,7 +1093,7 @@ export const parameters: INodeProperties[] = [
 		required: true,
 		description:
 			'The file version to use. Search by file name and select the version from the list, or enter a version ID directly.',
-		modes: resourceLocatorModes('searchFileVersions', 'e.g. 100201'),
+		...resourceLocatorModes('searchFileVersions', 'e.g. 100201'),
 		displayOptions: {
 			show: {
 				resource: ['files'],
@@ -1155,7 +1158,7 @@ export const parameters: INodeProperties[] = [
 		required: true,
 		description:
 			'The file to use (groups all versions). Select one from the list, or provide the numeric file master ID directly.',
-		modes: resourceLocatorModes('searchFileMasters', 'e.g. 100200'),
+		...resourceLocatorModes('searchFileMasters', 'e.g. 100200'),
 		displayOptions: {
 			show: {
 				resource: ['files'],
@@ -1174,7 +1177,7 @@ export const parameters: INodeProperties[] = [
 		required: true,
 		description:
 			'The folder to use. Select one from the list, or provide the numeric folder ID directly ("1" is the root folder).',
-		modes: resourceLocatorModes('searchFolders', 'e.g. 1', {
+		...resourceLocatorModes('searchFolders', 'e.g. 1', {
 			idHint: '"1" is the root folder ID',
 			idRegex: '^([0-9]+|root)$',
 			idError: 'Enter a numeric folder ID (e.g. 1) or "root"',
@@ -1197,7 +1200,7 @@ export const parameters: INodeProperties[] = [
 		required: true,
 		description:
 			'The item version to use. Search by item number and select the version from the list, or enter a version ID directly.',
-		modes: resourceLocatorModes('searchItemVersions', 'e.g. 56732'),
+		...resourceLocatorModes('searchItemVersions', 'e.g. 56732'),
 		displayOptions: {
 			show: {
 				resource: ['items'],
@@ -1224,7 +1227,7 @@ export const parameters: INodeProperties[] = [
 		required: true,
 		description:
 			'The item to use (groups all versions). Select one from the list, or provide the numeric item master ID directly.',
-		modes: resourceLocatorModes('searchItemMasters', 'e.g. 30678'),
+		...resourceLocatorModes('searchItemMasters', 'e.g. 30678'),
 		displayOptions: {
 			show: {
 				resource: ['items'],
@@ -1286,7 +1289,7 @@ export const parameters: INodeProperties[] = [
 		required: true,
 		description:
 			'The markup to use. Select one from the list (requires a File Version to be selected first), or provide the numeric markup ID directly.',
-		modes: resourceLocatorModes('searchMarkups', 'e.g. 1234'),
+		...resourceLocatorModes('searchMarkups', 'e.g. 1234'),
 		displayOptions: {
 			show: {
 				resource: ['files'],

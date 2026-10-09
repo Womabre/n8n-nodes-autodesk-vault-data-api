@@ -1,0 +1,6 @@
+{
+	"commitLimit": false,
+	"backfillLimit": false,
+	"ignoreCommitPattern": "^Release \\d+\\.\\d+\\.\\d+",
+	"breakingPattern": "BREAKING CHANGE:"
+}
