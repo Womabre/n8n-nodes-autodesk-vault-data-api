@@ -1086,6 +1086,33 @@ export const parameters: INodeProperties[] = [
 		default: '',
 	},
 	{
+		displayName: 'Comment Name or ID',
+		name: 'changeOrderCommentId',
+		type: 'options',
+		typeOptions: {
+			loadOptionsDependsOn: ['vaultId', 'changeOrderId'],
+			loadOptions: listLoadOptions(
+				`=${API_BASE}/vaults/{{$parameter["vaultId"]}}/change-orders/{{$parameter["changeOrderId"]}}/comments`,
+				'={{$responseItem.subject || $responseItem.message || "Comment " + $responseItem.id}}{{$responseItem.createUserName ? " (" + $responseItem.createUserName + ")" : ""}}',
+			),
+		},
+		required: true,
+		description:
+			'The comment whose attachments to list, from the change order selected above. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+		hint: 'Comment IDs are also in the output of "Get Many Change Order Comments"',
+		displayOptions: {
+			show: {
+				resource: ['changeOrders'],
+				operation: ['getChangeOrderCommentAttachments'],
+			},
+			hide: {
+				vaultId: [''],
+				changeOrderId: [''],
+			},
+		},
+		default: '',
+	},
+	{
 		displayName: 'File Version',
 		name: 'fileId',
 		type: 'resourceLocator',
