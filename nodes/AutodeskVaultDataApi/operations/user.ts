@@ -1,5 +1,6 @@
 import { INodeProperties } from 'n8n-workflow';
 import { API_BASE } from '../utils/constants';
+import { splitResults } from '../utils/response';
 
 export const operations: INodeProperties[] = [
 	{
@@ -69,6 +70,10 @@ export const operations: INodeProperties[] = [
 					request: {
 						method: 'GET',
 						url: `=${API_BASE}/users/{{$parameter["userId"]}}/accounts`,
+					},
+					output: {
+						// One item per account from node version 1.1; version 1 returned the wrapper.
+						postReceive: [splitResults],
 					},
 				},
 			},

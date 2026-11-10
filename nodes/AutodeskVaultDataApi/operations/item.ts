@@ -5,6 +5,7 @@ import {
 	buildUpdateLifecycleStatesBody,
 } from '../utils/lifecycleBody';
 import { API_BASE } from '../utils/constants';
+import { splitResults } from '../utils/response';
 
 export const operations: INodeProperties[] = [
 	{
@@ -222,6 +223,10 @@ export const operations: INodeProperties[] = [
 							'option[extendedModels]': '={{$parameter["extendedModels"]}}',
 							'option[propDefIds]': '={{$parameter["propDefIds"]}}',
 						},
+					},
+					output: {
+						// One item per file from node version 1.1; version 1 returned the wrapper.
+						postReceive: [splitResults],
 					},
 				},
 			},

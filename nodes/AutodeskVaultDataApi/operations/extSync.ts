@@ -6,11 +6,7 @@ import {
 } from 'n8n-workflow';
 import { handleEmptyResponse } from '../utils/response';
 import { API_BASE } from '../utils/constants';
-
-interface KeyValueEntry {
-	key?: string;
-	value?: string;
-}
+import { foldParams, KeyValueEntry } from '../utils/keyValue';
 
 interface ExtSyncTaskEntry {
 	entityId?: string;
@@ -21,18 +17,6 @@ interface ExtSyncTaskEntry {
 	paramsJson?: string;
 	executeImmediately?: boolean;
 	predecessorTaskId?: string;
-}
-
-/** Folds the UI's key/value rows into the dictionary the API expects for `params`. */
-function foldParams(entries: KeyValueEntry[] | undefined): Record<string, string> | undefined {
-	if (!entries?.length) return undefined;
-
-	const params: Record<string, string> = {};
-	for (const entry of entries) {
-		if (entry.key) params[entry.key] = entry.value ?? '';
-	}
-
-	return Object.keys(params).length > 0 ? params : undefined;
 }
 
 /** Accepts IDs separated by newlines or commas and returns the non-empty ones. */

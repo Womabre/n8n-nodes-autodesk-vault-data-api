@@ -21,17 +21,44 @@ describe('formatJobBody', () => {
 			jobType: 'Autodesk.Vault.SyncProperties',
 			priority: 5,
 			description: 'Sync properties',
-			params: { parameter: [{ key: 'EntityId', value: '123' }] },
+			params: {
+				parameter: [
+					{ key: 'EntityId', value: '123' },
+					{ key: 'EntityClassId', value: 'FILE' },
+				],
+			},
 		});
 
 		const result = await formatJobBody.call(ctx, baseOptions());
 
+		// The API takes `params` as a map of string keys to string values.
 		expect(result.body).toEqual({
 			jobType: 'Autodesk.Vault.SyncProperties',
 			priority: 5,
 			description: 'Sync properties',
-			params: [{ key: 'EntityId', value: '123' }],
+			params: { EntityId: '123', EntityClassId: 'FILE' },
 		});
+	});
+
+	it('drops parameter rows without a key, and params with them when none is left', async () => {
+		const withOneKey = makeCtx({
+			jobType: 'MyJob',
+			params: {
+				parameter: [
+					{ key: '', value: 'ignored' },
+					{ key: 'FileVersionId', value: '11462' },
+				],
+			},
+		});
+		const kept = await formatJobBody.call(withOneKey, baseOptions());
+		expect((kept.body as Record<string, unknown>).params).toEqual({ FileVersionId: '11462' });
+
+		const withoutKeys = makeCtx({
+			jobType: 'MyJob',
+			params: { parameter: [{ key: '', value: 'ignored' }] },
+		});
+		const dropped = await formatJobBody.call(withoutKeys, baseOptions());
+		expect(dropped.body).not.toHaveProperty('params');
 	});
 
 	it('omits empty optional fields', async () => {

@@ -6,6 +6,7 @@ import {
 } from 'n8n-workflow';
 import { handleEmptyResponse } from '../utils/response';
 import { API_BASE } from '../utils/constants';
+import { foldParams, KeyValueEntry } from '../utils/keyValue';
 
 export async function formatJobBody(
 	this: IExecuteSingleFunctions,
@@ -21,13 +22,17 @@ export async function formatJobBody(
 	const priority = this.getNodeParameter('priority', '') as number | '';
 	const description = this.getNodeParameter('description', '') as string;
 	const paramsCollection = this.getNodeParameter('params', {}) as {
-		parameter?: Array<{ key: string; value: string }>;
-	};
+		parameter?: KeyValueEntry[];
+	} | null;
+
+	// The API takes `params` as a map of string keys to string values, not as
+	// the list of key/value rows the UI collects.
+	const params = foldParams(paramsCollection?.parameter);
 
 	const body: Record<string, unknown> = { jobType };
 	if (priority !== '' && priority !== undefined) body.priority = priority;
 	if (description) body.description = description;
-	if (paramsCollection?.parameter?.length) body.params = paramsCollection.parameter;
+	if (params) body.params = params;
 
 	requestOptions.body = body;
 	return requestOptions;

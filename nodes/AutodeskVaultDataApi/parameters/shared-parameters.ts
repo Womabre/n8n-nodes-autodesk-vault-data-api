@@ -1055,6 +1055,26 @@ export const parameters: INodeProperties[] = [
 		},
 	},
 	{
+		// Same query option as the item history above, but the API does not
+		// accept "Revision Tip" for files.
+		displayName: 'History',
+		name: 'history',
+		type: 'options',
+		options: [
+			{ name: 'All', value: 'All' },
+			{ name: 'Released Only', value: 'ReleasedOnly' },
+			{ name: 'Released And Revision Tip', value: 'ReleasedAndRevisionTip' },
+		],
+		default: 'All',
+		description: 'Which versions of the file to include in the history',
+		displayOptions: {
+			show: {
+				resource: ['files'],
+				operation: ['getFileHistory'],
+			},
+		},
+	},
+	{
 		displayName: 'Change Order Name or ID',
 		name: 'changeOrderId',
 		type: 'options',
@@ -1081,6 +1101,33 @@ export const parameters: INodeProperties[] = [
 			},
 			hide: {
 				vaultId: [''],
+			},
+		},
+		default: '',
+	},
+	{
+		displayName: 'Comment Name or ID',
+		name: 'changeOrderCommentId',
+		type: 'options',
+		typeOptions: {
+			loadOptionsDependsOn: ['vaultId', 'changeOrderId'],
+			loadOptions: listLoadOptions(
+				`=${API_BASE}/vaults/{{$parameter["vaultId"]}}/change-orders/{{$parameter["changeOrderId"]}}/comments`,
+				'={{$responseItem.subject || $responseItem.message || "Comment " + $responseItem.id}}{{$responseItem.createUserName ? " (" + $responseItem.createUserName + ")" : ""}}',
+			),
+		},
+		required: true,
+		description:
+			'The comment whose attachments to list, from the change order selected above. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+		hint: 'Comment IDs are also in the output of "Get Many Change Order Comments"',
+		displayOptions: {
+			show: {
+				resource: ['changeOrders'],
+				operation: ['getChangeOrderCommentAttachments'],
+			},
+			hide: {
+				vaultId: [''],
+				changeOrderId: [''],
 			},
 		},
 		default: '',
@@ -1480,8 +1527,14 @@ export const parameters: INodeProperties[] = [
 			"The value to use for the search. Based on 'SearchContent' option, this parameter will either search across all properties or across all properties and content. Ex: q=Assembly, all objects that contain 'Assembly' within their properties will be returned.",
 		displayOptions: {
 			show: {
-				resource: ['files', 'folders', 'items', 'search'],
-				operation: ['getFileVersions', 'getFolderContents', 'getItemVersions', 'search'],
+				resource: ['changeOrders', 'files', 'folders', 'items', 'search'],
+				operation: [
+					'getChangeOrders',
+					'getFileVersions',
+					'getFolderContents',
+					'getItemVersions',
+					'search',
+				],
 			},
 		},
 		default: '',

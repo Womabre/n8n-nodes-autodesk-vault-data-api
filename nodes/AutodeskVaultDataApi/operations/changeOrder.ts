@@ -61,7 +61,8 @@ export const operations: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'GET',
-						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/change-order-comments/{{$parameter["changeOrderId"]}}/attachments`,
+						// The path takes the ID of the comment, not of the change order it belongs to.
+						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/change-order-comments/{{$parameter["changeOrderCommentId"]}}/attachments`,
 						qs: {
 							'option[releasedOnly]': '={{$parameter["releasedOnly"] || undefined}}',
 							'option[extendedModels]': '={{$parameter["extendedModels"] || undefined}}',
@@ -140,6 +141,7 @@ export const operations: INodeProperties[] = [
 						method: 'GET',
 						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/change-orders`,
 						qs: {
+							q: '={{$parameter["q"] || undefined}}',
 							'filter[state]': '={{$parameter["ecoState"] || undefined}}',
 							'filter[assignees]': '={{$parameter["filterAssignees"] || undefined}}',
 							'filter[openCOsOnly]': '={{$parameter["filterOpenCOsOnly"] || undefined}}',

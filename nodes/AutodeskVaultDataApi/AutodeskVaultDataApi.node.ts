@@ -49,7 +49,10 @@ export class AutodeskVaultDataApi implements INodeType {
 		displayName: 'Autodesk Vault Data API',
 		name: 'autodeskVaultDataApi',
 		usableAsTool: true,
-		version: 1,
+		// 1.1: "Get Many Item Version Associated Files" and "Get Many User Accounts"
+		// return one item per result instead of the response wrapper.
+		version: [1, 1.1],
+		defaultVersion: 1.1,
 		group: ['transform'],
 		icon: { light: 'file:AutodeskVaultDataApi.svg', dark: 'file:AutodeskVaultDataApi.dark.svg' },
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
