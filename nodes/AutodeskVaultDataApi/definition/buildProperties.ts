@@ -99,12 +99,21 @@ function routing(operation: OperationDefinition): INodePropertyRouting {
 	return result;
 }
 
+/**
+ * `$parameter["x"]`, `$parameter['x']` and `$parameter.x` as they appear in
+ * JSON text, where a double quote is escaped as `\"`.
+ */
+const PARAMETER_REFERENCE = /\$parameter(?:\[\\?["']([^"'\\]+)\\?["']\]|\.([A-Za-z_$][\w$]*))/g;
+
+/** Every field name a value's expressions refer to (functions are not read). */
+function parameterNames(value: unknown): string[] {
+	const text = JSON.stringify(value) ?? '';
+	return [...text.matchAll(PARAMETER_REFERENCE)].map((match) => match[1] ?? match[2]);
+}
+
 /** Every field name the operation's request refers to. */
 function referencedFields(operation: OperationDefinition): string[] {
-	if (operation.routing) {
-		const text = JSON.stringify(operation.routing);
-		return [...text.matchAll(/\$parameter\[\\"([^"\\]+)\\"\]/g)].map((match) => match[1]);
-	}
+	if (operation.routing) return parameterNames(operation.routing);
 	const names = [...operation.path.matchAll(PATH_FIELD)].map((match) => match[1]);
 	for (const map of [operation.query, operation.headers, operation.body]) {
 		for (const reference of Object.values(map ?? {})) names.push(referencedName(reference));
@@ -113,30 +122,77 @@ function referencedFields(operation: OperationDefinition): string[] {
 	return names;
 }
 
+/** Field names a field's display conditions depend on (`@version` and the like excluded). */
+function displayConditionNames(field: INodeProperties): string[] {
+	const { show = {}, hide = {} } = field.displayOptions ?? {};
+	return [...Object.keys(show), ...Object.keys(hide)].filter((name) => !name.startsWith('@'));
+}
+
+function sendsToBody(field: INodeProperties): boolean {
+	return (field.routing?.send as { type?: string } | undefined)?.type === 'body';
+}
+
 function checkOperation(resource: string, operation: OperationDefinition): void {
 	const where = key(resource, operation);
-	const declared = shownFields(operation).map((field) => field.name);
+	const fields = shownFields(operation);
+	const declared = fields.map((field) => field.name);
+	const refuse = (message: string): never => {
+		throw new DefinitionError(`${where} ${message}`);
+	};
 
 	const duplicate = declared.find((name, index) => declared.indexOf(name) !== index);
-	if (duplicate) {
-		throw new DefinitionError(`${where} declares the field "${duplicate}" twice`);
-	}
+	if (duplicate) refuse(`declares the field "${duplicate}" twice`);
+
 	for (const name of referencedFields(operation)) {
-		if (!declared.includes(name)) {
-			throw new DefinitionError(`${where} sends "${name}" but does not declare that field`);
-		}
+		if (!declared.includes(name)) refuse(`sends "${name}" but does not declare that field`);
 	}
-	for (const field of shownFields(operation)) {
-		for (const dependency of field.typeOptions?.loadOptionsDependsOn ?? []) {
-			if (!declared.includes(dependency)) {
-				throw new DefinitionError(
-					`${where} shows "${field.name}", which loads from "${dependency}", but does not declare "${dependency}"`,
-				);
+
+	for (const field of fields) {
+		for (const name of displayConditionNames(field)) {
+			if (name === 'resource' || name === 'operation') {
+				refuse(`shows "${field.name}" with its own ${name} condition; the builder sets those`);
+			}
+			if (!declared.includes(name)) {
+				refuse(`shows "${field.name}" depending on "${name}", but does not declare "${name}"`);
+			}
+		}
+		for (const name of field.typeOptions?.loadOptionsDependsOn ?? []) {
+			if (!declared.includes(name)) {
+				refuse(`shows "${field.name}", which loads from "${name}", but does not declare "${name}"`);
+			}
+		}
+		// The field's own routing, option loading and nested fields.
+		for (const name of parameterNames(field)) {
+			if (!declared.includes(name)) {
+				refuse(`shows "${field.name}", which refers to "${name}", but does not declare "${name}"`);
 			}
 		}
 	}
+
 	if (operation.legacyWrapper && operation.response !== 'collection') {
-		throw new DefinitionError(`${where} has a legacy wrapper but is not a collection`);
+		refuse('has a legacy wrapper but is not a collection');
+	}
+	if (operation.paginated === false && operation.response !== 'collection') {
+		refuse('says paginated: false but is not a collection');
+	}
+	if (operation.routing && isPaginated(operation)) {
+		refuse(
+			'is a paginated collection on raw routing, which carries no pagination; set paginated: false',
+		);
+	}
+	if (
+		(operation.method === 'GET' || operation.method === 'HEAD') &&
+		(operation.body || operation.buildBody)
+	) {
+		refuse(`sends a body with ${operation.method}`);
+	}
+	if (operation.buildBody) {
+		const bodyField = fields.find(sendsToBody);
+		if (bodyField) {
+			refuse(
+				`builds its body but "${bodyField.name}" also sends to the body; let the builder own it`,
+			);
+		}
 	}
 }
 
@@ -228,7 +284,12 @@ export function buildProperties(resources: ResourceDefinition[]): INodePropertie
 	const nodes: FieldNode[] = [];
 	const operationValues = new Set<string>();
 
+	const resourceValues = new Set<string>();
 	for (const resource of resources) {
+		if (resourceValues.has(resource.value)) {
+			throw new DefinitionError(`Resource "${resource.value}" is defined twice`);
+		}
+		resourceValues.add(resource.value);
 		if (!resource.operations.some((operation) => operation.value === resource.defaultOperation)) {
 			throw new DefinitionError(
 				`${resource.value} defaults to "${resource.defaultOperation}", which it does not define`,

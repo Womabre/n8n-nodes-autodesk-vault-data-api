@@ -120,3 +120,12 @@ describe('get many change orders', () => {
 		expect(shownParameters(op, 'q')).toHaveLength(1);
 	});
 });
+
+describe('resources', () => {
+	it('offers in the resource list exactly the resources that have operations', () => {
+		const selector = properties.find((property) => property.name === 'resource');
+		const offered = (selector?.options as INodePropertyOptions[]).map((option) => option.value);
+		const built = [...new Set(operations.map((op) => op.resource))];
+		expect([...offered].sort()).toEqual([...built].sort());
+	});
+});

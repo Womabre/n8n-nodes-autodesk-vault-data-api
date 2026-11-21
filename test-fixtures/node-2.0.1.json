@@ -1,0 +1,289 @@
+{
+	"node": {
+		"displayName": "Autodesk Vault Data API",
+		"name": "autodeskVaultDataApi",
+		"usableAsTool": true,
+		"version": [
+			1,
+			1.1
+		],
+		"defaultVersion": 1.1,
+		"group": [
+			"transform"
+		],
+		"icon": {
+			"light": "file:AutodeskVaultDataApi.svg",
+			"dark": "file:AutodeskVaultDataApi.dark.svg"
+		},
+		"subtitle": "={{$parameter[\"operation\"] + \": \" + $parameter[\"resource\"]}}",
+		"description": "Interact with the Autodesk Vault Data API",
+		"defaults": {
+			"name": "Autodesk Vault Data API"
+		},
+		"inputs": [
+			"main"
+		],
+		"outputs": [
+			"main"
+		],
+		"credentials": [
+			{
+				"name": "autodeskVaultDataOAuth2Api",
+				"required": true,
+				"displayOptions": {
+					"show": {
+						"authentication": [
+							"OAuth2"
+						]
+					}
+				}
+			},
+			{
+				"name": "autodeskVaultAccountApi",
+				"required": true,
+				"displayOptions": {
+					"show": {
+						"authentication": [
+							"VaultLogin"
+						]
+					}
+				}
+			}
+		],
+		"requestDefaults": {
+			"baseURL": "={{$credentials.vaultServerUrl}}",
+			"headers": {
+				"Accept": "application/json",
+				"Content-Type": "application/json"
+			}
+		}
+	},
+	"selectors": [
+		{
+			"displayName": "Authentication Method",
+			"name": "authentication",
+			"type": "options",
+			"options": [
+				{
+					"name": "Autodesk ID (3-Legged OAuth2)",
+					"value": "OAuth2"
+				},
+				{
+					"name": "Vault Account",
+					"value": "VaultLogin"
+				}
+			],
+			"default": "VaultLogin",
+			"description": "Choose the authentication method"
+		},
+		{
+			"displayName": "Resource",
+			"name": "resource",
+			"type": "options",
+			"noDataExpression": true,
+			"options": [
+				{
+					"name": "Change Order",
+					"value": "changeOrders"
+				},
+				{
+					"name": "External Sync Task",
+					"value": "extSyncTasks"
+				},
+				{
+					"name": "File",
+					"value": "files"
+				},
+				{
+					"name": "Folder",
+					"value": "folders"
+				},
+				{
+					"name": "Group",
+					"value": "group"
+				},
+				{
+					"name": "Item",
+					"value": "items"
+				},
+				{
+					"name": "Job",
+					"value": "jobs"
+				},
+				{
+					"name": "Lifecycle",
+					"value": "lifecycle"
+				},
+				{
+					"name": "Link",
+					"value": "links"
+				},
+				{
+					"name": "Option",
+					"value": "options"
+				},
+				{
+					"name": "Profile",
+					"value": "profile"
+				},
+				{
+					"name": "Property",
+					"value": "property"
+				},
+				{
+					"name": "Role",
+					"value": "role"
+				},
+				{
+					"name": "Search",
+					"value": "search"
+				},
+				{
+					"name": "Server",
+					"value": "server"
+				},
+				{
+					"name": "Session",
+					"value": "session"
+				},
+				{
+					"name": "User",
+					"value": "user"
+				},
+				{
+					"name": "Vault",
+					"value": "vault"
+				}
+			],
+			"default": "server"
+		}
+	],
+	"operationSelectors": {
+		"changeOrders": {
+			"displayName": "Operation",
+			"name": "operation",
+			"type": "options",
+			"noDataExpression": true,
+			"default": "getChangeOrders"
+		},
+		"extSyncTasks": {
+			"displayName": "Operation",
+			"name": "operation",
+			"type": "options",
+			"noDataExpression": true,
+			"default": "getExtSyncTasks"
+		},
+		"files": {
+			"displayName": "Operation",
+			"name": "operation",
+			"type": "options",
+			"noDataExpression": true,
+			"default": "getFileById"
+		},
+		"folders": {
+			"displayName": "Operation",
+			"name": "operation",
+			"type": "options",
+			"noDataExpression": true,
+			"default": "getFolderById"
+		},
+		"group": {
+			"displayName": "Operation",
+			"name": "operation",
+			"type": "options",
+			"noDataExpression": true,
+			"default": "getGroupById"
+		},
+		"items": {
+			"displayName": "Operation",
+			"name": "operation",
+			"type": "options",
+			"noDataExpression": true,
+			"default": "getItemById"
+		},
+		"jobs": {
+			"displayName": "Operation",
+			"name": "operation",
+			"type": "options",
+			"noDataExpression": true,
+			"default": "addJob"
+		},
+		"lifecycle": {
+			"displayName": "Operation",
+			"name": "operation",
+			"type": "options",
+			"noDataExpression": true,
+			"default": "getLifecycleDefinitions"
+		},
+		"links": {
+			"displayName": "Operation",
+			"name": "operation",
+			"type": "options",
+			"noDataExpression": true,
+			"default": "getLinkById"
+		},
+		"options": {
+			"displayName": "Operation",
+			"name": "operation",
+			"type": "options",
+			"noDataExpression": true,
+			"default": "getSystemOptions"
+		},
+		"profile": {
+			"displayName": "Operation",
+			"name": "operation",
+			"type": "options",
+			"noDataExpression": true,
+			"default": "getProfileAttributeDefinitionById"
+		},
+		"property": {
+			"displayName": "Operation",
+			"name": "operation",
+			"type": "options",
+			"noDataExpression": true,
+			"default": "getPropertyDefinitionById"
+		},
+		"role": {
+			"displayName": "Operation",
+			"name": "operation",
+			"type": "options",
+			"noDataExpression": true,
+			"default": "getRoleById"
+		},
+		"search": {
+			"displayName": "Operation",
+			"name": "operation",
+			"type": "options",
+			"noDataExpression": true,
+			"default": "search"
+		},
+		"server": {
+			"displayName": "Operation",
+			"name": "operation",
+			"type": "options",
+			"noDataExpression": true,
+			"default": "getServerInfo"
+		},
+		"session": {
+			"displayName": "Operation",
+			"name": "operation",
+			"type": "options",
+			"noDataExpression": true,
+			"default": "getSessionById"
+		},
+		"user": {
+			"displayName": "Operation",
+			"name": "operation",
+			"type": "options",
+			"noDataExpression": true,
+			"default": "getUserById"
+		},
+		"vault": {
+			"displayName": "Operation",
+			"name": "operation",
+			"type": "options",
+			"noDataExpression": true,
+			"default": "getVaultById"
+		}
+	}
+}

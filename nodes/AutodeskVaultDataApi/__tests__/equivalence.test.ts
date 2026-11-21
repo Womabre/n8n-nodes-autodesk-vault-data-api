@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { AutodeskVaultDataApi } from '../AutodeskVaultDataApi.node';
 import { describeOperations, type DescriptionView } from './helpers/describeOperations';
 import frozen from '../../../test-fixtures/description-2.0.1.json';
+import frozenNode from '../../../test-fixtures/node-2.0.1.json';
 
 /**
  * The node as users met it in 2.0.1, frozen per operation before the
@@ -50,12 +51,12 @@ function withRenamedHooks(view: DescriptionView): DescriptionView {
  * n8n evaluates a string that starts with `=` as an expression. Without any
  * `{{ }}` in it, `'=/path'` resolves to `'/path'`, so both spellings send the
  * same request. 2.0.1 used both for constant URLs; the builder writes the
- * plain one. Only that form is treated as equal here.
+ * plain one. Only request URLs are treated this way.
  */
 function canonical<T>(view: T): T {
 	return JSON.parse(
-		JSON.stringify(view, (_key, value: unknown) =>
-			typeof value === 'string' && value.startsWith('=') && !value.includes('{{')
+		JSON.stringify(view, (key, value: unknown) =>
+			key === 'url' && typeof value === 'string' && value.startsWith('=') && !value.includes('{{')
 				? value.slice(1)
 				: value,
 		),
@@ -75,5 +76,39 @@ describe('description equivalence with 2.0.1', () => {
 
 	it.each(Object.keys(before.operations))('%s shows and sends the same', (key) => {
 		expect(after.operations[key]).toEqual(before.operations[key]);
+	});
+});
+
+/**
+ * What the per-operation view leaves out: the node's own settings, the
+ * authentication and resource selectors, and each operation selector's
+ * settings (display name, type, default). Frozen from 2.0.1 the same way.
+ */
+describe('node-level equivalence with 2.0.1', () => {
+	const { properties, ...node } = new AutodeskVaultDataApi().description;
+
+	it('has the same node settings', () => {
+		expect(JSON.parse(JSON.stringify(node))).toEqual(frozenNode.node);
+	});
+
+	it('has the same authentication and resource selectors', () => {
+		const selectors = properties.filter(
+			(property) => property.name === 'authentication' || property.name === 'resource',
+		);
+		expect(JSON.parse(JSON.stringify(selectors))).toEqual(frozenNode.selectors);
+	});
+
+	it('has the same operation selector settings for every resource', () => {
+		const operationSelectors = Object.fromEntries(
+			properties
+				.filter((property) => property.name === 'operation')
+				.map((selector) => {
+					const settings: Partial<typeof selector> = { ...selector };
+					delete settings.options;
+					delete settings.displayOptions;
+					return [(selector.displayOptions?.show?.resource as string[]).join(','), settings];
+				}),
+		);
+		expect(JSON.parse(JSON.stringify(operationSelectors))).toEqual(frozenNode.operationSelectors);
 	});
 });

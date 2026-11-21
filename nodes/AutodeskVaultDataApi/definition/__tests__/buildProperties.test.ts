@@ -74,7 +74,12 @@ describe('buildProperties: routing', () => {
 	it('maps headers and body the same way', () => {
 		const option = optionOf(
 			build(
-				operation({ fields: [thingId, query], headers: { H: 'query?' }, body: { q: 'query' } }),
+				operation({
+					method: 'POST',
+					fields: [thingId, query],
+					headers: { H: 'query?' },
+					body: { q: 'query' },
+				}),
 			),
 			'getThing',
 		);
@@ -86,7 +91,10 @@ describe('buildProperties: routing', () => {
 
 	it('runs a body builder through one preSend', () => {
 		const buildBody = { reads: { query: '' }, build: () => ({}) };
-		const option = optionOf(build(operation({ fields: [thingId, query], buildBody })), 'getThing');
+		const option = optionOf(
+			build(operation({ method: 'POST', fields: [thingId, query], buildBody })),
+			'getThing',
+		);
 		const preSend = option.routing?.send?.preSend ?? [];
 		expect(preSend).toHaveLength(1);
 		expect(preSend[0].name).toBe('buildBody');
@@ -166,8 +174,9 @@ describe('buildProperties: shared fields', () => {
 	});
 
 	it('keeps a field’s own display conditions next to the generated ones', () => {
+		const mode = field('mode');
 		const conditional = field('query', { displayOptions: { show: { mode: ['x'] } } });
-		const properties = build(operation({ fields: [thingId, conditional] }));
+		const properties = build(operation({ fields: [thingId, mode, conditional] }));
 		expect(properties.find((p) => p.name === 'query')?.displayOptions?.show).toEqual({
 			resource: ['things'],
 			operation: ['getThing'],
@@ -226,9 +235,68 @@ describe('buildProperties: refuses inconsistent definitions', () => {
 		refuses(() => build(operation({ method: 'POST', buildBody })), /sends "query"/);
 	});
 
+	it('a field whose display depends on an undeclared field', () => {
+		const ghost = field('query', { displayOptions: { hide: { ghost: [true] } } });
+		refuses(() => build(operation({ fields: [thingId, ghost] })), /depending on "ghost"/);
+	});
+
+	it('a field that sets its own resource or operation condition', () => {
+		const own = field('query', { displayOptions: { show: { operation: ['other'] } } });
+		refuses(() => build(operation({ fields: [thingId, own] })), /its own operation condition/);
+	});
+
+	it('a field whose routing or option loading refers to an undeclared field', () => {
+		const viaRouting = field('query', { routing: { send: { value: "={{$parameter['ghost']}}" } } });
+		refuses(() => build(operation({ fields: [thingId, viaRouting] })), /refers to "ghost"/);
+		const viaLoad = field('query', {
+			type: 'options',
+			typeOptions: { loadOptions: { routing: { request: { url: '=/x/{{$parameter.ghost}}' } } } },
+		});
+		refuses(() => build(operation({ fields: [thingId, viaLoad] })), /refers to "ghost"/);
+	});
+
+	it('paginated: false on something that is not a collection', () => {
+		refuses(
+			() => build(operation({ paginated: false })),
+			/paginated: false but is not a collection/,
+		);
+	});
+
+	it('a paginated collection on raw routing', () => {
+		const routing = { request: { url: '=/x/{{$parameter["thingId"]}}' } };
+		refuses(() => build(operation({ response: 'collection', routing })), /raw routing/);
+	});
+
+	it('a body on a GET', () => {
+		refuses(
+			() => build(operation({ fields: [thingId, query], body: { q: 'query' } })),
+			/body with GET/,
+		);
+	});
+
+	it('a body builder next to a field that also sends to the body', () => {
+		const buildBody = { reads: {}, build: () => ({}) };
+		const sending = field('query', { routing: { send: { type: 'body', property: 'q' } } });
+		refuses(
+			() => build(operation({ method: 'POST', fields: [thingId, sending], buildBody })),
+			/"query" also sends to the body/,
+		);
+	});
+
+	it('a resource defined twice', () => {
+		const resource = defineResource({
+			value: 'things',
+			defaultOperation: 'getThing',
+			operations: [operation()],
+		});
+		refuses(() => buildProperties([resource, { ...resource }]), /"things" is defined twice/);
+	});
+
 	it('a raw routing that refers to an undeclared field', () => {
 		const routing = { request: { url: '=/x/{{$parameter["missing"]}}' } };
 		refuses(() => build(operation({ routing })), /sends "missing"/);
+		const singleQuoted = { request: { url: "=/x/{{$parameter['missing']}}" } };
+		refuses(() => build(operation({ routing: singleQuoted })), /sends "missing"/);
 	});
 
 	it('the same field twice on one operation', () => {
