@@ -84,6 +84,14 @@ describe('buildProperties: routing', () => {
 		expect(option.routing?.request?.body).toEqual({ q: '={{$parameter["query"]}}' });
 	});
 
+	it('runs a body builder through one preSend', () => {
+		const buildBody = { reads: { query: '' }, build: () => ({}) };
+		const option = optionOf(build(operation({ fields: [thingId, query], buildBody })), 'getThing');
+		const preSend = option.routing?.send?.preSend ?? [];
+		expect(preSend).toHaveLength(1);
+		expect(preSend[0].name).toBe('buildBody');
+	});
+
 	it('uses the raw routing escape hatch unchanged', () => {
 		const routing = { request: { method: 'GET' as const, url: '=/x/{{$parameter["thingId"]}}' } };
 		expect(optionOf(build(operation({ routing })), 'getThing').routing).toBe(routing);
@@ -211,6 +219,11 @@ describe('buildProperties: refuses inconsistent definitions', () => {
 		refuses(() => build(operation({ query: { q: 'query?' } })), /sends "query"/);
 		refuses(() => build(operation({ headers: { H: 'query' } })), /sends "query"/);
 		refuses(() => build(operation({ body: { b: 'query' } })), /sends "query"/);
+	});
+
+	it('a body builder that reads an undeclared field', () => {
+		const buildBody = { reads: { query: '' }, build: () => ({}) };
+		refuses(() => build(operation({ method: 'POST', buildBody })), /sends "query"/);
 	});
 
 	it('a raw routing that refers to an undeclared field', () => {

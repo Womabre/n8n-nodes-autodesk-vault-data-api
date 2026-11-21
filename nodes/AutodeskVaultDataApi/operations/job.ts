@@ -1,37 +1,32 @@
-import { IExecuteSingleFunctions, IHttpRequestOptions, NodeOperationError } from 'n8n-workflow';
+import type { IDataObject } from 'n8n-workflow';
+import type { BodyBuilder } from '../definition/body';
 import { foldParams, KeyValueEntry } from '../utils/keyValue';
 import { defineOperation, defineResource } from '../definition/defineOperation';
 import { vaultId } from '../definition/fields';
 
-export async function formatJobBody(
-	this: IExecuteSingleFunctions,
-	requestOptions: IHttpRequestOptions,
-): Promise<IHttpRequestOptions> {
-	const jobType = (this.getNodeParameter('jobType') as string)?.trim();
-	if (!jobType) {
-		throw new NodeOperationError(
-			this.getNode(),
-			'Enter a job type, for example Autodesk.Vault.SyncProperties',
-		);
-	}
-	const priority = this.getNodeParameter('priority', '') as number | '';
-	const description = this.getNodeParameter('description', '') as string;
-	const paramsCollection = this.getNodeParameter('params', {}) as {
-		parameter?: KeyValueEntry[];
-	} | null;
+/** Body for `POST /vaults/{vaultId}/jobs`. */
+export const jobBody: BodyBuilder = {
+	reads: { jobType: undefined, priority: '', description: '', params: {} },
+	build(values, fail) {
+		const jobType = (values.jobType as string | undefined)?.trim();
+		if (!jobType) {
+			return fail('Enter a job type, for example Autodesk.Vault.SyncProperties');
+		}
+		const priority = values.priority as number | '' | undefined;
+		const description = values.description as string;
+		const paramsCollection = values.params as { parameter?: KeyValueEntry[] } | null;
 
-	// The API takes `params` as a map of string keys to string values, not as
-	// the list of key/value rows the UI collects.
-	const params = foldParams(paramsCollection?.parameter);
+		// The API takes `params` as a map of string keys to string values, not as
+		// the list of key/value rows the UI collects.
+		const params = foldParams(paramsCollection?.parameter);
 
-	const body: Record<string, unknown> = { jobType };
-	if (priority !== '' && priority !== undefined) body.priority = priority;
-	if (description) body.description = description;
-	if (params) body.params = params;
-
-	requestOptions.body = body;
-	return requestOptions;
-}
+		const body: IDataObject = { jobType };
+		if (priority !== '' && priority !== undefined) body.priority = priority;
+		if (description) body.description = description;
+		if (params) body.params = params;
+		return body;
+	},
+};
 
 export const resource = defineResource({
 	value: 'jobs',
@@ -89,7 +84,7 @@ export const resource = defineResource({
 					],
 				},
 			],
-			preSend: [formatJobBody],
+			buildBody: jobBody,
 			response: 'empty',
 		}),
 		defineOperation({

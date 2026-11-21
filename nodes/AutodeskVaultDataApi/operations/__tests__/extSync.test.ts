@@ -1,11 +1,12 @@
 import { describe, it, expect, vi } from 'vitest';
-import {
-	formatExtSyncTaskBatchBody,
-	formatExtSyncTaskBody,
-	formatExtSyncTaskQueryBody,
-	splitIds,
-} from '../extSync';
+import { extSyncTaskBatchBody, extSyncTaskBody, extSyncTaskQueryBody, splitIds } from '../extSync';
+import { bodyPreSend } from '../../definition/body';
 import { IExecuteSingleFunctions, IHttpRequestOptions } from 'n8n-workflow';
+
+// Run the builders through the same preSend the node uses.
+const formatExtSyncTaskBody = bodyPreSend(extSyncTaskBody);
+const formatExtSyncTaskBatchBody = bodyPreSend(extSyncTaskBatchBody);
+const formatExtSyncTaskQueryBody = bodyPreSend(extSyncTaskQueryBody);
 
 function makeCtx(params: Record<string, unknown>): IExecuteSingleFunctions {
 	return {

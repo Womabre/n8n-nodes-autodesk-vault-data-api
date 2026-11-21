@@ -18,6 +18,22 @@ const after = canonical(describeOperations(new AutodeskVaultDataApi().descriptio
  */
 const RENAMED_HOOKS: Record<string, Record<string, string>> = {
 	'files/getFileVersionContentHead': { '[fn anonymous]': '[fn returnHeaders]' },
+	// Body builders now declare the fields they read and run through one preSend,
+	// buildBody. The bodies they send are pinned by each builder's own tests,
+	// which run through that same preSend.
+	'jobs/addJob': { '[fn formatJobBody]': '[fn buildBody]' },
+	'extSyncTasks/addExtSyncTask': { '[fn formatExtSyncTaskBody]': '[fn buildBody]' },
+	'extSyncTasks/addExtSyncTasks': { '[fn formatExtSyncTaskBatchBody]': '[fn buildBody]' },
+	'extSyncTasks/queryExtSyncTasks': { '[fn formatExtSyncTaskQueryBody]': '[fn buildBody]' },
+	'search/advancedSearch': {
+		'"[fn formatFolderUrls]","[fn formatPropertyDefinitionUrls]"': '"[fn buildBody]"',
+	},
+	'files/updateFileLifecycleDefinitions': { '[fn anonymous]': '[fn buildBody]' },
+	'files/updateFileLifecycleStates': { '[fn anonymous]': '[fn buildBody]' },
+	'folders/updateFolderLifecycleDefinitions': { '[fn anonymous]': '[fn buildBody]' },
+	'folders/updateFolderLifecycleStates': { '[fn anonymous]': '[fn buildBody]' },
+	'items/updateItemLifecycleDefinitions': { '[fn anonymous]': '[fn buildBody]' },
+	'items/updateItemLifecycleStates': { '[fn anonymous]': '[fn buildBody]' },
 };
 
 function withRenamedHooks(view: DescriptionView): DescriptionView {

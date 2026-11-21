@@ -1,9 +1,17 @@
 import { describe, it, expect, vi } from 'vitest';
 import {
-	buildUpdateLifecycleDefinitionsBody,
-	buildUpdateLifecycleStatesBody,
+	lifecycleDefinitionsBody,
+	lifecycleStatesBody,
+	type LifecycleEntityCollection,
 } from '../lifecycleBody';
+import { bodyPreSend } from '../../definition/body';
 import { IExecuteSingleFunctions, IHttpRequestOptions } from 'n8n-workflow';
+
+// Run the builders through the same preSend the node uses.
+const buildUpdateLifecycleStatesBody = (collection: LifecycleEntityCollection) =>
+	bodyPreSend(lifecycleStatesBody(collection));
+const buildUpdateLifecycleDefinitionsBody = (collection: LifecycleEntityCollection) =>
+	bodyPreSend(lifecycleDefinitionsBody(collection));
 
 function makeCtx(params: Record<string, unknown>): IExecuteSingleFunctions {
 	return {

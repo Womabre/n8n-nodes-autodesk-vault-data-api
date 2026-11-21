@@ -1,9 +1,5 @@
-import {
-	IExecuteSingleFunctions,
-	IHttpRequestOptions,
-	INodeProperties,
-	NodeOperationError,
-} from 'n8n-workflow';
+import type { IDataObject, INodeProperties } from 'n8n-workflow';
+import type { BodyBuilder } from '../definition/body';
 import { foldParams, KeyValueEntry } from '../utils/keyValue';
 import { defineOperation, defineResource } from '../definition/defineOperation';
 import { vaultId } from '../definition/fields';
@@ -28,9 +24,9 @@ export function splitIds(raw: string): string[] {
 }
 
 function parseParamsJson(
-	ctx: IExecuteSingleFunctions,
 	raw: string | undefined,
 	position: number,
+	fail: (message: string) => never,
 ): Record<string, unknown> | undefined {
 	if (!raw || !raw.trim()) return undefined;
 
@@ -41,8 +37,7 @@ function parseParamsJson(
 		}
 		return parsed as Record<string, unknown>;
 	} catch {
-		throw new NodeOperationError(
-			ctx.getNode(),
+		return fail(
 			`Task ${position}: "Parameters (JSON)" must be a JSON object, for example {"key": "value"}`,
 		);
 	}
@@ -74,88 +69,86 @@ function buildTask(entry: {
 }
 
 /** Body for `POST /vaults/{vaultId}/ext-sync-tasks`. */
-export async function formatExtSyncTaskBody(
-	this: IExecuteSingleFunctions,
-	requestOptions: IHttpRequestOptions,
-): Promise<IHttpRequestOptions> {
-	const paramsCollection = this.getNodeParameter('syncParams', {}) as {
-		parameter?: KeyValueEntry[];
-	} | null;
-
-	requestOptions.body = buildTask({
-		entityId: this.getNodeParameter('syncEntityId', '') as string,
-		entityClassId: this.getNodeParameter('syncEntityClassId', '') as string,
-		configId: this.getNodeParameter('syncConfigId', '') as string,
-		workflowType: this.getNodeParameter('syncWorkflowType', '') as string,
-		description: this.getNodeParameter('syncDescription', '') as string,
-		params: foldParams(paramsCollection?.parameter),
-		executeImmediately: this.getNodeParameter('syncExecuteImmediately', false) as boolean,
-		predecessorTaskId: this.getNodeParameter('syncPredecessorTaskId', '') as string,
-	});
-
-	return requestOptions;
-}
+export const extSyncTaskBody: BodyBuilder = {
+	reads: {
+		syncParams: {},
+		syncEntityId: '',
+		syncEntityClassId: '',
+		syncConfigId: '',
+		syncWorkflowType: '',
+		syncDescription: '',
+		syncExecuteImmediately: false,
+		syncPredecessorTaskId: '',
+	},
+	build(values) {
+		const paramsCollection = values.syncParams as { parameter?: KeyValueEntry[] } | null;
+		return buildTask({
+			entityId: values.syncEntityId as string,
+			entityClassId: values.syncEntityClassId as string,
+			configId: values.syncConfigId as string,
+			workflowType: values.syncWorkflowType as string,
+			description: values.syncDescription as string,
+			params: foldParams(paramsCollection?.parameter),
+			executeImmediately: values.syncExecuteImmediately as boolean,
+			predecessorTaskId: values.syncPredecessorTaskId as string,
+		}) as IDataObject;
+	},
+};
 
 /**
  * Body for `POST /vaults/{vaultId}/ext-sync-tasks:batch-create`. This endpoint
  * takes a bare JSON array rather than a wrapper object.
  */
-export async function formatExtSyncTaskBatchBody(
-	this: IExecuteSingleFunctions,
-	requestOptions: IHttpRequestOptions,
-): Promise<IHttpRequestOptions> {
-	const collection = this.getNodeParameter('syncTasks', {}) as { task?: ExtSyncTaskEntry[] } | null;
-	const entries = collection?.task ?? [];
+export const extSyncTaskBatchBody: BodyBuilder = {
+	reads: { syncTasks: {} },
+	build(values, fail) {
+		const collection = values.syncTasks as { task?: ExtSyncTaskEntry[] } | null;
+		const entries = collection?.task ?? [];
 
-	// The row number in the error message has to come from the original list, so
-	// an invalid entry points at the row the user actually sees.
-	const tasks: Array<Record<string, unknown>> = [];
-	entries.forEach((entry, index) => {
-		if (!entry.entityId || !entry.entityClassId || !entry.configId || !entry.workflowType) return;
+		// The row number in the error message has to come from the original list, so
+		// an invalid entry points at the row the user actually sees.
+		const tasks: IDataObject[] = [];
+		entries.forEach((entry, index) => {
+			if (!entry.entityId || !entry.entityClassId || !entry.configId || !entry.workflowType) return;
 
-		tasks.push(
-			buildTask({
-				entityId: String(entry.entityId),
-				entityClassId: String(entry.entityClassId),
-				configId: String(entry.configId),
-				workflowType: String(entry.workflowType),
-				description: entry.description ?? '',
-				params: parseParamsJson(this, entry.paramsJson, index + 1),
-				executeImmediately: entry.executeImmediately,
-				predecessorTaskId: entry.predecessorTaskId,
-			}),
-		);
-	});
+			tasks.push(
+				buildTask({
+					entityId: String(entry.entityId),
+					entityClassId: String(entry.entityClassId),
+					configId: String(entry.configId),
+					workflowType: String(entry.workflowType),
+					description: entry.description ?? '',
+					params: parseParamsJson(entry.paramsJson, index + 1, fail),
+					executeImmediately: entry.executeImmediately,
+					predecessorTaskId: entry.predecessorTaskId,
+				}) as IDataObject,
+			);
+		});
 
-	if (tasks.length === 0) {
-		throw new NodeOperationError(
-			this.getNode(),
-			'Add at least one task with an entity ID, entity class ID, config ID and workflow type',
-		);
-	}
-
-	requestOptions.body = tasks;
-	return requestOptions;
-}
+		if (tasks.length === 0) {
+			return fail(
+				'Add at least one task with an entity ID, entity class ID, config ID and workflow type',
+			);
+		}
+		return tasks;
+	},
+};
 
 /** Body for `POST /vaults/{vaultId}/ext-sync-tasks:find-by-entity-ids`. */
-export async function formatExtSyncTaskQueryBody(
-	this: IExecuteSingleFunctions,
-	requestOptions: IHttpRequestOptions,
-): Promise<IHttpRequestOptions> {
-	const entityIds = splitIds((this.getNodeParameter('syncEntityIds', '') as string) ?? '');
+export const extSyncTaskQueryBody: BodyBuilder = {
+	reads: { syncEntityIds: '', filterWorkflowType: '' },
+	build(values, fail) {
+		const entityIds = splitIds((values.syncEntityIds as string) ?? '');
+		if (entityIds.length === 0) {
+			return fail('Enter at least one entity ID to search for');
+		}
 
-	if (entityIds.length === 0) {
-		throw new NodeOperationError(this.getNode(), 'Enter at least one entity ID to search for');
-	}
-
-	const body: Record<string, unknown> = { entityIds };
-	const workflowType = this.getNodeParameter('filterWorkflowType', '') as string;
-	if (workflowType) body.workflowType = workflowType;
-
-	requestOptions.body = body;
-	return requestOptions;
-}
+		const body: IDataObject = { entityIds };
+		const workflowType = values.filterWorkflowType as string;
+		if (workflowType) body.workflowType = workflowType;
+		return body;
+	},
+};
 
 const extSyncTaskId: INodeProperties = {
 	displayName: 'External Sync Task ID',
@@ -275,7 +268,7 @@ export const resource = defineResource({
 					description: 'The ID of a task that must complete before this one runs',
 				},
 			],
-			preSend: [formatExtSyncTaskBody],
+			buildBody: extSyncTaskBody,
 			response: 'empty',
 		}),
 		defineOperation({
@@ -372,7 +365,7 @@ export const resource = defineResource({
 					],
 				},
 			],
-			preSend: [formatExtSyncTaskBatchBody],
+			buildBody: extSyncTaskBatchBody,
 			response: 'single',
 		}),
 		defineOperation({
@@ -406,7 +399,7 @@ export const resource = defineResource({
 					description: 'The entity IDs to search for, separated by commas or newlines',
 				},
 			],
-			preSend: [formatExtSyncTaskQueryBody],
+			buildBody: extSyncTaskQueryBody,
 			response: 'single',
 		}),
 		defineOperation({

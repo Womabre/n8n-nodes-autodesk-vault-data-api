@@ -1,8 +1,5 @@
 import { INodeProperties } from 'n8n-workflow';
-import {
-	buildUpdateLifecycleDefinitionsBody,
-	buildUpdateLifecycleStatesBody,
-} from '../utils/lifecycleBody';
+import { lifecycleDefinitionsBody, lifecycleStatesBody } from '../utils/lifecycleBody';
 import { defineOperation, defineResource } from '../definition/defineOperation';
 import {
 	extendedModels,
@@ -397,7 +394,7 @@ export const resource = defineResource({
 				},
 				lifecycleComment,
 			],
-			preSend: [buildUpdateLifecycleDefinitionsBody('items')],
+			buildBody: lifecycleDefinitionsBody('items'),
 			response: 'collection',
 			paginated: false, // a lifecycle update returns the entities it changed; 2.0.1 never paged it
 		}),
@@ -445,7 +442,7 @@ export const resource = defineResource({
 				},
 				lifecycleComment,
 			],
-			preSend: [buildUpdateLifecycleStatesBody('items')],
+			buildBody: lifecycleStatesBody('items'),
 			response: 'collection',
 			paginated: false, // a lifecycle update returns the entities it changed; 2.0.1 never paged it
 		}),

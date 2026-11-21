@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
-import { formatJobBody } from '../job';
+import { jobBody } from '../job';
+import { bodyPreSend } from '../../definition/body';
 import { IExecuteSingleFunctions, IHttpRequestOptions } from 'n8n-workflow';
 
 function makeCtx(params: Record<string, unknown>): IExecuteSingleFunctions {
@@ -10,6 +11,9 @@ function makeCtx(params: Record<string, unknown>): IExecuteSingleFunctions {
 		getNode: vi.fn(() => ({ name: 'Vault', type: 'autodeskVaultDataApi', typeVersion: 1 })),
 	} as unknown as IExecuteSingleFunctions;
 }
+
+// Run the builder through the same preSend the node uses.
+const formatJobBody = bodyPreSend(jobBody);
 
 function baseOptions(): IHttpRequestOptions {
 	return { url: '/jobs', method: 'POST' } as IHttpRequestOptions;

@@ -1,10 +1,5 @@
-import type {
-	IExecuteSingleFunctions,
-	IHttpRequestMethods,
-	IHttpRequestOptions,
-	INodeProperties,
-	INodePropertyRouting,
-} from 'n8n-workflow';
+import type { IHttpRequestMethods, INodeProperties, INodePropertyRouting } from 'n8n-workflow';
+import type { BodyBuilder } from './body';
 
 /**
  * What an operation's response is, which decides how it becomes workflow items.
@@ -24,12 +19,6 @@ export type ResponseKind = 'single' | 'collection' | 'empty' | 'binary' | 'heade
  */
 export type FieldReference = string;
 
-/** A preSend action that shapes the request from the node's parameters. */
-export type PreSendAction = (
-	this: IExecuteSingleFunctions,
-	requestOptions: IHttpRequestOptions,
-) => Promise<IHttpRequestOptions>;
-
 /**
  * The single description of one operation: the endpoint it calls, the fields
  * it shows, how those fields map onto the request, and its response kind.
@@ -48,8 +37,8 @@ export interface OperationDefinition {
 	query?: Record<string, FieldReference>;
 	headers?: Record<string, FieldReference>;
 	body?: Record<string, FieldReference>;
-	/** Actions that shape the request before it is sent. */
-	preSend?: PreSendAction[];
+	/** Builds the body from field values; runs after the `body` map. */
+	buildBody?: BodyBuilder;
 	response: ResponseKind;
 	/** Opt a collection out of Return All / Limit; say why in a comment. */
 	paginated?: false;

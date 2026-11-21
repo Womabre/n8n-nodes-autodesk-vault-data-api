@@ -8,6 +8,7 @@ import type {
 import { API_BASE } from '../utils/constants';
 import { processBinaryResponse } from '../utils/binary';
 import { handleEmptyResponse, returnHeaders, splitResults } from '../utils/response';
+import { bodyPreSend } from './body';
 import type { FieldReference, OperationDefinition, ResourceDefinition } from './defineOperation';
 import { limit, returnAll } from './fields';
 
@@ -92,7 +93,7 @@ function routing(operation: OperationDefinition): INodePropertyRouting {
 	if (operation.response === 'binary') request.encoding = 'arraybuffer';
 
 	const result: INodePropertyRouting = { request };
-	if (operation.preSend) result.send = { preSend: operation.preSend };
+	if (operation.buildBody) result.send = { preSend: [bodyPreSend(operation.buildBody)] };
 	const postReceive = outputActions(operation);
 	if (postReceive.length > 0) result.output = { postReceive };
 	return result;
@@ -108,6 +109,7 @@ function referencedFields(operation: OperationDefinition): string[] {
 	for (const map of [operation.query, operation.headers, operation.body]) {
 		for (const reference of Object.values(map ?? {})) names.push(referencedName(reference));
 	}
+	names.push(...Object.keys(operation.buildBody?.reads ?? {}));
 	return names;
 }
 

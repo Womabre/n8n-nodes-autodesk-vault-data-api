@@ -1,4 +1,5 @@
-import { IExecuteSingleFunctions, IHttpRequestOptions, INodeProperties } from 'n8n-workflow';
+import type { IDataObject, INodeProperties } from 'n8n-workflow';
+import type { BodyBuilder } from '../definition/body';
 import { API_BASE } from '../utils/constants';
 import { defineOperation, defineResource } from '../definition/defineOperation';
 import {
@@ -28,6 +29,54 @@ const searchSubFolders: INodeProperties = {
 	type: 'boolean',
 	default: false,
 	description: 'Whether to search subfolders',
+};
+
+/** Turns the selected folder IDs into the folder URLs the search body expects. */
+export const folderUrlsBody: BodyBuilder = {
+	reads: { vaultId: undefined, foldersToSearch: [] },
+	build(values) {
+		const folderIds = values.foldersToSearch as string[];
+		if (!Array.isArray(folderIds)) return {};
+		const basePath = `${API_BASE}/vaults/${values.vaultId as string}/folders/`;
+		return { foldersToSearch: folderIds.map((id) => `${basePath}${id}`) };
+	},
+};
+
+/** Prefixes bare property definition IDs in search and sort criteria with their URL. */
+export const criteriaUrlsBody: BodyBuilder = {
+	reads: { vaultId: undefined, searchCriteria: {}, sortCriteria: {} },
+	build(values) {
+		const vaultId = values.vaultId as string;
+		const withUrls = (criteria: SearchCriterion[]) =>
+			criteria.map((criterion) =>
+				criterion?.propertyDefinitionUrl &&
+				typeof criterion.propertyDefinitionUrl === 'string' &&
+				!criterion.propertyDefinitionUrl.startsWith('/AutodeskDM')
+					? {
+							...criterion,
+							propertyDefinitionUrl: `${API_BASE}/vaults/${vaultId}/property-definitions/${criterion.propertyDefinitionUrl}`,
+						}
+					: criterion,
+			);
+
+		const body: IDataObject = {};
+		const search = (values.searchCriteria as CriteriaWrapper | null)?.criteria;
+		const sortBy = (values.sortCriteria as CriteriaWrapper | null)?.criteria;
+		if (Array.isArray(search)) body.searchCriteria = withUrls(search);
+		if (Array.isArray(sortBy)) body.sortCriteria = withUrls(sortBy);
+		return body;
+	},
+};
+
+/** Body for `POST /vaults/{vaultId}:advanced-search`: folder URLs and criteria URLs. */
+export const searchBody: BodyBuilder = {
+	reads: { ...folderUrlsBody.reads, ...criteriaUrlsBody.reads },
+	build(values, fail) {
+		return {
+			...(folderUrlsBody.build(values, fail) as IDataObject),
+			...(criteriaUrlsBody.build(values, fail) as IDataObject),
+		};
+	},
 };
 
 export const resource = defineResource({
@@ -218,73 +267,8 @@ export const resource = defineResource({
 				'option[propDefIds]': 'propDefIds?',
 			},
 			body: { entityTypesToSearch: 'entityTypesToSearch?' },
-			preSend: [formatFolderUrls, formatPropertyDefinitionUrls],
+			buildBody: searchBody,
 			response: 'collection',
 		}),
 	],
 });
-
-export async function formatFolderUrls(
-	this: IExecuteSingleFunctions,
-	requestOptions: IHttpRequestOptions,
-): Promise<IHttpRequestOptions> {
-	const vaultId = this.getNodeParameter('vaultId') as string;
-	const folderIds = this.getNodeParameter('foldersToSearch', []) as string[];
-
-	// Ensure body is defined
-	if (!requestOptions.body || typeof requestOptions.body !== 'object') {
-		requestOptions.body = {};
-	}
-	const body = requestOptions.body as Record<string, unknown>;
-
-	if (Array.isArray(folderIds)) {
-		const basePath = `${API_BASE}/vaults/${vaultId}/folders/`;
-		body.foldersToSearch = folderIds.map((id) => `${basePath}${id}`);
-	}
-	return requestOptions;
-}
-
-export async function formatPropertyDefinitionUrls(
-	this: IExecuteSingleFunctions,
-	requestOptions: IHttpRequestOptions,
-): Promise<IHttpRequestOptions> {
-	const vaultId = this.getNodeParameter('vaultId') as string;
-	const searchWrapper = this.getNodeParameter('searchCriteria', {}) as CriteriaWrapper;
-	const sortWrapper = this.getNodeParameter('sortCriteria', {}) as CriteriaWrapper;
-
-	// Ensure the body exists and is an object
-	if (!requestOptions.body || typeof requestOptions.body !== 'object') {
-		requestOptions.body = {};
-	}
-	const body = requestOptions.body as Record<string, unknown>;
-
-	// Format searchCriteria if criteria array exists
-	if (Array.isArray(searchWrapper?.criteria)) {
-		body.searchCriteria = searchWrapper.criteria.map((criteria) => {
-			if (
-				criteria?.propertyDefinitionUrl &&
-				typeof criteria.propertyDefinitionUrl === 'string' &&
-				!criteria.propertyDefinitionUrl.startsWith('/AutodeskDM')
-			) {
-				criteria.propertyDefinitionUrl = `${API_BASE}/vaults/${vaultId}/property-definitions/${criteria.propertyDefinitionUrl}`;
-			}
-			return criteria;
-		});
-	}
-
-	// Format sortCriteria if criteria array exists
-	if (Array.isArray(sortWrapper?.criteria)) {
-		body.sortCriteria = sortWrapper.criteria.map((criteria) => {
-			if (
-				criteria?.propertyDefinitionUrl &&
-				typeof criteria.propertyDefinitionUrl === 'string' &&
-				!criteria.propertyDefinitionUrl.startsWith('/AutodeskDM')
-			) {
-				criteria.propertyDefinitionUrl = `${API_BASE}/vaults/${vaultId}/property-definitions/${criteria.propertyDefinitionUrl}`;
-			}
-			return criteria;
-		});
-	}
-
-	return requestOptions;
-}
