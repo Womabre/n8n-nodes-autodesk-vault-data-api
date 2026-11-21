@@ -1,355 +1,453 @@
 import { INodeProperties } from 'n8n-workflow';
-import { processBinaryResponse } from '../utils/binary';
 import {
 	buildUpdateLifecycleDefinitionsBody,
 	buildUpdateLifecycleStatesBody,
 } from '../utils/lifecycleBody';
-import { API_BASE } from '../utils/constants';
-import { splitResults } from '../utils/response';
+import { defineOperation, defineResource } from '../definition/defineOperation';
+import {
+	extendedModels,
+	latestOnly,
+	lifecycleComment,
+	propDefIds,
+	q,
+	releasedItemsOnly,
+	releasedOnly,
+	sort,
+	vaultId,
+} from '../definition/fields';
+import { resourceLocatorModes } from '../definition/loadOptions';
 
-export const operations: INodeProperties[] = [
-	{
-		displayName: 'Operation',
-		name: 'operation',
-		type: 'options',
-		noDataExpression: true,
-		displayOptions: {
-			show: {
-				resource: ['items'],
+const itemMasterId: INodeProperties = {
+	displayName: 'Item',
+	name: 'itemMasterId',
+	type: 'resourceLocator',
+	default: { mode: 'list', value: '' },
+	required: true,
+	description:
+		'The item to use (groups all versions). Select one from the list, or provide the numeric item master ID directly.',
+	...resourceLocatorModes('searchItemMasters', 'e.g. 30678'),
+	displayOptions: { hide: { vaultId: [''] } },
+};
+
+const itemId: INodeProperties = {
+	displayName: 'Item Version',
+	name: 'itemId',
+	type: 'resourceLocator',
+	default: { mode: 'list', value: '' },
+	required: true,
+	description:
+		'The item version to use. Search by item number and select the version from the list, or enter a version ID directly.',
+	...resourceLocatorModes('searchItemVersions', 'e.g. 56732'),
+	displayOptions: { hide: { vaultId: [''] } },
+};
+
+const bomType: INodeProperties = {
+	displayName: 'BOM Type',
+	name: 'bomType',
+	type: 'options',
+	options: [
+		{ name: 'Latest', value: 'Latest' },
+		{ name: 'Historic', value: 'Historic' },
+	],
+	default: 'Latest',
+	description: 'Type of BOM to retrieve',
+};
+
+const date: INodeProperties = {
+	displayName: 'Date',
+	name: 'date',
+	type: 'dateTime',
+	default: '',
+	description: 'The date that it was effective. Default value is DateTime.MinValue.',
+};
+
+const infoName: INodeProperties = {
+	displayName: 'Info Name',
+	name: 'infoName',
+	type: 'string',
+	required: true,
+	default: '',
+	placeholder: 'e.g. Adsk.FusionManage.Status',
+	description: 'The name of the external sync info entry to retrieve',
+};
+
+export const resource = defineResource({
+	value: 'items',
+	defaultOperation: 'getItemById',
+	operations: [
+		defineOperation({
+			name: 'Get Item',
+			value: 'getItemById',
+			action: 'Get item',
+			description: 'Retrieve an item by its ID from the specified Vault',
+			method: 'GET',
+			path: '/vaults/{vaultId}/items/{itemMasterId}',
+			fields: [vaultId, itemMasterId, releasedOnly],
+			query: { 'option[releasedOnly]': 'releasedOnly' },
+			response: 'single',
+		}),
+		defineOperation({
+			name: 'Get Item Version',
+			value: 'getItemVersionById',
+			action: 'Get item version',
+			description: 'Retrieve an item version by its unique ID',
+			method: 'GET',
+			path: '/vaults/{vaultId}/item-versions/{itemId}',
+			fields: [vaultId, itemId],
+			response: 'single',
+		}),
+		defineOperation({
+			name: 'Get Item Version BOM',
+			value: 'getItemVersionBom',
+			action: 'Get item version BOM',
+			description:
+				'Retrieve the Bill of Materials (BOM) for the specified item version, effective on a given date',
+			method: 'GET',
+			path: '/vaults/{vaultId}/item-versions/{itemId}/bill-of-materials',
+			fields: [
+				vaultId,
+				{
+					displayName: 'Include BOM Association Property',
+					name: 'includeBOMAssociationProperty',
+					type: 'boolean',
+					default: false,
+					description: 'Whether to include BOM association property definitions',
+				},
+				bomType,
+				date,
+				{
+					displayName: 'Excluded BOM Links',
+					name: 'excludedBOMLinks',
+					type: 'boolean',
+					default: false,
+					description: 'Whether to include BOM rows that have been excluded',
+				},
+				itemId,
+				{
+					displayName: 'Include Occurrences',
+					name: 'includeOccurrences',
+					type: 'boolean',
+					default: false,
+					description: 'Whether to include the occurrences',
+				},
+				{
+					displayName: 'One Level',
+					name: 'oneLevel',
+					type: 'boolean',
+					default: false,
+					description: 'Whether to include only the current level and immediate children',
+				},
+				{
+					displayName: 'Reference Designators',
+					name: 'referenceDesignators',
+					type: 'boolean',
+					default: false,
+					description: 'Whether to include reference designators',
+				},
+				{
+					displayName: 'Rolled Up',
+					name: 'rolledUp',
+					type: 'boolean',
+					default: false,
+					description:
+						'Whether to include a linear view of the BOM showing items for parts only (available for view operations only)',
+				},
+				{
+					displayName: 'Unassigned Components',
+					name: 'unassignedComponents',
+					type: 'boolean',
+					default: false,
+					description:
+						'Whether to include unassigned components (BOM rows without associated items) in the BOM',
+				},
+			],
+			query: {
+				'option[bomType]': 'bomType?',
+				'option[date]': 'date?',
+				'option[rolledUp]': 'rolledUp',
+				'option[oneLevel]': 'oneLevel',
+				'option[referenceDesignators]': 'referenceDesignators',
+				'option[occurrences]': 'includeOccurrences',
+				'option[excludedBOMLinks]': 'excludedBOMLinks',
+				'option[unassignedComponents]': 'unassignedComponents',
+				'option[includeBOMAssociationProperty]': 'includeBOMAssociationProperty',
 			},
-		},
-		options: [
-			{
-				name: 'Get Item',
-				value: 'getItemById',
-				action: 'Get item',
-				description: 'Retrieve an item by its ID from the specified Vault',
-				routing: {
-					request: {
-						method: 'GET',
-						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/items/{{$parameter["itemMasterId"]}}`,
-						qs: {
-							'option[releasedOnly]': '={{$parameter["releasedOnly"]}}',
+			response: 'single',
+		}),
+		defineOperation({
+			name: 'Get Item Version Thumbnail',
+			value: 'getItemVersionThumbnail',
+			action: 'Get item version thumbnail',
+			description: 'Retrieve the thumbnail image associated with the specified item version',
+			method: 'GET',
+			path: '/vaults/{vaultId}/item-versions/{itemId}/thumbnail',
+			fields: [vaultId, itemId],
+			response: 'binary',
+		}),
+		defineOperation({
+			name: 'Get Item Version Where Used',
+			value: 'getItemVersionWhereUsed',
+			action: 'Get item version where used',
+			description: 'Retrieve where the item version is used (its parent items)',
+			method: 'GET',
+			path: '/vaults/{vaultId}/item-versions/{itemId}/parents',
+			fields: [vaultId, bomType, date, itemId],
+			query: { 'option[bomType]': 'bomType?', 'option[date]': 'date?' },
+			response: 'single',
+		}),
+		defineOperation({
+			name: 'Get Item History',
+			value: 'getItemHistory',
+			action: 'Get item history',
+			description: 'Retrieve the version history of an item by its ID from the specified Vault',
+			method: 'GET',
+			path: '/vaults/{vaultId}/items/{itemMasterId}/versions',
+			fields: [
+				vaultId,
+				{
+					displayName: 'Descending',
+					name: 'descending',
+					type: 'boolean',
+					default: false,
+					description: 'Whether to return the latest file version at the top',
+				},
+				{
+					displayName: 'History',
+					name: 'history',
+					type: 'options',
+					options: [
+						{ name: 'All', value: 'All' },
+						{ name: 'Released Only', value: 'ReleasedOnly' },
+						{ name: 'Released And Revision Tip', value: 'ReleasedAndRevisionTip' },
+						{ name: 'Revision Tip', value: 'RevisionTip' },
+					],
+					default: 'All',
+					description: 'Options for viewing item history',
+				},
+				itemMasterId,
+				propDefIds,
+				extendedModels,
+			],
+			query: {
+				'option[history]': 'history?',
+				'option[extendedModels]': 'extendedModels',
+				'option[propDefIds]': 'propDefIds?',
+				descending: 'descending',
+			},
+			response: 'collection',
+		}),
+		defineOperation({
+			name: 'Get Many Items',
+			value: 'getItems',
+			action: 'Get many items',
+			description: 'Retrieve all items in the specified Vault',
+			method: 'GET',
+			path: '/vaults/{vaultId}/items',
+			fields: [vaultId],
+			response: 'collection',
+		}),
+		defineOperation({
+			name: 'Get Many Item Versions',
+			value: 'getItemVersions',
+			action: 'Get many item versions',
+			description: 'Retrieve item versions in the specified vault',
+			method: 'GET',
+			path: '/vaults/{vaultId}/item-versions',
+			fields: [vaultId, releasedItemsOnly, latestOnly, sort, q, propDefIds],
+			query: {
+				q: 'q?',
+				'option[propDefIds]': 'propDefIds',
+				'option[releasedItemsOnly]': 'releasedItemsOnly',
+				'option[latestOnly]': 'latestOnly',
+				sort: 'sort?',
+			},
+			response: 'collection',
+		}),
+		defineOperation({
+			name: 'Get Many Item Version Associated Change Orders',
+			value: 'getItemAssociatedChangeOrders',
+			action: 'Get many item version associated change orders',
+			description: 'Retrieve change orders associated with a specific item in the Vault',
+			method: 'GET',
+			path: '/vaults/{vaultId}/items/{itemMasterId}/change-orders',
+			fields: [
+				vaultId,
+				itemMasterId,
+				{
+					displayName: "Include Closed ECO's",
+					name: 'includeClosedECOs',
+					type: 'boolean',
+					default: false,
+					description: 'Whether to include change orders in a closed or cancelled state',
+				},
+				propDefIds,
+				extendedModels,
+			],
+			query: {
+				'option[includeClosedECOs]': 'includeClosedECOs',
+				'option[extendedModels]': 'extendedModels',
+				'option[propDefIds]': 'propDefIds?',
+			},
+			response: 'collection',
+		}),
+		defineOperation({
+			name: 'Get Many Item Version Associated Files',
+			value: 'getItemVersionAssociatedFiles',
+			action: 'Get many item version associated files',
+			description: 'Retrieve all file associations for the specified item version ID',
+			method: 'GET',
+			path: '/vaults/{vaultId}/item-versions/{itemId}/associated-files',
+			fields: [vaultId, itemId, propDefIds, extendedModels],
+			query: { 'option[extendedModels]': 'extendedModels', 'option[propDefIds]': 'propDefIds' },
+			response: 'collection',
+			paginated: false, // no Return All in 2.0.1; adding it is a separate fix
+			legacyWrapper: true,
+		}),
+		defineOperation({
+			name: 'Get Item External Sync Info',
+			value: 'getItemExtSyncInfoByName',
+			action: 'Get item external sync info',
+			description: 'Retrieve one external sync info entry by name from an item',
+			method: 'GET',
+			path: '/vaults/{vaultId}/items/{itemMasterId}/ext-sync-infos/{infoName}',
+			fields: [vaultId, itemMasterId, infoName],
+			response: 'single',
+		}),
+		defineOperation({
+			name: 'Get Item Version External Sync Info',
+			value: 'getItemVersionExtSyncInfoByName',
+			action: 'Get item version external sync info',
+			description: 'Retrieve one external sync info entry by name from an item version',
+			method: 'GET',
+			path: '/vaults/{vaultId}/item-versions/{itemId}/ext-sync-infos/{infoName}',
+			fields: [vaultId, itemId, infoName],
+			response: 'single',
+		}),
+		defineOperation({
+			name: 'Get Many Item External Sync Infos',
+			value: 'getItemExtSyncInfos',
+			action: 'Get many item external sync infos',
+			description: 'Retrieve all external sync info entries stored on an item',
+			method: 'GET',
+			path: '/vaults/{vaultId}/items/{itemMasterId}/ext-sync-infos',
+			fields: [vaultId, itemMasterId],
+			response: 'collection',
+		}),
+		defineOperation({
+			name: 'Get Many Item Version External Sync Infos',
+			value: 'getItemVersionExtSyncInfos',
+			action: 'Get many item version external sync infos',
+			description: 'Retrieve all external sync info entries stored on an item version',
+			method: 'GET',
+			path: '/vaults/{vaultId}/item-versions/{itemId}/ext-sync-infos',
+			fields: [vaultId, itemId],
+			response: 'collection',
+		}),
+		defineOperation({
+			name: 'Update Item Lifecycle Definitions',
+			value: 'updateItemLifecycleDefinitions',
+			action: 'Update item lifecycle definitions',
+			description:
+				'Move items onto a different lifecycle definition. Each entry needs a definition and a state that belongs to it.',
+			method: 'POST',
+			path: '/vaults/{vaultId}/items:update-lifecycle-definitions',
+			fields: [
+				vaultId,
+				{
+					displayName: 'Definition Updates',
+					name: 'lifecycleDefinitionUpdates',
+					type: 'fixedCollection',
+					typeOptions: { multipleValues: true },
+					default: {},
+					description:
+						'One entry per entity. The lifecycle state must belong to the lifecycle definition given on the same entry.',
+					options: [
+						{
+							displayName: 'Update',
+							name: 'update',
+							values: [
+								{
+									displayName: 'Entity ID',
+									name: 'entityId',
+									type: 'string',
+									default: '',
+									placeholder: 'e.g. 55',
+									description:
+										'The master ID of the file or item, or the folder ID, whose lifecycle should change',
+								},
+								{
+									displayName: 'Lifecycle Definition ID',
+									name: 'lifecycleDefinitionId',
+									type: 'string',
+									default: '',
+									placeholder: 'e.g. 2',
+									description: 'The ID of the target lifecycle definition',
+								},
+								{
+									displayName: 'Lifecycle State ID',
+									name: 'lifecycleStateId',
+									type: 'string',
+									default: '',
+									placeholder: 'e.g. 9',
+									description: 'The ID of a state that belongs to the target lifecycle definition',
+								},
+							],
 						},
-					},
+					],
 				},
-			},
-			{
-				name: 'Get Item Version',
-				value: 'getItemVersionById',
-				action: 'Get item version',
-				description: 'Retrieve an item version by its unique ID',
-				routing: {
-					request: {
-						method: 'GET',
-						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/item-versions/{{$parameter["itemId"]}}`,
-					},
-				},
-			},
-			{
-				name: 'Get Item Version BOM',
-				value: 'getItemVersionBom',
-				action: 'Get item version BOM',
-				description:
-					'Retrieve the Bill of Materials (BOM) for the specified item version, effective on a given date',
-				routing: {
-					request: {
-						method: 'GET',
-						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/item-versions/{{$parameter["itemId"]}}/bill-of-materials`,
-						qs: {
-							'option[bomType]': '={{$parameter["bomType"] || undefined}}',
-							'option[date]': '={{$parameter["date"] || undefined}}',
-							'option[rolledUp]': '={{$parameter["rolledUp"]}}',
-							'option[oneLevel]': '={{$parameter["oneLevel"]}}',
-							'option[referenceDesignators]': '={{$parameter["referenceDesignators"]}}',
-							'option[occurrences]': '={{$parameter["includeOccurrences"]}}',
-							'option[excludedBOMLinks]': '={{$parameter["excludedBOMLinks"]}}',
-							'option[unassignedComponents]': '={{$parameter["unassignedComponents"]}}',
-							'option[includeBOMAssociationProperty]':
-								'={{$parameter["includeBOMAssociationProperty"]}}',
+				lifecycleComment,
+			],
+			preSend: [buildUpdateLifecycleDefinitionsBody('items')],
+			response: 'collection',
+			paginated: false, // a lifecycle update returns the entities it changed; 2.0.1 never paged it
+		}),
+		defineOperation({
+			name: 'Update Item Lifecycle States',
+			value: 'updateItemLifecycleStates',
+			action: 'Update item lifecycle states',
+			description: 'Update the lifecycle state of one or more items',
+			method: 'POST',
+			path: '/vaults/{vaultId}/items:update-states',
+			fields: [
+				vaultId,
+				{
+					displayName: 'State Updates',
+					name: 'lifecycleStateUpdates',
+					type: 'fixedCollection',
+					typeOptions: { multipleValues: true },
+					default: {},
+					description: 'One entry per entity whose lifecycle state should change',
+					options: [
+						{
+							displayName: 'Update',
+							name: 'update',
+							values: [
+								{
+									displayName: 'Entity ID',
+									name: 'entityId',
+									type: 'string',
+									default: '',
+									placeholder: 'e.g. 55',
+									description:
+										'The master ID of the file or item, or the folder ID, whose state should change',
+								},
+								{
+									displayName: 'Lifecycle State ID',
+									name: 'lifecycleStateId',
+									type: 'string',
+									default: '',
+									placeholder: 'e.g. 2',
+									description: 'The ID of the target lifecycle state',
+								},
+							],
 						},
-					},
+					],
 				},
-			},
-			{
-				name: 'Get Item Version Thumbnail',
-				value: 'getItemVersionThumbnail',
-				action: 'Get item version thumbnail',
-				description: 'Retrieve the thumbnail image associated with the specified item version',
-				routing: {
-					request: {
-						method: 'GET',
-						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/item-versions/{{$parameter["itemId"]}}/thumbnail`,
-						returnFullResponse: true,
-						encoding: 'arraybuffer', // ensures Buffer not string
-					},
-					output: {
-						postReceive: [processBinaryResponse],
-					},
-				},
-			},
-			{
-				name: 'Get Item Version Where Used',
-				value: 'getItemVersionWhereUsed',
-				action: 'Get item version where used',
-				description: 'Retrieve where the item version is used (its parent items)',
-				routing: {
-					request: {
-						method: 'GET',
-						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/item-versions/{{$parameter["itemId"]}}/parents`,
-						qs: {
-							'option[bomType]': '={{$parameter["bomType"] || undefined}}',
-							'option[date]': '={{$parameter["date"] || undefined}}',
-						},
-					},
-				},
-			},
-			{
-				name: 'Get Item History',
-				value: 'getItemHistory',
-				action: 'Get item history',
-				description: 'Retrieve the version history of an item by its ID from the specified Vault',
-				routing: {
-					request: {
-						method: 'GET',
-						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/items/{{$parameter["itemMasterId"]}}/versions`,
-						qs: {
-							'option[history]': '={{$parameter["history"] || undefined}}',
-							'option[extendedModels]': '={{$parameter["extendedModels"]}}',
-							'option[propDefIds]': '={{$parameter["propDefIds"] || undefined}}',
-							descending: '={{$parameter["descending"]}}',
-						},
-					},
-					output: {
-						postReceive: [
-							{
-								type: 'rootProperty',
-								properties: {
-									property: 'results',
-								},
-							},
-						],
-					},
-				},
-			},
-			{
-				name: 'Get Many Items',
-				value: 'getItems',
-				action: 'Get many items',
-				description: 'Retrieve all items in the specified Vault',
-				routing: {
-					request: {
-						method: 'GET',
-						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/items`,
-					},
-					output: {
-						postReceive: [
-							{
-								type: 'rootProperty',
-								properties: {
-									property: 'results',
-								},
-							},
-						],
-					},
-				},
-			},
-			{
-				name: 'Get Many Item Versions',
-				value: 'getItemVersions',
-				action: 'Get many item versions',
-				description: 'Retrieve item versions in the specified vault',
-				routing: {
-					request: {
-						method: 'GET',
-						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/item-versions`,
-						qs: {
-							q: '={{$parameter["q"] || undefined}}',
-							'option[propDefIds]': '={{$parameter["propDefIds"]}}',
-							'option[releasedItemsOnly]': '={{$parameter["releasedItemsOnly"]}}',
-							'option[latestOnly]': '={{$parameter["latestOnly"]}}',
-							sort: '={{$parameter["sort"] || undefined}}',
-						},
-					},
-					output: {
-						postReceive: [
-							{
-								type: 'rootProperty',
-								properties: {
-									property: 'results',
-								},
-							},
-						],
-					},
-				},
-			},
-			{
-				name: 'Get Many Item Version Associated Change Orders',
-				value: 'getItemAssociatedChangeOrders',
-				action: 'Get many item version associated change orders',
-				description: 'Retrieve change orders associated with a specific item in the Vault',
-				routing: {
-					request: {
-						method: 'GET',
-						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/items/{{$parameter["itemMasterId"]}}/change-orders`,
-						qs: {
-							'option[includeClosedECOs]': '={{$parameter["includeClosedECOs"]}}',
-							'option[extendedModels]': '={{$parameter["extendedModels"]}}',
-							'option[propDefIds]': '={{$parameter["propDefIds"] || undefined}}',
-						},
-					},
-					output: {
-						postReceive: [
-							{
-								type: 'rootProperty',
-								properties: {
-									property: 'results',
-								},
-							},
-						],
-					},
-				},
-			},
-			{
-				name: 'Get Many Item Version Associated Files',
-				value: 'getItemVersionAssociatedFiles',
-				action: 'Get many item version associated files',
-				description: 'Retrieve all file associations for the specified item version ID',
-				routing: {
-					request: {
-						method: 'GET',
-						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/item-versions/{{$parameter["itemId"]}}/associated-files`,
-						qs: {
-							'option[extendedModels]': '={{$parameter["extendedModels"]}}',
-							'option[propDefIds]': '={{$parameter["propDefIds"]}}',
-						},
-					},
-					output: {
-						// One item per file from node version 1.1; version 1 returned the wrapper.
-						postReceive: [splitResults],
-					},
-				},
-			},
-			{
-				name: 'Get Item External Sync Info',
-				value: 'getItemExtSyncInfoByName',
-				action: 'Get item external sync info',
-				description: 'Retrieve one external sync info entry by name from an item',
-				routing: {
-					request: {
-						method: 'GET',
-						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/items/{{$parameter["itemMasterId"]}}/ext-sync-infos/{{$parameter["infoName"]}}`,
-					},
-				},
-			},
-			{
-				name: 'Get Item Version External Sync Info',
-				value: 'getItemVersionExtSyncInfoByName',
-				action: 'Get item version external sync info',
-				description: 'Retrieve one external sync info entry by name from an item version',
-				routing: {
-					request: {
-						method: 'GET',
-						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/item-versions/{{$parameter["itemId"]}}/ext-sync-infos/{{$parameter["infoName"]}}`,
-					},
-				},
-			},
-			{
-				name: 'Get Many Item External Sync Infos',
-				value: 'getItemExtSyncInfos',
-				action: 'Get many item external sync infos',
-				description: 'Retrieve all external sync info entries stored on an item',
-				routing: {
-					request: {
-						method: 'GET',
-						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/items/{{$parameter["itemMasterId"]}}/ext-sync-infos`,
-					},
-					output: {
-						postReceive: [
-							{
-								type: 'rootProperty',
-								properties: {
-									property: 'results',
-								},
-							},
-						],
-					},
-				},
-			},
-			{
-				name: 'Get Many Item Version External Sync Infos',
-				value: 'getItemVersionExtSyncInfos',
-				action: 'Get many item version external sync infos',
-				description: 'Retrieve all external sync info entries stored on an item version',
-				routing: {
-					request: {
-						method: 'GET',
-						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/item-versions/{{$parameter["itemId"]}}/ext-sync-infos`,
-					},
-					output: {
-						postReceive: [
-							{
-								type: 'rootProperty',
-								properties: {
-									property: 'results',
-								},
-							},
-						],
-					},
-				},
-			},
-			{
-				name: 'Update Item Lifecycle Definitions',
-				value: 'updateItemLifecycleDefinitions',
-				action: 'Update item lifecycle definitions',
-				description:
-					'Move items onto a different lifecycle definition. Each entry needs a definition and a state that belongs to it.',
-				routing: {
-					send: {
-						preSend: [buildUpdateLifecycleDefinitionsBody('items')],
-					},
-					request: {
-						method: 'POST',
-						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/items:update-lifecycle-definitions`,
-					},
-					output: {
-						postReceive: [
-							{
-								type: 'rootProperty',
-								properties: {
-									property: 'results',
-								},
-							},
-						],
-					},
-				},
-			},
-			{
-				name: 'Update Item Lifecycle States',
-				value: 'updateItemLifecycleStates',
-				action: 'Update item lifecycle states',
-				description: 'Update the lifecycle state of one or more items',
-				routing: {
-					send: {
-						preSend: [buildUpdateLifecycleStatesBody('items')],
-					},
-					request: {
-						method: 'POST',
-						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/items:update-states`,
-					},
-					output: {
-						postReceive: [
-							{
-								type: 'rootProperty',
-								properties: {
-									property: 'results',
-								},
-							},
-						],
-					},
-				},
-			},
-		],
-		default: 'getItemById',
-	},
-];
+				lifecycleComment,
+			],
+			preSend: [buildUpdateLifecycleStatesBody('items')],
+			response: 'collection',
+			paginated: false, // a lifecycle update returns the entities it changed; 2.0.1 never paged it
+		}),
+	],
+});
