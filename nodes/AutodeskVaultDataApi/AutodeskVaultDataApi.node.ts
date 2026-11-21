@@ -30,13 +30,10 @@ import { resource as session } from './operations/session';
 import { resource as user } from './operations/user';
 import { resource as vault } from './operations/vault';
 
-// Import shared parameters
-import * as shared from './parameters/shared-parameters';
 import { buildProperties } from './definition/buildProperties';
-import { withoutMigrated } from './definition/legacy';
 
-/** Resources whose operations are built from operation definitions. */
-const migrated = [
+/** Every resource, in the order its operations are built. */
+const resources = [
 	changeOrders,
 	files,
 	folders,
@@ -153,12 +150,8 @@ export class AutodeskVaultDataApi implements INodeType {
 				],
 				default: 'server',
 			},
-			// Operations
-
-			...buildProperties(migrated),
-
-			// Shared Parameters
-			...withoutMigrated(shared.parameters, migrated),
+			// Every operation and its fields, built from the operation definitions
+			...buildProperties(resources),
 		],
 	};
 }
