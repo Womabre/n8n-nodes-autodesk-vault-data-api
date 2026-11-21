@@ -1,5 +1,5 @@
 import type { IDataObject } from 'n8n-workflow';
-import type { BodyBuilder } from '../definition/body';
+import { defineBody, type BodyBuilder } from '../definition/body';
 import { API_BASE } from './constants';
 
 /** Collection segment of the entity a lifecycle change applies to. */
@@ -51,7 +51,7 @@ function withComment(body: IDataObject, comment: unknown): IDataObject {
  * @param collection Entity collection the operation targets
  */
 export function lifecycleStatesBody(collection: LifecycleEntityCollection): BodyBuilder {
-	return {
+	return defineBody({
 		reads: { vaultId: '', lifecycleStateUpdates: {}, lifecycleComment: '' },
 		build(values, fail) {
 			const vaultId = String(values.vaultId);
@@ -69,7 +69,7 @@ export function lifecycleStatesBody(collection: LifecycleEntityCollection): Body
 			}
 			return withComment({ updateLifecycleStateRequests }, values.lifecycleComment);
 		},
-	};
+	});
 }
 
 /**
@@ -80,7 +80,7 @@ export function lifecycleStatesBody(collection: LifecycleEntityCollection): Body
  * @param collection Entity collection the operation targets
  */
 export function lifecycleDefinitionsBody(collection: LifecycleEntityCollection): BodyBuilder {
-	return {
+	return defineBody({
 		reads: { vaultId: '', lifecycleDefinitionUpdates: {}, lifecycleComment: '' },
 		build(values, fail) {
 			const vaultId = String(values.vaultId);
@@ -102,5 +102,5 @@ export function lifecycleDefinitionsBody(collection: LifecycleEntityCollection):
 			}
 			return withComment({ updateLifecycleDefinitionRequests }, values.lifecycleComment);
 		},
-	};
+	});
 }

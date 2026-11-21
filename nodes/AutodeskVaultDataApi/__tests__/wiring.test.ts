@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import type { INodeProperties, INodePropertyOptions, INodePropertyRouting } from 'n8n-workflow';
+import type {
+	IExecuteSingleFunctions,
+	IHttpRequestOptions,
+	INodeProperties,
+	INodePropertyOptions,
+	INodePropertyRouting,
+} from 'n8n-workflow';
 import { AutodeskVaultDataApi } from '../AutodeskVaultDataApi.node';
 import { splitResults } from '../utils/response';
 
@@ -127,5 +133,87 @@ describe('resources', () => {
 		const offered = (selector?.options as INodePropertyOptions[]).map((option) => option.value);
 		const built = [...new Set(operations.map((op) => op.resource))];
 		expect([...offered].sort()).toEqual([...built].sort());
+	});
+});
+
+/**
+ * Each operation with a body builder runs the right one: its preSend, taken
+ * from the built node, produces that builder's body. The equivalence test
+ * cannot see this, because every builder runs through the same preSend.
+ */
+describe('body builders per operation', () => {
+	async function bodyOf(resource: string, value: string, params: Record<string, unknown>) {
+		const preSend = operation(resource, value).routing?.send?.preSend ?? [];
+		expect(preSend).toHaveLength(1);
+		const ctx = {
+			getNodeParameter: (name: string, fallback?: unknown) =>
+				name in params ? params[name] : fallback,
+			getNode: () => ({ name: 'Vault', type: 'autodeskVaultDataApi', typeVersion: 1.1 }),
+		} as unknown as IExecuteSingleFunctions;
+		const options = { url: '/x', method: 'POST' } as IHttpRequestOptions;
+		return (await preSend[0].call(ctx, options)).body;
+	}
+
+	it('jobs/addJob builds a job', async () => {
+		expect(await bodyOf('jobs', 'addJob', { jobType: 'MyJob' })).toEqual({ jobType: 'MyJob' });
+	});
+
+	it('extSyncTasks operations build a task, a task list and a query', async () => {
+		const task = { entityId: '1', entityClassId: 'FILE', configId: 'c', workflowType: 'w' };
+		expect(
+			await bodyOf('extSyncTasks', 'addExtSyncTask', {
+				syncEntityId: '1',
+				syncEntityClassId: 'FILE',
+				syncConfigId: 'c',
+				syncWorkflowType: 'w',
+			}),
+		).toEqual({ ...task, description: '' });
+		expect(
+			await bodyOf('extSyncTasks', 'addExtSyncTasks', { syncTasks: { task: [task] } }),
+		).toEqual([{ ...task, description: '' }]);
+		expect(await bodyOf('extSyncTasks', 'queryExtSyncTasks', { syncEntityIds: '5' })).toEqual({
+			entityIds: ['5'],
+		});
+	});
+
+	it('search/advancedSearch builds folder URLs', async () => {
+		expect(
+			await bodyOf('search', 'advancedSearch', { vaultId: '7', foldersToSearch: ['3'] }),
+		).toEqual({ foldersToSearch: ['/AutodeskDM/Services/api/vault/v2/vaults/7/folders/3'] });
+	});
+
+	it.each([
+		['files', 'updateFileLifecycleStates', 'files'],
+		['folders', 'updateFolderLifecycleStates', 'folders'],
+		['items', 'updateItemLifecycleStates', 'items'],
+	])('%s/%s updates states of %s', async (resource, value, collection) => {
+		const body = await bodyOf(resource, value, {
+			vaultId: '9',
+			lifecycleStateUpdates: { update: [{ entityId: '1', lifecycleStateId: '2' }] },
+		});
+		expect(body).toEqual({
+			updateLifecycleStateRequests: [
+				{
+					entityUrl: `/AutodeskDM/Services/api/vault/v2/vaults/9/${collection}/1`,
+					lifecycleStateUrl: '/AutodeskDM/Services/api/vault/v2/vaults/9/lifecycle-states/2',
+				},
+			],
+		});
+	});
+
+	it.each([
+		['files', 'updateFileLifecycleDefinitions', 'files'],
+		['folders', 'updateFolderLifecycleDefinitions', 'folders'],
+		['items', 'updateItemLifecycleDefinitions', 'items'],
+	])('%s/%s updates definitions of %s', async (resource, value, collection) => {
+		const body = (await bodyOf(resource, value, {
+			vaultId: '9',
+			lifecycleDefinitionUpdates: {
+				update: [{ entityId: '1', lifecycleDefinitionId: '4', lifecycleStateId: '2' }],
+			},
+		})) as { updateLifecycleDefinitionRequests: Array<{ entityUrl: string }> };
+		expect(body.updateLifecycleDefinitionRequests[0].entityUrl).toBe(
+			`/AutodeskDM/Services/api/vault/v2/vaults/9/${collection}/1`,
+		);
 	});
 });

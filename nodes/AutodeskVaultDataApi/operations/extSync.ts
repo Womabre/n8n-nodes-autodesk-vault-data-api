@@ -1,5 +1,5 @@
 import type { IDataObject, INodeProperties } from 'n8n-workflow';
-import type { BodyBuilder } from '../definition/body';
+import { defineBody } from '../definition/body';
 import { foldParams, KeyValueEntry } from '../utils/keyValue';
 import { defineOperation, defineResource } from '../definition/defineOperation';
 import { vaultId } from '../definition/fields';
@@ -69,7 +69,7 @@ function buildTask(entry: {
 }
 
 /** Body for `POST /vaults/{vaultId}/ext-sync-tasks`. */
-export const extSyncTaskBody: BodyBuilder = {
+export const extSyncTaskBody = defineBody({
 	reads: {
 		syncParams: {},
 		syncEntityId: '',
@@ -93,13 +93,13 @@ export const extSyncTaskBody: BodyBuilder = {
 			predecessorTaskId: values.syncPredecessorTaskId as string,
 		}) as IDataObject;
 	},
-};
+});
 
 /**
  * Body for `POST /vaults/{vaultId}/ext-sync-tasks:batch-create`. This endpoint
  * takes a bare JSON array rather than a wrapper object.
  */
-export const extSyncTaskBatchBody: BodyBuilder = {
+export const extSyncTaskBatchBody = defineBody({
 	reads: { syncTasks: {} },
 	build(values, fail) {
 		const collection = values.syncTasks as { task?: ExtSyncTaskEntry[] } | null;
@@ -132,10 +132,10 @@ export const extSyncTaskBatchBody: BodyBuilder = {
 		}
 		return tasks;
 	},
-};
+});
 
 /** Body for `POST /vaults/{vaultId}/ext-sync-tasks:find-by-entity-ids`. */
-export const extSyncTaskQueryBody: BodyBuilder = {
+export const extSyncTaskQueryBody = defineBody({
 	reads: { syncEntityIds: '', filterWorkflowType: '' },
 	build(values, fail) {
 		const entityIds = splitIds((values.syncEntityIds as string) ?? '');
@@ -148,7 +148,7 @@ export const extSyncTaskQueryBody: BodyBuilder = {
 		if (workflowType) body.workflowType = workflowType;
 		return body;
 	},
-};
+});
 
 const extSyncTaskId: INodeProperties = {
 	displayName: 'External Sync Task ID',

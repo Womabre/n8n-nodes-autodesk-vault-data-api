@@ -28,6 +28,20 @@ export interface BodyBuilder {
 	build(values: FieldValues, fail: (message: string) => never): IDataObject | IDataObject[];
 }
 
+/**
+ * Declares a body builder whose `build` can read only the fields listed in
+ * `reads`: any other name is a type error.
+ */
+export function defineBody<Field extends string>(builder: {
+	reads: Record<Field, unknown>;
+	build(
+		values: Record<Field, unknown>,
+		fail: (message: string) => never,
+	): IDataObject | IDataObject[];
+}): BodyBuilder {
+	return builder;
+}
+
 /** The preSend action that reads a builder's fields and sets the body. */
 export function bodyPreSend(builder: BodyBuilder) {
 	return async function buildBody(

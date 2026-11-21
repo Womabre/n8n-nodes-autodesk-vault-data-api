@@ -1,5 +1,5 @@
 import type { IDataObject, INodeProperties } from 'n8n-workflow';
-import type { BodyBuilder } from '../definition/body';
+import { defineBody } from '../definition/body';
 import { API_BASE } from '../utils/constants';
 import { defineOperation, defineResource } from '../definition/defineOperation';
 import {
@@ -32,7 +32,7 @@ const searchSubFolders: INodeProperties = {
 };
 
 /** Turns the selected folder IDs into the folder URLs the search body expects. */
-export const folderUrlsBody: BodyBuilder = {
+export const folderUrlsBody = defineBody({
 	reads: { vaultId: undefined, foldersToSearch: [] },
 	build(values) {
 		const folderIds = values.foldersToSearch as string[];
@@ -40,10 +40,10 @@ export const folderUrlsBody: BodyBuilder = {
 		const basePath = `${API_BASE}/vaults/${values.vaultId as string}/folders/`;
 		return { foldersToSearch: folderIds.map((id) => `${basePath}${id}`) };
 	},
-};
+});
 
 /** Prefixes bare property definition IDs in search and sort criteria with their URL. */
-export const criteriaUrlsBody: BodyBuilder = {
+export const criteriaUrlsBody = defineBody({
 	reads: { vaultId: undefined, searchCriteria: {}, sortCriteria: {} },
 	build(values) {
 		const vaultId = values.vaultId as string;
@@ -66,10 +66,10 @@ export const criteriaUrlsBody: BodyBuilder = {
 		if (Array.isArray(sortBy)) body.sortCriteria = withUrls(sortBy);
 		return body;
 	},
-};
+});
 
 /** Body for `POST /vaults/{vaultId}:advanced-search`: folder URLs and criteria URLs. */
-export const searchBody: BodyBuilder = {
+export const searchBody = defineBody({
 	reads: { ...folderUrlsBody.reads, ...criteriaUrlsBody.reads },
 	build(values, fail) {
 		return {
@@ -77,7 +77,7 @@ export const searchBody: BodyBuilder = {
 			...(criteriaUrlsBody.build(values, fail) as IDataObject),
 		};
 	},
-};
+});
 
 export const resource = defineResource({
 	value: 'search',

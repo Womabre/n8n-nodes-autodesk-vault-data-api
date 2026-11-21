@@ -1,11 +1,11 @@
 import type { IDataObject } from 'n8n-workflow';
-import type { BodyBuilder } from '../definition/body';
+import { defineBody } from '../definition/body';
 import { foldParams, KeyValueEntry } from '../utils/keyValue';
 import { defineOperation, defineResource } from '../definition/defineOperation';
 import { vaultId } from '../definition/fields';
 
 /** Body for `POST /vaults/{vaultId}/jobs`. */
-export const jobBody: BodyBuilder = {
+export const jobBody = defineBody({
 	reads: { jobType: undefined, priority: '', description: '', params: {} },
 	build(values, fail) {
 		const jobType = (values.jobType as string | undefined)?.trim();
@@ -26,7 +26,7 @@ export const jobBody: BodyBuilder = {
 		if (params) body.params = params;
 		return body;
 	},
-};
+});
 
 export const resource = defineResource({
 	value: 'jobs',
