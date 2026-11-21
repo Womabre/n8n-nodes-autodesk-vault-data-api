@@ -4,9 +4,10 @@ import { AutodeskVaultDataApi } from '../AutodeskVaultDataApi.node';
 import { splitResults } from '../utils/response';
 
 /**
- * Checks on the declarative wiring itself: which parameters an operation's
- * request refers to, and which parameters the UI shows for that operation.
- * The unit tests next to each helper do not see mistakes of this kind.
+ * Regression checks on the declarative wiring for bugs fixed in 2.0.1. The
+ * generic checks this file used to make (every field an operation sends is
+ * shown, no field is shown twice) are now refused by buildProperties when the
+ * node is built; see definition/__tests__/buildProperties.test.ts.
  */
 
 interface Operation {
@@ -50,44 +51,10 @@ function shownParameters(op: Operation, name: string): INodeProperties[] {
 	return parameters.filter((parameter) => parameter.name === name && isShownFor(parameter, op));
 }
 
-/** Names of every `$parameter["..."]` the operation's routing refers to. */
-function referencedParameters(op: Operation): string[] {
-	const text = JSON.stringify(op.routing ?? {});
-	const names = [...text.matchAll(/\$parameter\[\\"([^"\\]+)\\"\]/g)].map((match) => match[1]);
-	return [...new Set(names)];
-}
-
 describe('operation wiring', () => {
 	it('finds the operations and parameters of the node', () => {
 		expect(operations.length).toBeGreaterThan(80);
 		expect(parameters.length).toBeGreaterThan(80);
-	});
-
-	it('only refers to parameters that are shown for that operation', () => {
-		const missing: string[] = [];
-		for (const op of operations) {
-			for (const name of referencedParameters(op)) {
-				if (shownParameters(op, name).length === 0) {
-					missing.push(`${op.resource}/${op.value} -> ${name}`);
-				}
-			}
-		}
-		expect(missing).toEqual([]);
-	});
-
-	it('shows each parameter at most once per operation', () => {
-		const duplicates: string[] = [];
-		for (const op of operations) {
-			const names = parameters
-				.filter((parameter) => isShownFor(parameter, op))
-				.map((parameter) => parameter.name);
-			for (const name of new Set(names)) {
-				if (names.filter((candidate) => candidate === name).length > 1) {
-					duplicates.push(`${op.resource}/${op.value} -> ${name}`);
-				}
-			}
-		}
-		expect(duplicates).toEqual([]);
 	});
 });
 
