@@ -9,8 +9,28 @@ import frozen from '../../../test-fixtures/description-2.0.1.json';
  * still show the same fields in the same order and send the same request.
  * Delete this test and its fixture once the migration is released.
  */
-const before = frozen as DescriptionView;
 const after = describeOperations(new AutodeskVaultDataApi().description);
+
+/**
+ * Hooks that kept their behaviour but changed their name: an inline function
+ * that became a named one. Each entry maps the fixture's marker to the new one
+ * for one operation; nothing else about that operation may differ.
+ */
+const RENAMED_HOOKS: Record<string, Record<string, string>> = {
+	'files/getFileVersionContentHead': { '[fn anonymous]': '[fn returnHeaders]' },
+};
+
+function withRenamedHooks(view: DescriptionView): DescriptionView {
+	const operations = { ...view.operations };
+	for (const [key, renames] of Object.entries(RENAMED_HOOKS)) {
+		let text = JSON.stringify(operations[key]);
+		for (const [from, to] of Object.entries(renames)) text = text.split(from).join(to);
+		operations[key] = JSON.parse(text);
+	}
+	return { ...view, operations };
+}
+
+const before = withRenamedHooks(frozen as DescriptionView);
 
 describe('description equivalence with 2.0.1', () => {
 	it('has the same resources, operation order and default operations', () => {
