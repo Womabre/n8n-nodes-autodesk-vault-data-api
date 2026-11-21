@@ -26,7 +26,7 @@ import { resource as property } from './operations/property';
 import { resource as role } from './operations/role';
 import * as search from './operations/search';
 import { resource as server } from './operations/server';
-import * as session from './operations/session';
+import { resource as session } from './operations/session';
 import * as user from './operations/user';
 import * as vault from './operations/vault';
 
@@ -49,6 +49,7 @@ const migrated = [
 	property,
 	role,
 	server,
+	session,
 ];
 
 export class AutodeskVaultDataApi implements INodeType {
@@ -151,7 +152,6 @@ export class AutodeskVaultDataApi implements INodeType {
 			...extSync.operations,
 			...jobs.operations,
 			...search.operations,
-			...session.operations,
 			...user.operations,
 			...vault.operations,
 
