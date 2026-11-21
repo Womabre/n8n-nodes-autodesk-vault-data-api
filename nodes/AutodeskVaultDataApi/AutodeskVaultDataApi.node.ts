@@ -17,7 +17,7 @@ import { resource as files } from './operations/file';
 import { resource as folders } from './operations/folder';
 import { resource as group } from './operations/group';
 import { resource as items } from './operations/item';
-import * as jobs from './operations/job';
+import { resource as jobs } from './operations/job';
 import { resource as lifecycle } from './operations/lifecycle';
 import { resource as links } from './operations/links';
 import { resource as options } from './operations/option';
@@ -52,6 +52,7 @@ const migrated = [
 	session,
 	user,
 	vault,
+	jobs,
 ];
 
 export class AutodeskVaultDataApi implements INodeType {
@@ -152,7 +153,6 @@ export class AutodeskVaultDataApi implements INodeType {
 			},
 			// Operations
 			...extSync.operations,
-			...jobs.operations,
 			...search.operations,
 
 			...buildProperties(migrated),
