@@ -11,7 +11,7 @@ import {
 } from './methods/listSearch';
 
 // Import operations
-import * as changeOrders from './operations/changeOrder';
+import { resource as changeOrders } from './operations/changeOrder';
 import * as extSync from './operations/extSync';
 import * as files from './operations/file';
 import * as folders from './operations/folder';
@@ -32,6 +32,11 @@ import * as vault from './operations/vault';
 
 // Import shared parameters
 import * as shared from './parameters/shared-parameters';
+import { buildProperties } from './definition/buildProperties';
+import { withoutMigrated } from './definition/legacy';
+
+/** Resources whose operations are built from operation definitions. */
+const migrated = [changeOrders];
 
 export class AutodeskVaultDataApi implements INodeType {
 	methods = {
@@ -130,7 +135,6 @@ export class AutodeskVaultDataApi implements INodeType {
 				default: 'server',
 			},
 			// Operations
-			...changeOrders.operations,
 			...extSync.operations,
 			...files.operations,
 			...folders.operations,
@@ -149,8 +153,10 @@ export class AutodeskVaultDataApi implements INodeType {
 			...user.operations,
 			...vault.operations,
 
+			...buildProperties(migrated),
+
 			// Shared Parameters
-			...shared.parameters,
+			...withoutMigrated(shared.parameters, migrated),
 		],
 	};
 }
