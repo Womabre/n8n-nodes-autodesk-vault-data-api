@@ -20,7 +20,7 @@ import { resource as items } from './operations/item';
 import * as jobs from './operations/job';
 import { resource as lifecycle } from './operations/lifecycle';
 import { resource as links } from './operations/links';
-import * as options from './operations/option';
+import { resource as options } from './operations/option';
 import * as profile from './operations/profile';
 import * as property from './operations/property';
 import * as role from './operations/role';
@@ -36,7 +36,7 @@ import { buildProperties } from './definition/buildProperties';
 import { withoutMigrated } from './definition/legacy';
 
 /** Resources whose operations are built from operation definitions. */
-const migrated = [changeOrders, files, folders, items, group, lifecycle, links];
+const migrated = [changeOrders, files, folders, items, group, lifecycle, links, options];
 
 export class AutodeskVaultDataApi implements INodeType {
 	methods = {
@@ -137,7 +137,6 @@ export class AutodeskVaultDataApi implements INodeType {
 			// Operations
 			...extSync.operations,
 			...jobs.operations,
-			...options.operations,
 			...profile.operations,
 			...property.operations,
 			...role.operations,

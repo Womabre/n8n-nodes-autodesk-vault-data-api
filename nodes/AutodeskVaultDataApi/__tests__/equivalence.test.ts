@@ -9,7 +9,7 @@ import frozen from '../../../test-fixtures/description-2.0.1.json';
  * still show the same fields in the same order and send the same request.
  * Delete this test and its fixture once the migration is released.
  */
-const after = describeOperations(new AutodeskVaultDataApi().description);
+const after = canonical(describeOperations(new AutodeskVaultDataApi().description));
 
 /**
  * Hooks that kept their behaviour but changed their name: an inline function
@@ -30,7 +30,23 @@ function withRenamedHooks(view: DescriptionView): DescriptionView {
 	return { ...view, operations };
 }
 
-const before = withRenamedHooks(frozen as DescriptionView);
+/**
+ * n8n evaluates a string that starts with `=` as an expression. Without any
+ * `{{ }}` in it, `'=/path'` resolves to `'/path'`, so both spellings send the
+ * same request. 2.0.1 used both for constant URLs; the builder writes the
+ * plain one. Only that form is treated as equal here.
+ */
+function canonical<T>(view: T): T {
+	return JSON.parse(
+		JSON.stringify(view, (_key, value: unknown) =>
+			typeof value === 'string' && value.startsWith('=') && !value.includes('{{')
+				? value.slice(1)
+				: value,
+		),
+	) as T;
+}
+
+const before = canonical(withRenamedHooks(frozen as DescriptionView));
 
 describe('description equivalence with 2.0.1', () => {
 	it('has the same resources, operation order and default operations', () => {
