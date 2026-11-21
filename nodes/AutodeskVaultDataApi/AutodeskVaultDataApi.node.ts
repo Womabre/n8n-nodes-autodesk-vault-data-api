@@ -14,7 +14,7 @@ import {
 import { resource as changeOrders } from './operations/changeOrder';
 import * as extSync from './operations/extSync';
 import { resource as files } from './operations/file';
-import * as folders from './operations/folder';
+import { resource as folders } from './operations/folder';
 import * as group from './operations/group';
 import * as items from './operations/item';
 import * as jobs from './operations/job';
@@ -36,7 +36,7 @@ import { buildProperties } from './definition/buildProperties';
 import { withoutMigrated } from './definition/legacy';
 
 /** Resources whose operations are built from operation definitions. */
-const migrated = [changeOrders, files];
+const migrated = [changeOrders, files, folders];
 
 export class AutodeskVaultDataApi implements INodeType {
 	methods = {
@@ -136,7 +136,6 @@ export class AutodeskVaultDataApi implements INodeType {
 			},
 			// Operations
 			...extSync.operations,
-			...folders.operations,
 			...group.operations,
 			...items.operations,
 			...jobs.operations,
