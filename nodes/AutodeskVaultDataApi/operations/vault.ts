@@ -1,53 +1,29 @@
-import { INodeProperties } from 'n8n-workflow';
-import { API_BASE } from '../utils/constants';
+import { defineOperation, defineResource } from '../definition/defineOperation';
+import { vaultId } from '../definition/fields';
 
-export const operations: INodeProperties[] = [
-	{
-		displayName: 'Operation',
-		name: 'operation',
-		type: 'options',
-		noDataExpression: true,
-		displayOptions: {
-			show: {
-				resource: ['vault'],
-			},
-		},
-		options: [
-			{
-				name: 'Get Vault',
-				value: 'getVaultById',
-				action: 'Get vault',
-				description: 'Retrieve a specific Knowledge Vault by its ID',
-				routing: {
-					request: {
-						method: 'GET',
-						url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}`,
-					},
-				},
-			},
-			{
-				name: 'Get Many Vaults',
-				value: 'getVaults',
-				action: 'Get many vaults',
-				description: 'Get the list of all Knowledge Vaults on the server without logging in',
-				routing: {
-					request: {
-						method: 'GET',
-						url: `${API_BASE}/vaults`,
-					},
-					output: {
-						postReceive: [
-							{
-								type: 'rootProperty',
-								properties: {
-									property: 'results',
-								},
-							},
-						],
-					},
-				},
-			},
-		],
-		default: 'getVaultById',
-	},
-];
+export const resource = defineResource({
+	value: 'vault',
+	defaultOperation: 'getVaultById',
+	operations: [
+		defineOperation({
+			name: 'Get Vault',
+			value: 'getVaultById',
+			action: 'Get vault',
+			description: 'Retrieve a specific Knowledge Vault by its ID',
+			method: 'GET',
+			path: '/vaults/{vaultId}',
+			fields: [vaultId],
+			response: 'single',
+		}),
+		defineOperation({
+			name: 'Get Many Vaults',
+			value: 'getVaults',
+			action: 'Get many vaults',
+			description: 'Get the list of all Knowledge Vaults on the server without logging in',
+			method: 'GET',
+			path: '/vaults',
+			fields: [],
+			response: 'collection',
+		}),
+	],
+});
