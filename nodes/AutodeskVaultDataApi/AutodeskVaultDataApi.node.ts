@@ -12,7 +12,7 @@ import {
 
 // Import operations
 import { resource as changeOrders } from './operations/changeOrder';
-import * as extSync from './operations/extSync';
+import { resource as extSync } from './operations/extSync';
 import { resource as files } from './operations/file';
 import { resource as folders } from './operations/folder';
 import { resource as group } from './operations/group';
@@ -53,6 +53,7 @@ const migrated = [
 	user,
 	vault,
 	jobs,
+	extSync,
 ];
 
 export class AutodeskVaultDataApi implements INodeType {
@@ -152,7 +153,6 @@ export class AutodeskVaultDataApi implements INodeType {
 				default: 'server',
 			},
 			// Operations
-			...extSync.operations,
 			...search.operations,
 
 			...buildProperties(migrated),
