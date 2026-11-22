@@ -1,7 +1,6 @@
-import { IExecuteSingleFunctions, IHttpRequestOptions, NodeOperationError } from 'n8n-workflow';
+import type { IDataObject } from 'n8n-workflow';
+import { defineBody, type BodyBuilder } from '../definition/body';
 import { API_BASE } from './constants';
-
-/** Base path shared by every Vault Data API v2 route. */
 
 /** Collection segment of the entity a lifecycle change applies to. */
 export type LifecycleEntityCollection = 'files' | 'folders' | 'items';
@@ -37,88 +36,71 @@ function lifecycleDefinitionUrl(vaultId: string, lifecycleDefinitionId: string):
 	return `${API_BASE}/vaults/${vaultId}/lifecycle-definitions/${lifecycleDefinitionId}`;
 }
 
-function readEntries(ctx: IExecuteSingleFunctions, parameterName: string): LifecycleUpdateEntry[] {
-	const collection = ctx.getNodeParameter(parameterName, {}) as LifecycleUpdateCollection | null;
-	return collection?.update ?? [];
+function entriesOf(value: unknown): LifecycleUpdateEntry[] {
+	return (value as LifecycleUpdateCollection | null)?.update ?? [];
 }
 
-function readComment(ctx: IExecuteSingleFunctions): string {
-	return (ctx.getNodeParameter('lifecycleComment', '') as string) ?? '';
-}
-
-/**
- * Builds the body for `POST /vaults/{vaultId}/{collection}:update-states`.
- *
- * @param collection Entity collection the operation targets
- */
-export function buildUpdateLifecycleStatesBody(collection: LifecycleEntityCollection) {
-	return async function (
-		this: IExecuteSingleFunctions,
-		requestOptions: IHttpRequestOptions,
-	): Promise<IHttpRequestOptions> {
-		const vaultId = String(this.getNodeParameter('vaultId', ''));
-
-		const updateLifecycleStateRequests = readEntries(this, 'lifecycleStateUpdates')
-			.filter((entry) => entry.entityId && entry.lifecycleStateId)
-			.map((entry) => ({
-				entityUrl: entityUrl(vaultId, collection, String(entry.entityId)),
-				lifecycleStateUrl: lifecycleStateUrl(vaultId, String(entry.lifecycleStateId)),
-			}));
-
-		if (updateLifecycleStateRequests.length === 0) {
-			throw new NodeOperationError(
-				this.getNode(),
-				'Add at least one state update that has both an entity ID and a lifecycle state ID',
-			);
-		}
-
-		const body: Record<string, unknown> = { updateLifecycleStateRequests };
-		const comment = readComment(this);
-		if (comment) body.comment = comment;
-
-		requestOptions.body = body;
-		return requestOptions;
-	};
+function withComment(body: IDataObject, comment: unknown): IDataObject {
+	if (comment) body.comment = comment as string;
+	return body;
 }
 
 /**
- * Builds the body for
- * `POST /vaults/{vaultId}/{collection}:update-lifecycle-definitions`. The API
- * requires both a definition and a state on every entry, and the state has to
- * belong to that definition.
+ * Body for `POST /vaults/{vaultId}/{collection}:update-states`.
  *
  * @param collection Entity collection the operation targets
  */
-export function buildUpdateLifecycleDefinitionsBody(collection: LifecycleEntityCollection) {
-	return async function (
-		this: IExecuteSingleFunctions,
-		requestOptions: IHttpRequestOptions,
-	): Promise<IHttpRequestOptions> {
-		const vaultId = String(this.getNodeParameter('vaultId', ''));
+export function lifecycleStatesBody(collection: LifecycleEntityCollection): BodyBuilder {
+	return defineBody({
+		reads: { vaultId: '', lifecycleStateUpdates: {}, lifecycleComment: '' },
+		build(values, fail) {
+			const vaultId = String(values.vaultId);
+			const updateLifecycleStateRequests = entriesOf(values.lifecycleStateUpdates)
+				.filter((entry) => entry.entityId && entry.lifecycleStateId)
+				.map((entry) => ({
+					entityUrl: entityUrl(vaultId, collection, String(entry.entityId)),
+					lifecycleStateUrl: lifecycleStateUrl(vaultId, String(entry.lifecycleStateId)),
+				}));
 
-		const updateLifecycleDefinitionRequests = readEntries(this, 'lifecycleDefinitionUpdates')
-			.filter((entry) => entry.entityId && entry.lifecycleDefinitionId && entry.lifecycleStateId)
-			.map((entry) => ({
-				entityUrl: entityUrl(vaultId, collection, String(entry.entityId)),
-				lifecycleDefinitionUrl: lifecycleDefinitionUrl(
-					vaultId,
-					String(entry.lifecycleDefinitionId),
-				),
-				lifecycleStateUrl: lifecycleStateUrl(vaultId, String(entry.lifecycleStateId)),
-			}));
+			if (updateLifecycleStateRequests.length === 0) {
+				return fail(
+					'Add at least one state update that has both an entity ID and a lifecycle state ID',
+				);
+			}
+			return withComment({ updateLifecycleStateRequests }, values.lifecycleComment);
+		},
+	});
+}
 
-		if (updateLifecycleDefinitionRequests.length === 0) {
-			throw new NodeOperationError(
-				this.getNode(),
-				'Add at least one definition update that has an entity ID, a lifecycle definition ID and a lifecycle state ID',
-			);
-		}
+/**
+ * Body for `POST /vaults/{vaultId}/{collection}:update-lifecycle-definitions`.
+ * The API requires both a definition and a state on every entry, and the state
+ * has to belong to that definition.
+ *
+ * @param collection Entity collection the operation targets
+ */
+export function lifecycleDefinitionsBody(collection: LifecycleEntityCollection): BodyBuilder {
+	return defineBody({
+		reads: { vaultId: '', lifecycleDefinitionUpdates: {}, lifecycleComment: '' },
+		build(values, fail) {
+			const vaultId = String(values.vaultId);
+			const updateLifecycleDefinitionRequests = entriesOf(values.lifecycleDefinitionUpdates)
+				.filter((entry) => entry.entityId && entry.lifecycleDefinitionId && entry.lifecycleStateId)
+				.map((entry) => ({
+					entityUrl: entityUrl(vaultId, collection, String(entry.entityId)),
+					lifecycleDefinitionUrl: lifecycleDefinitionUrl(
+						vaultId,
+						String(entry.lifecycleDefinitionId),
+					),
+					lifecycleStateUrl: lifecycleStateUrl(vaultId, String(entry.lifecycleStateId)),
+				}));
 
-		const body: Record<string, unknown> = { updateLifecycleDefinitionRequests };
-		const comment = readComment(this);
-		if (comment) body.comment = comment;
-
-		requestOptions.body = body;
-		return requestOptions;
-	};
+			if (updateLifecycleDefinitionRequests.length === 0) {
+				return fail(
+					'Add at least one definition update that has an entity ID, a lifecycle definition ID and a lifecycle state ID',
+				);
+			}
+			return withComment({ updateLifecycleDefinitionRequests }, values.lifecycleComment);
+		},
+	});
 }

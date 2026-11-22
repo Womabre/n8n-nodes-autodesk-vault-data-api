@@ -11,27 +11,48 @@ import {
 } from './methods/listSearch';
 
 // Import operations
-import * as changeOrders from './operations/changeOrder';
-import * as extSync from './operations/extSync';
-import * as files from './operations/file';
-import * as folders from './operations/folder';
-import * as group from './operations/group';
-import * as items from './operations/item';
-import * as jobs from './operations/job';
-import * as lifecycle from './operations/lifecycle';
-import * as links from './operations/links';
-import * as options from './operations/option';
-import * as profile from './operations/profile';
-import * as property from './operations/property';
-import * as role from './operations/role';
-import * as search from './operations/search';
-import * as server from './operations/server';
-import * as session from './operations/session';
-import * as user from './operations/user';
-import * as vault from './operations/vault';
+import { resource as changeOrders } from './operations/changeOrder';
+import { resource as extSync } from './operations/extSync';
+import { resource as files } from './operations/file';
+import { resource as folders } from './operations/folder';
+import { resource as group } from './operations/group';
+import { resource as items } from './operations/item';
+import { resource as jobs } from './operations/job';
+import { resource as lifecycle } from './operations/lifecycle';
+import { resource as links } from './operations/links';
+import { resource as options } from './operations/option';
+import { resource as profile } from './operations/profile';
+import { resource as property } from './operations/property';
+import { resource as role } from './operations/role';
+import { resource as search } from './operations/search';
+import { resource as server } from './operations/server';
+import { resource as session } from './operations/session';
+import { resource as user } from './operations/user';
+import { resource as vault } from './operations/vault';
 
-// Import shared parameters
-import * as shared from './parameters/shared-parameters';
+import { buildProperties } from './definition/buildProperties';
+
+/** Every resource, in the order its operations are built. */
+const resources = [
+	changeOrders,
+	files,
+	folders,
+	items,
+	group,
+	lifecycle,
+	links,
+	options,
+	profile,
+	property,
+	role,
+	server,
+	session,
+	user,
+	vault,
+	jobs,
+	extSync,
+	search,
+];
 
 export class AutodeskVaultDataApi implements INodeType {
 	methods = {
@@ -129,28 +150,8 @@ export class AutodeskVaultDataApi implements INodeType {
 				],
 				default: 'server',
 			},
-			// Operations
-			...changeOrders.operations,
-			...extSync.operations,
-			...files.operations,
-			...folders.operations,
-			...group.operations,
-			...items.operations,
-			...jobs.operations,
-			...lifecycle.operations,
-			...links.operations,
-			...options.operations,
-			...profile.operations,
-			...property.operations,
-			...role.operations,
-			...search.operations,
-			...server.operations,
-			...session.operations,
-			...user.operations,
-			...vault.operations,
-
-			// Shared Parameters
-			...shared.parameters,
+			// Every operation and its fields, built from the operation definitions
+			...buildProperties(resources),
 		],
 	};
 }

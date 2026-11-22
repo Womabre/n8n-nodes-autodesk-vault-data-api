@@ -1,5 +1,10 @@
 import { describe, it, expect, vi } from 'vitest';
-import { formatFolderUrls, formatPropertyDefinitionUrls } from '../search';
+import { criteriaUrlsBody, folderUrlsBody, searchBody } from '../search';
+import { bodyPreSend } from '../../definition/body';
+
+// Run the builders through the same preSend the node uses.
+const formatFolderUrls = bodyPreSend(folderUrlsBody);
+const formatPropertyDefinitionUrls = bodyPreSend(criteriaUrlsBody);
 import { IExecuteSingleFunctions, IHttpRequestOptions } from 'n8n-workflow';
 
 function makeCtx(params: Record<string, unknown>): IExecuteSingleFunctions {
@@ -130,5 +135,33 @@ describe('formatPropertyDefinitionUrls', () => {
 
 		expect(withCriteria.body).toEqual({});
 		expect(withFolders.body).toEqual({ foldersToSearch: [] });
+	});
+});
+
+describe('searchBody', () => {
+	it('sends folder URLs and criteria URLs together, as the node does', async () => {
+		const ctx = makeCtx({
+			vaultId: '7',
+			foldersToSearch: ['3'],
+			searchCriteria: { criteria: [{ propertyDefinitionUrl: '12', operator: 'Contains' }] },
+		});
+		const result = await bodyPreSend(searchBody).call(ctx, baseOptions());
+		expect(result.body).toEqual({
+			foldersToSearch: ['/AutodeskDM/Services/api/vault/v2/vaults/7/folders/3'],
+			searchCriteria: [
+				{
+					propertyDefinitionUrl:
+						'/AutodeskDM/Services/api/vault/v2/vaults/7/property-definitions/12',
+					operator: 'Contains',
+				},
+			],
+		});
+	});
+
+	it('keeps body entries the request map already set', async () => {
+		const ctx = makeCtx({ vaultId: '7' });
+		const opts = { ...baseOptions(), body: { entityTypesToSearch: 'File' } };
+		const result = await bodyPreSend(searchBody).call(ctx, opts);
+		expect(result.body).toEqual({ entityTypesToSearch: 'File', foldersToSearch: [] });
 	});
 });

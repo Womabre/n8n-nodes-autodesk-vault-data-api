@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { listLoadOptions } from '../shared-parameters';
+import { listLoadOptions } from '../loadOptions';
 
 describe('listLoadOptions', () => {
 	it('builds a GET routing block with a high page limit', () => {

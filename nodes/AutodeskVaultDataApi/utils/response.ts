@@ -69,3 +69,20 @@ export async function handleEmptyResponse(
 	}
 	return items;
 }
+
+/**
+ * postReceive action for HEAD operations: a HEAD response has no body, so each
+ * item carries the response headers and status code instead.
+ */
+export async function returnHeaders(
+	this: IExecuteSingleFunctions,
+	items: INodeExecutionData[],
+	response: IN8nHttpFullResponse,
+): Promise<INodeExecutionData[]> {
+	return items.map(() => ({
+		json: {
+			headers: response.headers,
+			statusCode: response.statusCode,
+		},
+	}));
+}
