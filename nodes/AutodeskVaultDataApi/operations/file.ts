@@ -9,6 +9,7 @@ import {
 } from 'n8n-workflow';
 import { lifecycleDefinitionsBody, lifecycleStatesBody } from '../utils/lifecycleBody';
 import { API_BASE } from '../utils/constants';
+import { queryValue } from '../definition/buildProperties';
 import { defineOperation, defineResource } from '../definition/defineOperation';
 import {
 	extendedModels,
@@ -282,79 +283,12 @@ export const resource = defineResource({
 			],
 			query: {
 				allowSync: 'allowSync',
-				wmSrcItemVerId: 'wmSrcItemVerId?',
-				wmSrcFileVerId: 'wmSrcFileVerId?',
-				contentDisposition: 'contentDisposition?',
+				wmSrcItemVerId: 'wmSrcItemVerId',
+				wmSrcFileVerId: 'wmSrcFileVerId',
+				contentDisposition: 'contentDisposition',
 			},
 			headers: { Range: 'range?' },
 			response: 'binary',
-		}),
-		defineOperation({
-			name: 'Get File Version LMV Bubble JSON',
-			value: 'getFileVersionLmvRoot',
-			action: 'Get file version LMV bubble json',
-			description:
-				'Retrieve the bubble.JSON root metadata file for a DWF/DWFx file used in the Autodesk Large Model Viewer (LMV)',
-			method: 'GET',
-			path: '/vaults/{vaultId}/file-versions/{fileId}/svf/bubble.json',
-			fields: [
-				vaultId,
-				allowSync,
-				{
-					displayName: 'File Version ID',
-					name: 'fileId',
-					type: 'string',
-					required: true,
-					default: '',
-					placeholder: 'e.g. 100201',
-					description:
-						'The ID of the DWF/DWFx visualization file version to view. These files are usually hidden in Vault; find the ID via the Vault client or another File operation.',
-				},
-				{
-					displayName: 'Max Wait Time (Seconds)',
-					name: 'lmvMaxWaitSeconds',
-					type: 'number',
-					typeOptions: { minValue: 0, numberPrecision: 0 },
-					default: 180,
-					description:
-						'How long to keep polling while Vault translates the file for the viewer. Polls back off from 2 up to 30 seconds apart. Set to 0 to check once.',
-				},
-				wmSrcFileVerId,
-				wmSrcItemVerId,
-			],
-			response: 'single',
-			// Escape hatch: waitForLmvBubble polls until the viewable is ready, which no
-			// response kind describes. The path above is not used for this request.
-			routing: {
-				request: {
-					method: 'GET',
-					url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/svf/bubble.json`,
-					qs: {
-						allowSync: '={{$parameter["allowSync"]}}',
-						wmSrcItemVerId: '={{$parameter["wmSrcItemVerId"] || undefined}}',
-						wmSrcFileVerId: '={{$parameter["wmSrcFileVerId"] || undefined}}',
-					},
-					returnFullResponse: true,
-				},
-				output: { postReceive: [waitForLmvBubble] },
-			},
-		}),
-		defineOperation({
-			name: 'Get File Version Metadata',
-			value: 'getFileVersionContentHead',
-			action: 'Get file version metadata',
-			description:
-				'Retrieve metadata for a specific file version content without downloading the full content',
-			method: 'HEAD',
-			path: '/vaults/{vaultId}/file-versions/{fileId}/content',
-			fields: [vaultId, allowSync, contentDisposition, fileId, wmSrcFileVerId, wmSrcItemVerId],
-			query: {
-				allowSync: 'allowSync',
-				wmSrcItemVerId: 'wmSrcItemVerId?',
-				wmSrcFileVerId: 'wmSrcFileVerId?',
-				contentDisposition: 'contentDisposition?',
-			},
-			response: 'headers',
 		}),
 		defineOperation({
 			name: 'Get File Version History',
@@ -408,14 +342,64 @@ export const resource = defineResource({
 				extendedModels,
 			],
 			query: {
-				'option[history]': 'history?',
+				'option[history]': 'history',
 				'option[onlyShowTipReleasedForEachRev]': 'onlyShowTipReleasedForEachRev',
 				'option[extendedModels]': 'extendedModels',
 				'option[propDefIds]': 'propDefIds',
-				'option[revision]': 'revision?',
+				'option[revision]': 'revision',
 				descending: 'descending',
 			},
 			response: 'collection',
+		}),
+		defineOperation({
+			name: 'Get File Version LMV Bubble JSON',
+			value: 'getFileVersionLmvRoot',
+			action: 'Get file version LMV bubble json',
+			description:
+				'Retrieve the bubble.JSON root metadata file for a DWF/DWFx file used in the Autodesk Large Model Viewer (LMV)',
+			method: 'GET',
+			path: '/vaults/{vaultId}/file-versions/{fileId}/svf/bubble.json',
+			fields: [
+				vaultId,
+				allowSync,
+				{
+					displayName: 'File Version ID',
+					name: 'fileId',
+					type: 'string',
+					required: true,
+					default: '',
+					placeholder: 'e.g. 100201',
+					description:
+						'The ID of the DWF/DWFx visualization file version to view. These files are usually hidden in Vault; find the ID via the Vault client or another File operation.',
+				},
+				{
+					displayName: 'Max Wait Time (Seconds)',
+					name: 'lmvMaxWaitSeconds',
+					type: 'number',
+					typeOptions: { minValue: 0, numberPrecision: 0 },
+					default: 180,
+					description:
+						'How long to keep polling while Vault translates the file for the viewer. Polls back off from 2 up to 30 seconds apart. Set to 0 to check once.',
+				},
+				wmSrcFileVerId,
+				wmSrcItemVerId,
+			],
+			response: 'single',
+			// Escape hatch: waitForLmvBubble polls until the viewable is ready, which no
+			// response kind describes. The path above is not used for this request.
+			routing: {
+				request: {
+					method: 'GET',
+					url: `=${API_BASE}/vaults/{{$parameter["vaultId"]}}/file-versions/{{$parameter["fileId"]}}/svf/bubble.json`,
+					qs: {
+						allowSync: queryValue('allowSync'),
+						wmSrcItemVerId: queryValue('wmSrcItemVerId'),
+						wmSrcFileVerId: queryValue('wmSrcFileVerId'),
+					},
+					returnFullResponse: true,
+				},
+				output: { postReceive: [waitForLmvBubble] },
+			},
 		}),
 		defineOperation({
 			name: 'Get File Version Markup',
@@ -442,14 +426,21 @@ export const resource = defineResource({
 			response: 'single',
 		}),
 		defineOperation({
-			name: 'Get File Version Thumbnail',
-			value: 'getFileVersionThumbnailById',
-			action: 'Get file version thumbnail',
-			description: 'Retrieve the thumbnail image for a specific file version',
-			method: 'GET',
-			path: '/vaults/{vaultId}/file-versions/{fileId}/thumbnail',
-			fields: [vaultId, fileId],
-			response: 'binary',
+			name: 'Get File Version Metadata',
+			value: 'getFileVersionContentHead',
+			action: 'Get file version metadata',
+			description:
+				'Retrieve metadata for a specific file version content without downloading the full content',
+			method: 'HEAD',
+			path: '/vaults/{vaultId}/file-versions/{fileId}/content',
+			fields: [vaultId, allowSync, contentDisposition, fileId, wmSrcFileVerId, wmSrcItemVerId],
+			query: {
+				allowSync: 'allowSync',
+				wmSrcItemVerId: 'wmSrcItemVerId',
+				wmSrcFileVerId: 'wmSrcFileVerId',
+				contentDisposition: 'contentDisposition',
+			},
+			response: 'headers',
 		}),
 		defineOperation({
 			name: 'Get File Version Signed URL',
@@ -475,12 +466,22 @@ export const resource = defineResource({
 				wmSrcItemVerId,
 			],
 			query: {
-				wmSrcItemVerId: 'wmSrcItemVerId?',
-				wmSrcFileVerId: 'wmSrcFileVerId?',
-				contentDisposition: 'contentDisposition?',
-				expirationTime: 'expirationTime?',
+				wmSrcItemVerId: 'wmSrcItemVerId',
+				wmSrcFileVerId: 'wmSrcFileVerId',
+				contentDisposition: 'contentDisposition',
+				expirationTime: 'expirationTime',
 			},
 			response: 'single',
+		}),
+		defineOperation({
+			name: 'Get File Version Thumbnail',
+			value: 'getFileVersionThumbnailById',
+			action: 'Get file version thumbnail',
+			description: 'Retrieve the thumbnail image for a specific file version',
+			method: 'GET',
+			path: '/vaults/{vaultId}/file-versions/{fileId}/thumbnail',
+			fields: [vaultId, fileId],
+			response: 'binary',
 		}),
 		defineOperation({
 			name: 'Get File Version Uses',
@@ -541,71 +542,6 @@ export const resource = defineResource({
 			response: 'collection',
 		}),
 		defineOperation({
-			name: 'Get Many File Versions',
-			value: 'getFileVersions',
-			action: 'Get many file versions',
-			description: 'Retrieve a list of file versions based on filters and conditions',
-			method: 'GET',
-			path: '/vaults/{vaultId}/file-versions',
-			fields: [
-				vaultId,
-				releasedFilesOnly,
-				latestOnly,
-				sort,
-				{
-					displayName: 'Category Name',
-					name: 'categoryName',
-					type: 'string',
-					default: '',
-					description:
-						'Search filter to include only file versions that match CategoryName property',
-					placeholder: 'e.g. Engineering',
-				},
-				{
-					displayName: 'Checkout User Name',
-					name: 'checkoutUserName',
-					type: 'string',
-					default: '',
-					description:
-						'Search filter to include only file versions that match CheckoutUserName property',
-					placeholder: 'e.g. Administrator',
-				},
-				{
-					displayName: 'Create User Name',
-					name: 'createUserName',
-					type: 'string',
-					default: '',
-					description: 'The Name of the user who checked-in or uploaded this file',
-					placeholder: 'e.g. Administrator',
-				},
-				q,
-				{
-					displayName: 'State',
-					name: 'state',
-					type: 'string',
-					default: '',
-					placeholder: 'e.g. For Review',
-					description:
-						"Search filter to include only file versions that match state property. e.g. 'For Review'.",
-				},
-				propDefIds,
-				extendedModels,
-			],
-			query: {
-				q: 'q?',
-				'filter[CheckoutUserName]': 'checkoutUserName?',
-				'filter[CreateUserName]': 'createUserName?',
-				'filter[CategoryName]': 'categoryName?',
-				'filter[State]': 'state?',
-				'option[latestOnly]': 'latestOnly',
-				'option[releasedFilesOnly]': 'releasedFilesOnly',
-				'option[extendedModels]': 'extendedModels',
-				'option[propDefIds]': 'propDefIds?',
-				sort: 'sort?',
-			},
-			response: 'collection',
-		}),
-		defineOperation({
 			name: 'Get Many File Version Associated Change Orders',
 			value: 'getFileAssociatedChangeOrders',
 			action: 'Get many file version associated change orders',
@@ -661,6 +597,71 @@ export const resource = defineResource({
 			method: 'GET',
 			path: '/vaults/{vaultId}/file-versions/{fileId}/visualization-attachments',
 			fields: [vaultId, fileId],
+			response: 'collection',
+		}),
+		defineOperation({
+			name: 'Get Many File Versions',
+			value: 'getFileVersions',
+			action: 'Get many file versions',
+			description: 'Retrieve a list of file versions based on filters and conditions',
+			method: 'GET',
+			path: '/vaults/{vaultId}/file-versions',
+			fields: [
+				vaultId,
+				releasedFilesOnly,
+				latestOnly,
+				sort,
+				{
+					displayName: 'Category Name',
+					name: 'categoryName',
+					type: 'string',
+					default: '',
+					description:
+						'Search filter to include only file versions that match CategoryName property',
+					placeholder: 'e.g. Engineering',
+				},
+				{
+					displayName: 'Checkout User Name',
+					name: 'checkoutUserName',
+					type: 'string',
+					default: '',
+					description:
+						'Search filter to include only file versions that match CheckoutUserName property',
+					placeholder: 'e.g. Administrator',
+				},
+				{
+					displayName: 'Create User Name',
+					name: 'createUserName',
+					type: 'string',
+					default: '',
+					description: 'The Name of the user who checked-in or uploaded this file',
+					placeholder: 'e.g. Administrator',
+				},
+				q,
+				{
+					displayName: 'State',
+					name: 'state',
+					type: 'string',
+					default: '',
+					placeholder: 'e.g. For Review',
+					description:
+						"Search filter to include only file versions that match state property. e.g. 'For Review'.",
+				},
+				propDefIds,
+				extendedModels,
+			],
+			query: {
+				q: 'q',
+				'filter[CheckoutUserName]': 'checkoutUserName',
+				'filter[CreateUserName]': 'createUserName',
+				'filter[CategoryName]': 'categoryName',
+				'filter[State]': 'state',
+				'option[latestOnly]': 'latestOnly',
+				'option[releasedFilesOnly]': 'releasedFilesOnly',
+				'option[extendedModels]': 'extendedModels',
+				'option[propDefIds]': 'propDefIds',
+				sort: 'sort',
+			},
 			response: 'collection',
 		}),
 		defineOperation({

@@ -76,20 +76,9 @@ function lintFindings(properties: INodeProperties[]): string[] {
 	return findings;
 }
 
-/**
- * Findings that were already true in 2.0.1, where the lint rule skipped these
- * option lists because they held template literals and functions. Sorting
- * them changes the order users see, so it ships with the follow-up fixes;
- * remove each entry when it is fixed.
- */
-const KNOWN_FINDINGS = [
-	'files: operations are not sorted by name',
-	'items: operations are not sorted by name',
-];
-
 describe('lint rules on the generated operations', () => {
-	it('the node passes them, apart from the known 2.0.1 findings', () => {
-		expect(lintFindings(new AutodeskVaultDataApi().description.properties)).toEqual(KNOWN_FINDINGS);
+	it('the node passes them', () => {
+		expect(lintFindings(new AutodeskVaultDataApi().description.properties)).toEqual([]);
 	});
 
 	it('they catch a broken definition', () => {

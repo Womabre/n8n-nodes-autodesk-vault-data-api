@@ -8,6 +8,7 @@ import type {
 	INodeExecutionData,
 } from 'n8n-workflow';
 import { extractCursor, paginateByCursor } from '../pagination';
+import { splitResults } from '../response';
 
 const BASE =
 	'https://vault.example.com/AutodeskDM/Services/api/vault/v2/vaults/1/folders/1/contents';
@@ -114,5 +115,37 @@ describe('paginateByCursor', () => {
 		expect(data.postReceive).toHaveLength(2);
 		expect(data.postReceive[1].actions[0]).toBe(own);
 		expect(own).toHaveBeenCalledTimes(1);
+	});
+
+	it('keeps the cursor when the collection splits its results with splitResults', async () => {
+		// The legacy-wrapper collections end in splitResults, not rootProperty:
+		// run every postReceive action as RoutingNode does and return its items.
+		const pages = [page([1, 2], 'c1'), page([3])];
+		const requests: IDataObject[] = [];
+		const node = { getNode: () => ({ typeVersion: 1.1 }) } as unknown as IExecuteSingleFunctions;
+		const makeRoutingRequest = vi.fn(
+			async (requestData: DeclarativeRestApiSettings.ResultOptions) => {
+				requests.push({ ...(requestData.options.qs as IDataObject) });
+				const body = pages[requests.length - 1];
+				const response: IN8nHttpFullResponse = { body, headers: {}, statusCode: 200 };
+				let items: INodeExecutionData[] = [{ json: body }];
+				for (const step of requestData.postReceive) {
+					for (const action of step.actions) {
+						if (typeof action === 'function') items = await action.call(node, items, response);
+					}
+				}
+				return items;
+			},
+		);
+		const data = requestData();
+		data.postReceive.push({ data: { parameterValue: undefined }, actions: [splitResults] });
+
+		const result = await paginateByCursor.call(
+			{ makeRoutingRequest } as unknown as IExecutePaginationFunctions,
+			data,
+		);
+
+		expect(result.map((i) => i.json.id)).toEqual([1, 2, 3]);
+		expect(requests).toEqual([{}, { cursorState: 'c1' }]);
 	});
 });
