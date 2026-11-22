@@ -8,6 +8,7 @@ import type {
 } from 'n8n-workflow';
 import { AutodeskVaultDataApi } from '../AutodeskVaultDataApi.node';
 import { splitResults } from '../utils/response';
+import { queryValue } from '../definition/buildProperties';
 
 /**
  * Regression checks on the declarative wiring for bugs fixed in 2.0.1. The
@@ -122,7 +123,7 @@ describe('get many change orders', () => {
 	const op = operation('changeOrders', 'getChangeOrders');
 
 	it('sends the search query', () => {
-		expect(op.routing?.request?.qs).toHaveProperty('q', '={{$parameter["q"] || undefined}}');
+		expect(op.routing?.request?.qs).toHaveProperty('q', queryValue('q'));
 		expect(shownParameters(op, 'q')).toHaveLength(1);
 	});
 });

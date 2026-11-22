@@ -92,7 +92,7 @@ export const resource = defineResource({
 				extendedModels,
 			],
 			query: {
-				q: 'q?',
+				q: 'q',
 				'option[searchContent]': 'searchContent',
 				'option[searchSubFolders]': 'searchSubFolders',
 				'option[includeFolders]': 'includeFolders',
@@ -102,7 +102,7 @@ export const resource = defineResource({
 				'option[latestOnly]': 'latestOnly',
 				'option[extendedModels]': 'extendedModels',
 				'option[propDefIds]': 'propDefIds',
-				sort: 'sort?',
+				sort: 'sort',
 			},
 			response: 'collection',
 		}),

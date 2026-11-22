@@ -74,7 +74,6 @@ export const resource = defineResource({
 			path: '/users/{userId}/accounts',
 			fields: [userId],
 			response: 'collection',
-			paginated: false, // no Return All in 2.0.1; adding it is a separate fix
 			legacyWrapper: true,
 		}),
 	],

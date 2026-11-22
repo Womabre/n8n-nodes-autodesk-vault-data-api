@@ -18,7 +18,7 @@ function isEmptyBody(body: unknown): boolean {
 }
 
 /** Node version from which `splitResults` returns one item per result. */
-const SPLIT_RESULTS_SINCE_VERSION = 1.1;
+export const SPLIT_RESULTS_SINCE_VERSION = 1.1;
 
 /**
  * postReceive action for collection operations that node version 1 returned as

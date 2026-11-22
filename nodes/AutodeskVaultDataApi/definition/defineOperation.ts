@@ -14,8 +14,10 @@ import type { BodyBuilder } from './body';
 export type ResponseKind = 'single' | 'collection' | 'empty' | 'binary' | 'headers';
 
 /**
- * The name of a field the operation declares. A trailing `?` leaves the value
- * out of the request when it is empty (`|| undefined`).
+ * The name of a field the operation declares. In a header or body map, a
+ * trailing `?` leaves the value out of the request when it is empty
+ * (`|| undefined`). Query maps take no `?`: every query value is left out when
+ * it is an empty string and sent otherwise, false and 0 included.
  */
 export type FieldReference = string;
 
@@ -44,7 +46,8 @@ export interface OperationDefinition {
 	paginated?: false;
 	/**
 	 * Node version 1 returned this collection as one item holding the whole
-	 * response; later versions split it like every other collection.
+	 * response; later versions split it like every other collection. Return All
+	 * and Limit show only from the version that splits it.
 	 */
 	legacyWrapper?: true;
 	/**
