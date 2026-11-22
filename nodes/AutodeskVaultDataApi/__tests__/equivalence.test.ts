@@ -7,8 +7,9 @@ import frozenNode from '../../../test-fixtures/node-2.0.1.json';
 /**
  * The node as users met it in 2.0.1, frozen per operation before the
  * description was generated from operation definitions. Every operation must
- * still show the same fields in the same order and send the same request.
- * Delete this test and its fixture once the migration is released.
+ * still show the same fields in the same order and send the same request,
+ * apart from the changes listed in INTENDED_CHANGES. Delete this test and its
+ * fixtures once the migration is released.
  */
 const after = canonical(describeOperations(new AutodeskVaultDataApi().description));
 
@@ -65,17 +66,63 @@ function canonical<T>(view: T): T {
 
 const before = canonical(withRenamedHooks(frozen as DescriptionView));
 
-describe('description equivalence with 2.0.1', () => {
+interface RoutingView {
+	request: { qs?: Record<string, unknown> } & Record<string, unknown>;
+	output?: { postReceive: unknown[] };
+}
+
+function routingOf(view: DescriptionView, key: string): RoutingView {
+	const option = view.operations[key]?.option as { routing?: RoutingView } | undefined;
+	if (!option?.routing) throw new Error(`${key} has no routing in the view`);
+	return option.routing;
+}
+
+/**
+ * User-visible changes made on purpose after 2.0.1, each applied to the 2.0.1
+ * view. The test then pins exactly these differences and nothing else.
+ */
+interface IntendedChange {
+	why: string;
+	apply(view: DescriptionView): void;
+}
+
+const INTENDED_CHANGES: IntendedChange[] = [
+	{
+		why: 'Change Order > Get Many sends the state filter as filter[State], the name the API reads',
+		apply(view) {
+			const qs = routingOf(view, 'changeOrders/getChangeOrders').request.qs ?? {};
+			qs['filter[State]'] = qs['filter[state]'];
+			delete qs['filter[state]'];
+		},
+	},
+];
+
+function withIntendedChanges(view: DescriptionView): DescriptionView {
+	const changed = JSON.parse(JSON.stringify(view)) as DescriptionView;
+	for (const change of INTENDED_CHANGES) change.apply(changed);
+	return changed;
+}
+
+const expected = withIntendedChanges(before);
+
+describe('description equivalence with 2.0.1, apart from the intended changes', () => {
 	it('has the same resources, operation order and default operations', () => {
-		expect(after.resources).toEqual(before.resources);
+		expect(after.resources).toEqual(expected.resources);
 	});
 
 	it('has no operation that 2.0.1 did not have', () => {
-		expect(Object.keys(after.operations).sort()).toEqual(Object.keys(before.operations).sort());
+		expect(Object.keys(after.operations).sort()).toEqual(Object.keys(expected.operations).sort());
 	});
 
-	it.each(Object.keys(before.operations))('%s shows and sends the same', (key) => {
-		expect(after.operations[key]).toEqual(before.operations[key]);
+	it.each(Object.keys(expected.operations))('%s shows and sends the same', (key) => {
+		expect(after.operations[key]).toEqual(expected.operations[key]);
+	});
+
+	it.each(INTENDED_CHANGES.map((change) => change.why))('the change is real: %s', (why) => {
+		const change = INTENDED_CHANGES.find((entry) => entry.why === why) as IntendedChange;
+		const only = JSON.parse(JSON.stringify(before)) as DescriptionView;
+		change.apply(only);
+		expect(only).not.toEqual(before);
 	});
 });
 

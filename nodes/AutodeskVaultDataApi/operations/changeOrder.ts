@@ -173,7 +173,7 @@ export const resource = defineResource({
 			],
 			query: {
 				q: 'q?',
-				'filter[state]': 'ecoState?',
+				'filter[State]': 'ecoState?',
 				'filter[assignees]': 'filterAssignees?',
 				'filter[openCOsOnly]': 'filterOpenCOsOnly?',
 				'option[extendedModels]': 'extendedModels?',
