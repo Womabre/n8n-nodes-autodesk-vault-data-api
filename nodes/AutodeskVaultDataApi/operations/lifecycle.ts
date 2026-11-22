@@ -77,7 +77,7 @@ export const resource = defineResource({
 				},
 			],
 			query: {
-				'filter[ids]': 'filterLifecycleDefinitionIds?',
+				'filter[ids]': 'filterLifecycleDefinitionIds',
 				'option[extendedModels]': 'extendedModels',
 			},
 			response: 'collection',

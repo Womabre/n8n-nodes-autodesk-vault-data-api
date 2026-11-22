@@ -34,20 +34,33 @@ function key(resource: string, operation: OperationDefinition): string {
 	return `${resource}/${operation.value}`;
 }
 
-/** `name` or `name?` to the expression n8n evaluates for that field. */
+/** `name` or `name?` to the expression n8n evaluates for that header or body field. */
 function expression(reference: FieldReference): string {
 	const optional = reference.endsWith('?');
 	const name = optional ? reference.slice(0, -1) : reference;
 	return optional ? `={{$parameter["${name}"] || undefined}}` : `={{$parameter["${name}"]}}`;
 }
 
+/**
+ * The expression for a query value, the one encoding every query value uses:
+ * an empty field ('') is left out of the URL, while false and 0 are sent as
+ * they are. Several Vault options default to true (Latest Only among them), so
+ * leaving out false would turn them back on.
+ */
+export function queryValue(name: string): string {
+	return `={{$parameter["${name}"] === "" ? undefined : $parameter["${name}"]}}`;
+}
+
 function referencedName(reference: FieldReference): string {
 	return reference.endsWith('?') ? reference.slice(0, -1) : reference;
 }
 
-function mapExpressions(map: Record<string, FieldReference>): IDataObject {
+function mapExpressions(
+	map: Record<string, FieldReference>,
+	encode: (reference: FieldReference) => string = expression,
+): IDataObject {
 	const out: IDataObject = {};
-	for (const [name, reference] of Object.entries(map)) out[name] = expression(reference);
+	for (const [name, reference] of Object.entries(map)) out[name] = encode(reference);
 	return out;
 }
 
@@ -113,7 +126,7 @@ function routing(operation: OperationDefinition): INodePropertyRouting {
 		method: operation.method,
 		url: url(operation.path),
 	};
-	if (operation.query) request.qs = mapExpressions(operation.query);
+	if (operation.query) request.qs = mapExpressions(operation.query, queryValue);
 	if (operation.headers) request.headers = mapExpressions(operation.headers);
 	if (operation.body) request.body = mapExpressions(operation.body);
 	if (operation.response === 'binary' || operation.response === 'headers') {
@@ -171,6 +184,14 @@ function checkOperation(resource: string, operation: OperationDefinition): void 
 
 	const duplicate = declared.find((name, index) => declared.indexOf(name) !== index);
 	if (duplicate) refuse(`declares the field "${duplicate}" twice`);
+
+	for (const [parameter, reference] of Object.entries(operation.query ?? {})) {
+		if (reference.endsWith('?')) {
+			refuse(
+				`marks the query value "${parameter}" with "?"; every query value is left out when empty, so drop it`,
+			);
+		}
+	}
 
 	for (const name of referencedFields(operation)) {
 		if (!declared.includes(name)) refuse(`sends "${name}" but does not declare that field`);

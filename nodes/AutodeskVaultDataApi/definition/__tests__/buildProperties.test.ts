@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import type { INodeProperties, INodePropertyOptions } from 'n8n-workflow';
-import { buildProperties, DefinitionError } from '../buildProperties';
+import { Workflow } from 'n8n-workflow';
+import type { INode, INodeProperties, INodePropertyOptions, INodeTypes } from 'n8n-workflow';
+import { buildProperties, DefinitionError, queryValue } from '../buildProperties';
 import { defineOperation, defineResource, type OperationDefinition } from '../defineOperation';
 import { limit, returnAll } from '../fields';
 import { processBinaryResponse } from '../../utils/binary';
@@ -60,18 +61,50 @@ describe('buildProperties: routing', () => {
 		expect(option.routing?.request?.url).toBe('/AutodeskDM/Services/api/vault/v2/things');
 	});
 
-	it('sends a field as is, or leaves it out when empty with a trailing ?', () => {
+	it('encodes every query value one way', () => {
 		const option = optionOf(
-			build(operation({ fields: [thingId, query], query: { a: 'query', b: 'query?' } })),
+			build(operation({ fields: [thingId, query], query: { a: 'query' } })),
 			'getThing',
 		);
-		expect(option.routing?.request?.qs).toEqual({
-			a: '={{$parameter["query"]}}',
-			b: '={{$parameter["query"] || undefined}}',
-		});
+		expect(option.routing?.request?.qs).toEqual({ a: queryValue('query') });
 	});
 
-	it('maps headers and body the same way', () => {
+	it('leaves a query value out only when it is an empty string', () => {
+		// Evaluated by n8n's own expression engine, as RoutingNode does.
+		const nodeTypes = {
+			getByName: () => undefined,
+			getByNameAndVersion: () => undefined,
+			getKnownTypes: () => ({}),
+		} as unknown as INodeTypes;
+		const evaluate = (x: string | number | boolean) => {
+			const node: INode = {
+				id: '1',
+				name: 'Vault',
+				type: 'thing',
+				typeVersion: 1,
+				position: [0, 0],
+				parameters: { x },
+			};
+			const workflow = new Workflow({ nodes: [node], connections: {}, active: false, nodeTypes });
+			return workflow.expression.getParameterValue(
+				queryValue('x'),
+				null,
+				0,
+				0,
+				'Vault',
+				[],
+				'manual',
+				{},
+			);
+		};
+		expect(evaluate('')).toBeUndefined();
+		expect(evaluate('open')).toBe('open');
+		expect(evaluate(false)).toBe(false);
+		expect(evaluate(true)).toBe(true);
+		expect(evaluate(0)).toBe(0);
+	});
+
+	it('maps headers and body as is, or leaves them out when empty with a trailing ?', () => {
 		const option = optionOf(
 			build(
 				operation({
@@ -246,12 +279,19 @@ describe('buildProperties: refuses inconsistent definitions', () => {
 		expect(fn).toThrow(message);
 	};
 
+	it('a query value marked with ?, which query maps do not take', () => {
+		refuses(
+			() => build(operation({ fields: [thingId, query], query: { q: 'query?' } })),
+			/marks the query value "q" with "\?"/,
+		);
+	});
+
 	it('a path field that is not declared', () => {
 		refuses(() => build(operation({ fields: [] })), /things\/getThing sends "thingId"/);
 	});
 
 	it('a query, header or body field that is not declared', () => {
-		refuses(() => build(operation({ query: { q: 'query?' } })), /sends "query"/);
+		refuses(() => build(operation({ query: { q: 'query' } })), /sends "query"/);
 		refuses(() => build(operation({ headers: { H: 'query' } })), /sends "query"/);
 		refuses(() => build(operation({ body: { b: 'query' } })), /sends "query"/);
 	});

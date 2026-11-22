@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { AutodeskVaultDataApi } from '../AutodeskVaultDataApi.node';
 import { describeOperations, type DescriptionView } from './helpers/describeOperations';
+import { queryValue } from '../definition/buildProperties';
 import frozen from '../../../test-fixtures/description-2.0.1.json';
 import frozenNode from '../../../test-fixtures/node-2.0.1.json';
 
@@ -111,6 +112,20 @@ const INTENDED_CHANGES: IntendedChange[] = [
 			if (pagination.length !== 2) throw new Error('items/getItems lost Return All or Limit');
 			for (const key of ['user/getUserAccounts', 'items/getItemVersionAssociatedFiles']) {
 				view.operations[key].fields.push(...pagination);
+			}
+		},
+	},
+	{
+		why: 'every query value is left out only when it is an empty string, so false and 0 are sent (Latest Only off now reaches Search and Advanced Search)',
+		apply(view) {
+			const FIELD = /^=\{\{\$parameter\["([^"]+)"\](?: \|\| undefined)?\}\}$/;
+			for (const key of Object.keys(view.operations)) {
+				const qs = (view.operations[key].option as { routing?: RoutingView }).routing?.request.qs;
+				for (const [parameter, value] of Object.entries(qs ?? {})) {
+					const match = typeof value === 'string' ? FIELD.exec(value) : null;
+					if (!match) throw new Error(`${key} sends ${parameter} in a way this change does not cover`);
+					(qs as Record<string, unknown>)[parameter] = queryValue(match[1]);
+				}
 			}
 		},
 	},

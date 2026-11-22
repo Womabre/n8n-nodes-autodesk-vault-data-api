@@ -123,7 +123,7 @@ export const resource = defineResource({
 					description: 'Return only options that exactly match this name',
 				},
 			],
-			query: { 'filter[name]': 'filterName?' },
+			query: { 'filter[name]': 'filterName' },
 			response: 'collection',
 		}),
 		defineOperation({
@@ -143,7 +143,7 @@ export const resource = defineResource({
 					description: 'Filter options that start with this string',
 				},
 			],
-			query: { 'filter[name]-starts': 'nameStartsWith?' },
+			query: { 'filter[name]-starts': 'nameStartsWith' },
 			response: 'collection',
 		}),
 		defineOperation({
