@@ -7,7 +7,12 @@ import type {
 } from 'n8n-workflow';
 import { API_BASE } from '../utils/constants';
 import { processBinaryResponse } from '../utils/binary';
-import { handleEmptyResponse, returnHeaders, splitResults } from '../utils/response';
+import {
+	handleEmptyResponse,
+	returnHeaders,
+	SPLIT_RESULTS_SINCE_VERSION,
+	splitResults,
+} from '../utils/response';
 import { bodyPreSend } from './body';
 import type { FieldReference, OperationDefinition, ResourceDefinition } from './defineOperation';
 import { limit, returnAll } from './fields';
@@ -57,9 +62,33 @@ function isPaginated(operation: OperationDefinition): boolean {
 	return operation.response === 'collection' && operation.paginated !== false;
 }
 
+/** Shows a field only from the node version that splits legacy-wrapper results. */
+function fromSplitResultsVersion(field: INodeProperties): INodeProperties {
+	return {
+		...field,
+		displayOptions: {
+			...field.displayOptions,
+			show: {
+				...field.displayOptions?.show,
+				'@version': [{ _cnd: { gte: SPLIT_RESULTS_SINCE_VERSION } }],
+			},
+		},
+	};
+}
+
+/**
+ * Node version 1 returns a legacy-wrapper collection as one item holding the
+ * response and never had Return All / Limit for it, so they stay hidden there
+ * and version 1 sends the same request it always did. n8n leaves a hidden
+ * field out of the request.
+ */
+const legacyWrapperPagination = [returnAll, limit].map(fromSplitResultsVersion);
+
 /** The fields the operation shows, in UI order, Return All / Limit included. */
 function shownFields(operation: OperationDefinition): INodeProperties[] {
-	return isPaginated(operation) ? [...operation.fields, returnAll, limit] : operation.fields;
+	if (!isPaginated(operation)) return operation.fields;
+	const pagination = operation.legacyWrapper ? legacyWrapperPagination : [returnAll, limit];
+	return [...operation.fields, ...pagination];
 }
 
 function outputActions(operation: OperationDefinition): PostReceiveAction[] {

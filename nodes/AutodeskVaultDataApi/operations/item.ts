@@ -297,7 +297,6 @@ export const resource = defineResource({
 			fields: [vaultId, itemId, propDefIds, extendedModels],
 			query: { 'option[extendedModels]': 'extendedModels', 'option[propDefIds]': 'propDefIds' },
 			response: 'collection',
-			paginated: false, // no Return All in 2.0.1; adding it is a separate fix
 			legacyWrapper: true,
 		}),
 		defineOperation({

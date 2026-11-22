@@ -95,6 +95,25 @@ const INTENDED_CHANGES: IntendedChange[] = [
 			delete qs['filter[state]'];
 		},
 	},
+	{
+		why: 'Get Many User Accounts and Get Many Item Version Associated Files get Return All and Limit, from node version 1.1',
+		apply(view) {
+			const pagination = view.operations['items/getItems'].fields
+				.map((field) => field as { name: string; displayOptions?: { show?: object } })
+				.filter((field) => field.name === 'returnAll' || field.name === 'limit')
+				.map((field) => ({
+					...field,
+					displayOptions: {
+						...field.displayOptions,
+						show: { ...field.displayOptions?.show, '@version': [{ _cnd: { gte: 1.1 } }] },
+					},
+				}));
+			if (pagination.length !== 2) throw new Error('items/getItems lost Return All or Limit');
+			for (const key of ['user/getUserAccounts', 'items/getItemVersionAssociatedFiles']) {
+				view.operations[key].fields.push(...pagination);
+			}
+		},
+	},
 ];
 
 function withIntendedChanges(view: DescriptionView): DescriptionView {

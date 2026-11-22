@@ -44,7 +44,8 @@ export interface OperationDefinition {
 	paginated?: false;
 	/**
 	 * Node version 1 returned this collection as one item holding the whole
-	 * response; later versions split it like every other collection.
+	 * response; later versions split it like every other collection. Return All
+	 * and Limit show only from the version that splits it.
 	 */
 	legacyWrapper?: true;
 	/**

@@ -141,6 +141,32 @@ describe('buildProperties: response kinds', () => {
 		expect(optionOf(properties, 'getThing').routing?.output?.postReceive).toEqual([splitResults]);
 	});
 
+	it('a paginated legacy wrapper collection shows Return All and Limit from version 1.1 only', () => {
+		const properties = build(
+			operation({ value: 'a', response: 'collection', legacyWrapper: true }),
+			operation({ value: 'b', response: 'collection' }),
+		);
+		const fromVersion = [{ _cnd: { gte: 1.1 } }];
+		const shown = (name: string, version: unknown) =>
+			properties.filter(
+				(p) =>
+					p.name === name &&
+					JSON.stringify(p.displayOptions?.show?.['@version']) === JSON.stringify(version),
+			);
+
+		for (const name of ['returnAll', 'limit']) {
+			expect(shown(name, fromVersion).map((p) => p.displayOptions?.show?.operation)).toEqual([
+				['a'],
+			]);
+			expect(shown(name, undefined).map((p) => p.displayOptions?.show?.operation)).toEqual([
+				['b'],
+			]);
+		}
+		const legacyLimit = shown('limit', fromVersion)[0];
+		expect(legacyLimit.displayOptions?.show?.returnAll).toEqual([false]);
+		expect(shown('returnAll', fromVersion)[0].routing).toEqual(returnAll.routing);
+	});
+
 	it('empty, binary and headers attach their actions and request options', () => {
 		const properties = build(
 			operation({ value: 'a', response: 'empty' }),
