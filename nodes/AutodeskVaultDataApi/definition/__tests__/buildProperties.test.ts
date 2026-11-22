@@ -191,9 +191,7 @@ describe('buildProperties: response kinds', () => {
 			expect(shown(name, fromVersion).map((p) => p.displayOptions?.show?.operation)).toEqual([
 				['a'],
 			]);
-			expect(shown(name, undefined).map((p) => p.displayOptions?.show?.operation)).toEqual([
-				['b'],
-			]);
+			expect(shown(name, undefined).map((p) => p.displayOptions?.show?.operation)).toEqual([['b']]);
 		}
 		const legacyLimit = shown('limit', fromVersion)[0];
 		expect(legacyLimit.displayOptions?.show?.returnAll).toEqual([false]);

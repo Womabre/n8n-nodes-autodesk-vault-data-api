@@ -123,7 +123,8 @@ const INTENDED_CHANGES: IntendedChange[] = [
 				const qs = (view.operations[key].option as { routing?: RoutingView }).routing?.request.qs;
 				for (const [parameter, value] of Object.entries(qs ?? {})) {
 					const match = typeof value === 'string' ? FIELD.exec(value) : null;
-					if (!match) throw new Error(`${key} sends ${parameter} in a way this change does not cover`);
+					if (!match)
+						throw new Error(`${key} sends ${parameter} in a way this change does not cover`);
 					(qs as Record<string, unknown>)[parameter] = queryValue(match[1]);
 				}
 			}
