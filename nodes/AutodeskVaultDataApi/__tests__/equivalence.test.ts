@@ -129,6 +129,16 @@ const INTENDED_CHANGES: IntendedChange[] = [
 			}
 		},
 	},
+	{
+		why: 'the Files and Items operation lists are sorted by name, like every other resource',
+		apply(view) {
+			for (const resource of ['files', 'items']) {
+				const nameOf = (operation: string) =>
+					(view.operations[`${resource}/${operation}`].option as { name: string }).name;
+				view.resources[resource].operations.sort((a, b) => nameOf(a).localeCompare(nameOf(b)));
+			}
+		},
+	},
 ];
 
 function withIntendedChanges(view: DescriptionView): DescriptionView {
